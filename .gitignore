@@ -1,0 +1,17 @@
+# Node.js
+node_modules/
+npm-debug.log*
+
+# Environment Files (development only)
+.env
+.env.local
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# 🔐 UNTUK SEKARANG, firebase-config.js BOLEH di-push
+# Karena API key sudah terekspos dan untuk memudahkan deploy
