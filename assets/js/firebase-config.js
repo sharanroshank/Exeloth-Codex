@@ -1,6 +1,6 @@
-// assets/js/firebase-config.js (template - akan di-inject)
+// assets/js/firebase-config.js
 const firebaseConfig = {
-  apiKey: "FIREBASE_API_KEY_PLACEHOLDER", // Akan diganti build time
+  apiKey: "AIzaSyC54Roaz8Eu9Oe4XnXMnGu3bbIfCH4vPrg",
   authDomain: "exeloth-codex-885f2.firebaseapp.com",
   projectId: "exeloth-codex-885f2",
   storageBucket: "exeloth-codex-885f2.firebasestorage.app",
@@ -9,12 +9,12 @@ const firebaseConfig = {
   measurementId: "G-DZLKRQD8F5"
 };
 
-// Initialize Firebase
+// Initialize Firebase dengan COMPAT version
 if (typeof firebase !== 'undefined' && firebase.apps.length === 0) {
   firebase.initializeApp(firebaseConfig);
 }
 
-// Initialize Firebase services
+// Initialize Firebase services - COMPAT version
 const auth = firebase.auth();
 const db = firebase.firestore();
 const storage = firebase.storage();
