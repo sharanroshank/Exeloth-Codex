@@ -1,14 +1,12 @@
-// assets/js/firebase-config.js
-// Config akan diisi oleh build process
-
+// assets/js/firebase-config.js (template - akan di-inject)
 const firebaseConfig = {
-  apiKey: window.FIREBASE_API_KEY || "AIzaSyBV5a4ufA6pB386F11I73iUGJ2-1ilBSl8",
-  authDomain: "exeloth-codex.firebaseapp.com",
-  projectId: "exeloth-codex",
-  storageBucket: "exeloth-codex.firebasestorage.app",
-  messagingSenderId: "244745543500",
-  appId: "1:244745543500:web:bc5aa6124bb3c9b996b9e9",
-  measurementId: "G-B71ET4STML"
+  apiKey: "FIREBASE_API_KEY_PLACEHOLDER", // Akan diganti build time
+  authDomain: "exeloth-codex-885f2.firebaseapp.com",
+  projectId: "exeloth-codex-885f2",
+  storageBucket: "exeloth-codex-885f2.firebasestorage.app",
+  messagingSenderId: "157897094964",
+  appId: "1:157897094964:web:907fc2e5b1a0d4ace4d761",
+  measurementId: "G-DZLKRQD8F5"
 };
 
 // Initialize Firebase
@@ -16,5 +14,7 @@ if (typeof firebase !== 'undefined' && firebase.apps.length === 0) {
   firebase.initializeApp(firebaseConfig);
 }
 
+// Initialize Firebase services
 const auth = firebase.auth();
 const db = firebase.firestore();
+const storage = firebase.storage();

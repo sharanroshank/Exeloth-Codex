@@ -6,15 +6,13 @@
 [build.environment]
   NODE_VERSION = "18"
 
-# HANYA deklarasi variable names, TANPA values
+# HANYA deklarasi names, values di Netlify dashboard
 [context.production.environment]
   FIREBASE_API_KEY = ""
-  IMGBB_API_KEY = ""
   NODE_ENV = "production"
 
 [context.deploy-preview.environment]
   FIREBASE_API_KEY = ""
-  IMGBB_API_KEY = ""
   NODE_ENV = "development"
 
 # Redirects untuk Nunjucks templates

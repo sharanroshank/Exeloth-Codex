@@ -1,17 +1,30 @@
-# Node.js
-node_modules/
-npm-debug.log*
+# .gitignore
 
-# Environment Files (development only)
+# Environment files (JANGAN di-commit)
 .env
 .env.local
+.env.production
+.env.development
 
-# System Files
-.DS_Store
-Thumbs.db
+# Firebase service account keys (jika ada)
+firebase-service-account.json
+firebase-keys.json
+
+# Netlify functions node_modules
+netlify/functions/node_modules/
 
 # Logs
 *.log
+logs/
 
-# 🔐 UNTUK SEKARANG, firebase-config.js BOLEH di-push
-# Karena API key sudah terekspos dan untuk memudahkan deploy
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+
+# Build files (jika ada)
+dist/
+build/

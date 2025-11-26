@@ -1,6 +1,6 @@
 // assets/js/admin.js
 
-// Admin functionality dengan Firestore admin verification
+// Admin functionality dengan Firebase Storage upload
 let currentUser = null;
 
 // Initialize admin panel
@@ -9,6 +9,8 @@ function initAdminPanel() {
     auth.onAuthStateChanged(async (user) => {
         if (user) {
             try {
+                console.log('🔍 Checking admin access for:', user.email);
+                
                 // Check if user is in admins collection
                 const adminDoc = await db.collection('admins').doc(user.email).get();
                 
@@ -21,8 +23,12 @@ function initAdminPanel() {
                     loadAdminList(); // Load list of admins
                     
                     console.log('✅ Admin access granted:', user.email);
+                    
+                    // Update UI dengan info user
+                    updateUserInfo(user);
                 } else {
                     // ❌ NOT ADMIN - Show access denied
+                    console.log('❌ Access denied - not in admin list:', user.email);
                     showAccessDenied(user.email);
                     auth.signOut();
                 }
@@ -45,19 +51,64 @@ function initAdminPanel() {
     // Set up form submissions
     document.getElementById('game-form').addEventListener('submit', handleGameSubmit);
     document.getElementById('chapter-form').addEventListener('submit', handleChapterSubmit);
+    
+    // Auto-generate slug from title
+    document.getElementById('game-title').addEventListener('input', function() {
+        const slugField = document.getElementById('game-slug');
+        if (!slugField.value) {
+            const slug = generateSlug(this.value);
+            slugField.value = slug;
+        }
+    });
+}
+
+// Update user info in UI
+function updateUserInfo(user) {
+    const userInfoElement = document.getElementById('user-info');
+    if (userInfoElement) {
+        userInfoElement.innerHTML = `
+            <div class="d-flex align-items-center">
+                <img src="${user.photoURL || 'https://via.placeholder.com/32'}" 
+                     class="rounded-circle me-2" width="32" height="32" alt="Profile">
+                <div>
+                    <div class="small">${user.displayName || user.email}</div>
+                    <div class="text-muted smaller">${user.email}</div>
+                </div>
+            </div>
+        `;
+    }
 }
 
 // Sign in with Google
 function signInWithGoogle() {
     const provider = new firebase.auth.GoogleAuthProvider();
+    
+    // Tambah scope untuk profile info
+    provider.addScope('profile');
+    provider.addScope('email');
+    
+    console.log('🚀 Starting Google sign-in...');
+    
     auth.signInWithPopup(provider)
         .then((result) => {
-            console.log('Signed in successfully:', result.user.email);
-            // Verification akan dilakukan di authStateChanged
+            console.log('✅ Signed in successfully:', result.user.email);
+            console.log('User details:', {
+                name: result.user.displayName,
+                email: result.user.email,
+                photo: result.user.photoURL
+            });
         })
         .catch((error) => {
-            console.error('Error signing in:', error);
-            alert('Error signing in: ' + error.message);
+            console.error('❌ Error signing in:', error);
+            
+            // Handle specific errors
+            if (error.code === 'auth/popup-blocked') {
+                alert('Popup login diblokir. Silakan allow popup untuk website ini.');
+            } else if (error.code === 'auth/popup-closed-by-user') {
+                console.log('User closed the popup');
+            } else {
+                alert('Error signing in: ' + error.message);
+            }
         });
 }
 
@@ -71,8 +122,12 @@ function showAccessDenied(userEmail) {
                 </div>
                 <h4 class="text-danger">Access Denied</h4>
                 <p class="mb-3">Admin panel access is restricted to authorized users only.</p>
-                <p class="text-muted small">Logged in as: ${userEmail}</p>
-                <button onclick="firebase.auth().signOut()" class="btn btn-outline-secondary btn-sm">
+                <p class="text-muted small mb-3">Logged in as: ${userEmail}</p>
+                <p class="text-warning small mb-3">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    Contact superadmin to get access
+                </p>
+                <button onclick="signOut()" class="btn btn-outline-secondary btn-sm">
                     <i class="bi bi-box-arrow-right me-1"></i> Sign Out
                 </button>
             </div>
@@ -80,46 +135,66 @@ function showAccessDenied(userEmail) {
     `;
 }
 
-// Function to upload image via Netlify Function
-async function uploadToImgBB(imageFile) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
+// ✅ FUNCTION TO UPLOAD TO FIREBASE STORAGE
+async function uploadToFirebaseStorage(imageFile) {
+    try {
+        console.log('📤 Starting Firebase Storage upload...');
         
-        reader.onload = async function(e) {
-            try {
-                const imageData = e.target.result;
-                
-                // ✅ Gunakan Netlify Function, bukan direct API call
-                const response = await fetch('/.netlify/functions/imgbb-upload', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        image: imageData,
-                        fileName: imageFile.name || 'game-thumbnail.jpg'
-                    })
-                });
-
-                const data = await response.json();
-                
-                if (data.success) {
-                    resolve(data.url);
-                } else {
-                    reject(new Error(data.error || 'Upload failed'));
-                }
-            } catch (error) {
-                reject(error);
+        // Generate unique filename
+        const fileExtension = imageFile.name.split('.').pop();
+        const fileName = `game-thumbnails/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExtension}`;
+        
+        // Create storage reference
+        const storageRef = storage.ref().child(fileName);
+        
+        console.log('📁 Uploading to:', fileName);
+        
+        // Upload file dengan metadata
+        const uploadTask = storageRef.put(imageFile, {
+            customMetadata: {
+                'uploadedBy': currentUser.email,
+                'originalName': imageFile.name,
+                'uploadTime': new Date().toISOString()
             }
-        };
+        });
         
-        reader.onerror = () => reject(new Error('Failed to read file'));
-        reader.readAsDataURL(imageFile);
-    });
+        // Track upload progress
+        uploadTask.on('state_changed',
+            (snapshot) => {
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                console.log(`Upload progress: ${progress.toFixed(2)}%`);
+                
+                // Update UI progress (optional)
+                const submitBtn = document.getElementById('game-submit-btn');
+                if (progress < 100) {
+                    submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status"></span> Uploading... ${Math.round(progress)}%`;
+                }
+            },
+            (error) => {
+                console.error('Upload error:', error);
+                throw error;
+            }
+        );
+        
+        // Wait for upload to complete
+        const snapshot = await uploadTask;
+        
+        // Get download URL
+        const downloadURL = await snapshot.ref.getDownloadURL();
+        
+        console.log('✅ Image uploaded to Firebase Storage:', downloadURL);
+        return downloadURL;
+        
+    } catch (error) {
+        console.error('❌ Error uploading to Firebase Storage:', error);
+        throw new Error('Upload failed: ' + error.message);
+    }
 }
 
 // ✅ FUNCTION TO GENERATE SLUG
 function generateSlug(text) {
+    if (!text) return '';
+    
     return text
         .toLowerCase()
         .replace(/[^a-z0-9 -]/g, '')     // Remove invalid chars
@@ -130,19 +205,19 @@ function generateSlug(text) {
         .trim();
 }
 
-// Handle game form submission dengan Netlify Function upload
+// Handle game form submission dengan Firebase Storage upload
 async function handleGameSubmit(e) {
     e.preventDefault();
     
-    const title = document.getElementById('game-title').value;
-    let slug = document.getElementById('game-slug').value; // pakai let, bukan const
-    const description = document.getElementById('game-description').value;
+    const title = document.getElementById('game-title').value.trim();
+    let slug = document.getElementById('game-slug').value.trim();
+    const description = document.getElementById('game-description').value.trim();
     const thumbnailFile = document.getElementById('game-thumbnail').files[0];
     
     // ✅ AUTO-GENERATE SLUG JIKA KOSONG
     if (!slug && title) {
         slug = generateSlug(title);
-        document.getElementById('game-slug').value = slug; // Update field juga
+        document.getElementById('game-slug').value = slug;
         console.log('✅ Auto-generated slug:', slug);
     }
     
@@ -164,15 +239,16 @@ async function handleGameSubmit(e) {
         return;
     }
 
-    // Validate file size (max 32MB)
-    if (thumbnailFile.size > 32 * 1024 * 1024) {
-        alert('File size too large. Maximum 32MB allowed.');
+    // Validate file size (max 5MB untuk Firebase Storage gratis)
+    if (thumbnailFile.size > 5 * 1024 * 1024) {
+        alert('File size too large. Maximum 5MB allowed.');
         return;
     }
 
     // Validate file type
-    if (!thumbnailFile.type.startsWith('image/')) {
-        alert('Please select a valid image file (PNG, JPG, GIF)');
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(thumbnailFile.type)) {
+        alert('Please select a valid image file (JPEG, PNG, GIF, WebP)');
         return;
     }
 
@@ -182,6 +258,17 @@ async function handleGameSubmit(e) {
         return;
     }
 
+    // Check if slug already exists
+    try {
+        const existingGame = await db.collection("games").where("slug", "==", slug).get();
+        if (!existingGame.empty) {
+            alert('❌ Slug already exists. Please choose a different one.');
+            return;
+        }
+    } catch (error) {
+        console.error('Error checking slug:', error);
+    }
+
     try {
         // Show loading state
         const submitBtn = document.getElementById('game-submit-btn');
@@ -189,13 +276,13 @@ async function handleGameSubmit(e) {
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Uploading Image...';
 
-        // Upload image via Netlify Function
-        const thumbnailURL = await uploadToImgBB(thumbnailFile);
+        // ✅ UPLOAD IMAGE TO FIREBASE STORAGE
+        const thumbnailURL = await uploadToFirebaseStorage(thumbnailFile);
         
         // Update button text
         submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Saving Game...';
         
-        // Save game to Firestore dengan URL dari ImgBB
+        // Save game to Firestore dengan URL dari Firebase Storage
         await saveGameToFirestore(title, slug, description, includes, thumbnailURL);
         
         // Success
@@ -234,7 +321,8 @@ function saveGameToFirestore(title, slug, description, includes, thumbnailURL) {
         },
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         createdBy: currentUser.uid,
-        createdByEmail: currentUser.email
+        createdByEmail: currentUser.email,
+        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
     };
     
     return db.collection("games").add(gameData);
@@ -246,8 +334,8 @@ function handleChapterSubmit(e) {
     
     const gameSlug = document.getElementById('chapter-game-slug').value;
     const section = document.getElementById('chapter-section').value;
-    const title = document.getElementById('chapter-title').value;
-    const content = document.getElementById('chapter-content').value;
+    const title = document.getElementById('chapter-title').value.trim();
+    const content = document.getElementById('chapter-content').value.trim();
     
     if (!gameSlug || !section || !title || !content) {
         alert('Please fill in all required fields');
@@ -288,7 +376,8 @@ function handleChapterSubmit(e) {
             
             // Update the game document
             return db.collection("games").doc(gameDoc.id).update({
-                sections: updatedSections
+                sections: updatedSections,
+                lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
             });
         })
         .then(() => {
@@ -321,6 +410,8 @@ function loadGameSlugs() {
                 option.textContent = game.title;
                 gameSlugSelect.appendChild(option);
             });
+            
+            console.log('✅ Loaded game slugs:', querySnapshot.size);
         })
         .catch((error) => {
             console.error("Error loading game slugs: ", error);
@@ -338,8 +429,13 @@ function clearFileUpload() {
 
 // Function to add new admin
 async function addAdmin() {
-    const newAdminEmail = document.getElementById('new-admin-email').value;
-    const newAdminName = document.getElementById('new-admin-name').value;
+    if (!currentUser) {
+        alert('Please sign in first');
+        return;
+    }
+    
+    const newAdminEmail = document.getElementById('new-admin-email').value.trim();
+    const newAdminName = document.getElementById('new-admin-name').value.trim();
     
     if (!newAdminEmail || !newAdminName) {
         alert('Please fill in both email and name');
@@ -347,7 +443,8 @@ async function addAdmin() {
     }
     
     // Validate email format
-    if (!newAdminEmail.includes('@')) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newAdminEmail)) {
         alert('Please enter a valid email address');
         return;
     }
@@ -366,7 +463,8 @@ async function addAdmin() {
             name: newAdminName,
             role: 'admin',
             addedAt: firebase.firestore.FieldValue.serverTimestamp(),
-            addedBy: currentUser.email
+            addedBy: currentUser.email,
+            addedByName: currentUser.displayName || currentUser.email
         });
         
         alert('✅ Admin added successfully!');
@@ -395,6 +493,7 @@ async function loadAdminList() {
                 <div class="text-center text-muted py-4">
                     <i class="bi bi-people display-6"></i>
                     <p>No admins found</p>
+                    <p class="small">Add the first admin using the form above</p>
                 </div>
             `;
             return;
@@ -411,12 +510,12 @@ async function loadAdminList() {
                         <span class="badge ${admin.role === 'superadmin' ? 'bg-warning' : 'bg-primary'} ms-2">${admin.role}</span>
                     </div>
                     <div class="text-muted small">${admin.email}</div>
-                    <div class="text-muted smaller">Added: ${formatDate(admin.addedAt?.toDate())} by ${admin.addedBy || 'system'}</div>
+                    <div class="text-muted smaller">Added: ${formatDate(admin.addedAt?.toDate())} by ${admin.addedByName || admin.addedBy || 'system'}</div>
                 </div>
                 <div>
                     <button class="btn btn-sm btn-outline-danger" onclick="removeAdmin('${admin.email}')" 
-                            ${admin.role === 'superadmin' || admin.email === currentUser.email ? 'disabled' : ''}
-                            title="${admin.role === 'superadmin' ? 'Cannot remove superadmin' : admin.email === currentUser.email ? 'Cannot remove yourself' : 'Remove admin'}">
+                            ${admin.role === 'superadmin' || admin.email === currentUser?.email ? 'disabled' : ''}
+                            title="${admin.role === 'superadmin' ? 'Cannot remove superadmin' : admin.email === currentUser?.email ? 'Cannot remove yourself' : 'Remove admin'}">
                         <i class="bi bi-trash"></i>
                     </button>
                 </div>
@@ -424,10 +523,13 @@ async function loadAdminList() {
             adminList.appendChild(adminItem);
         });
         
+        console.log('✅ Loaded admin list:', querySnapshot.size);
+        
     } catch (error) {
         console.error('Error loading admin list:', error);
         document.getElementById('admin-list').innerHTML = `
             <div class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle me-2"></i>
                 Error loading admin list: ${error.message}
             </div>
         `;
@@ -436,6 +538,11 @@ async function loadAdminList() {
 
 // Function to remove admin
 async function removeAdmin(email) {
+    if (!currentUser) {
+        alert('Please sign in first');
+        return;
+    }
+    
     if (email === currentUser.email) {
         alert('You cannot remove yourself!');
         return;
@@ -461,18 +568,31 @@ function formatDate(date) {
     return date.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
-        day: 'numeric'
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
     });
 }
 
 // Sign out function
 function signOut() {
     auth.signOut().then(() => {
-        console.log('Signed out successfully');
+        console.log('✅ Signed out successfully');
+        currentUser = null;
     }).catch((error) => {
         console.error('Error signing out:', error);
+        alert('Error signing out: ' + error.message);
     });
 }
 
 // Initialize admin panel when DOM is loaded
-document.addEventListener('DOMContentLoaded', initAdminPanel);
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Initializing admin panel...');
+    initAdminPanel();
+});
+
+// Export functions for global access (if needed)
+window.signOut = signOut;
+window.addAdmin = addAdmin;
+window.removeAdmin = removeAdmin;
+window.clearFileUpload = clearFileUpload;
