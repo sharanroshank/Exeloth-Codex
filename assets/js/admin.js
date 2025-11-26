@@ -17,15 +17,8 @@ function initAdminPanel() {
                 if (adminDoc.exists) {
                     // ✅ ADMIN ACCESS GRANTED
                     currentUser = user;
-                    document.getElementById('auth-section').classList.add('d-none');
-                    document.getElementById('admin-panel').classList.remove('d-none');
-                    loadGameSlugs();
-                    loadAdminList(); // Load list of admins
-                    
+                    showAdminPanel(user);
                     console.log('✅ Admin access granted:', user.email);
-                    
-                    // Update UI dengan info user
-                    updateUserInfo(user);
                 } else {
                     // ❌ NOT ADMIN - Show access denied
                     console.log('❌ Access denied - not in admin list:', user.email);
@@ -40,8 +33,7 @@ function initAdminPanel() {
         } else {
             // Not logged in
             currentUser = null;
-            document.getElementById('auth-section').classList.remove('d-none');
-            document.getElementById('admin-panel').classList.add('d-none');
+            showLoginScreen();
         }
     });
     
@@ -60,6 +52,31 @@ function initAdminPanel() {
             slugField.value = slug;
         }
     });
+}
+
+// Show login screen
+function showLoginScreen() {
+    document.getElementById('login-section').classList.remove('d-none');
+    document.getElementById('admin-panel-section').classList.add('d-none');
+    
+    // Update navbar
+    document.getElementById('login-nav-item').classList.remove('d-none');
+    document.getElementById('admin-nav-item').classList.add('d-none');
+}
+
+// Show admin panel
+function showAdminPanel(user) {
+    document.getElementById('login-section').classList.add('d-none');
+    document.getElementById('admin-panel-section').classList.remove('d-none');
+    
+    // Update navbar
+    document.getElementById('login-nav-item').classList.add('d-none');
+    document.getElementById('admin-nav-item').classList.remove('d-none');
+    
+    // Load data
+    loadGameSlugs();
+    loadAdminList();
+    updateUserInfo(user);
 }
 
 // Update user info in UI
@@ -92,11 +109,6 @@ function signInWithGoogle() {
     auth.signInWithPopup(provider)
         .then((result) => {
             console.log('✅ Signed in successfully:', result.user.email);
-            console.log('User details:', {
-                name: result.user.displayName,
-                email: result.user.email,
-                photo: result.user.photoURL
-            });
         })
         .catch((error) => {
             console.error('❌ Error signing in:', error);
@@ -114,27 +126,34 @@ function signInWithGoogle() {
 
 // Show access denied message
 function showAccessDenied(userEmail) {
-    document.getElementById('auth-section').innerHTML = `
-        <div class="card bg-dark">
-            <div class="card-body text-center">
-                <div class="mb-3">
-                    <i class="bi bi-shield-x display-1 text-danger"></i>
+    document.getElementById('login-section').innerHTML = `
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card bg-dark">
+                        <div class="card-body text-center p-5">
+                            <div class="mb-3">
+                                <i class="bi bi-shield-x display-1 text-danger"></i>
+                            </div>
+                            <h4 class="text-danger mb-3">Access Denied</h4>
+                            <p class="mb-3">Admin panel access is restricted to authorized users only.</p>
+                            <p class="text-muted small mb-3">Logged in as: ${userEmail}</p>
+                            <p class="text-warning small mb-4">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                Contact superadmin to get access
+                            </p>
+                            <button onclick="signOut()" class="btn btn-outline-secondary">
+                                <i class="bi bi-box-arrow-right me-1"></i> Sign Out
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <h4 class="text-danger">Access Denied</h4>
-                <p class="mb-3">Admin panel access is restricted to authorized users only.</p>
-                <p class="text-muted small mb-3">Logged in as: ${userEmail}</p>
-                <p class="text-warning small mb-3">
-                    <i class="bi bi-exclamation-triangle"></i>
-                    Contact superadmin to get access
-                </p>
-                <button onclick="signOut()" class="btn btn-outline-secondary btn-sm">
-                    <i class="bi bi-box-arrow-right me-1"></i> Sign Out
-                </button>
             </div>
         </div>
     `;
 }
 
+// ... (sisa fungsi untuk upload, game management, admin management tetap sama)
 // ✅ FUNCTION TO UPLOAD TO FIREBASE STORAGE
 async function uploadToFirebaseStorage(imageFile) {
     try {
@@ -579,6 +598,7 @@ function signOut() {
     auth.signOut().then(() => {
         console.log('✅ Signed out successfully');
         currentUser = null;
+        showLoginScreen();
     }).catch((error) => {
         console.error('Error signing out:', error);
         alert('Error signing out: ' + error.message);
@@ -591,7 +611,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initAdminPanel();
 });
 
-// Export functions for global access (if needed)
+// Export functions for global access
 window.signOut = signOut;
 window.addAdmin = addAdmin;
 window.removeAdmin = removeAdmin;
