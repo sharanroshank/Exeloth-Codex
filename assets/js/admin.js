@@ -19,14 +19,23 @@ function initAdminPanel() {
                     currentUser = user;
                     showAdminPanel(user);
                     console.log('✅ Admin access granted:', user.email);
+                    if (typeof showNotification === 'function') {
+                        showNotification('✅ Welcome to Admin Panel, ' + (user.displayName || user.email), 'success');
+                    }
                 } else {
                     // ❌ NOT ADMIN - Show access denied
                     console.log('❌ Access denied - not in admin list:', user.email);
+                    if (typeof showNotification === 'function') {
+                        showNotification('❌ Access Denied: You are not authorized to access admin panel', 'error');
+                    }
                     showAccessDenied(user.email);
                     auth.signOut();
                 }
             } catch (error) {
                 console.error('Error checking admin access:', error);
+                if (typeof showNotification === 'function') {
+                    showNotification('❌ Error checking access: ' + error.message, 'error');
+                }
                 showAccessDenied(user.email);
                 auth.signOut();
             }
@@ -109,17 +118,28 @@ function signInWithGoogle() {
     auth.signInWithPopup(provider)
         .then((result) => {
             console.log('✅ Signed in successfully:', result.user.email);
+            if (typeof showNotification === 'function') {
+                showNotification('✅ Signed in successfully!', 'success');
+            }
         })
         .catch((error) => {
             console.error('❌ Error signing in:', error);
             
             // Handle specific errors
             if (error.code === 'auth/popup-blocked') {
-                alert('Popup login diblokir. Silakan allow popup untuk website ini.');
+                if (typeof showNotification === 'function') {
+                    showNotification('Popup login diblokir. Silakan allow popup untuk website ini.', 'error');
+                } else {
+                    alert('Popup login diblokir. Silakan allow popup untuk website ini.');
+                }
             } else if (error.code === 'auth/popup-closed-by-user') {
                 console.log('User closed the popup');
             } else {
-                alert('Error signing in: ' + error.message);
+                if (typeof showNotification === 'function') {
+                    showNotification('Error signing in: ' + error.message, 'error');
+                } else {
+                    alert('Error signing in: ' + error.message);
+                }
             }
         });
 }
@@ -153,7 +173,6 @@ function showAccessDenied(userEmail) {
     `;
 }
 
-// ... (sisa fungsi untuk upload, game management, admin management tetap sama)
 // ✅ FUNCTION TO UPLOAD TO FIREBASE STORAGE
 async function uploadToFirebaseStorage(imageFile) {
     try {
@@ -249,31 +268,51 @@ async function handleGameSubmit(e) {
     
     // Validate form
     if (!title || !slug || !description) {
-        alert('Please fill in all required fields');
+        if (typeof showNotification === 'function') {
+            showNotification('❌ Please fill in all required fields', 'error');
+        } else {
+            alert('Please fill in all required fields');
+        }
         return;
     }
 
     if (!thumbnailFile) {
-        alert('Please select a thumbnail image');
+        if (typeof showNotification === 'function') {
+            showNotification('❌ Please select a thumbnail image', 'error');
+        } else {
+            alert('Please select a thumbnail image');
+        }
         return;
     }
 
     // Validate file size (max 5MB untuk Firebase Storage gratis)
     if (thumbnailFile.size > 5 * 1024 * 1024) {
-        alert('File size too large. Maximum 5MB allowed.');
+        if (typeof showNotification === 'function') {
+            showNotification('❌ File size too large. Maximum 5MB allowed.', 'error');
+        } else {
+            alert('File size too large. Maximum 5MB allowed.');
+        }
         return;
     }
 
     // Validate file type
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
     if (!allowedTypes.includes(thumbnailFile.type)) {
-        alert('Please select a valid image file (JPEG, PNG, GIF, WebP)');
+        if (typeof showNotification === 'function') {
+            showNotification('❌ Please select a valid image file (JPEG, PNG, GIF, WebP)', 'error');
+        } else {
+            alert('Please select a valid image file (JPEG, PNG, GIF, WebP)');
+        }
         return;
     }
 
     // ✅ VALIDATE SLUG FORMAT
     if (!/^[a-z0-9-]+$/.test(slug)) {
-        alert('Slug can only contain lowercase letters, numbers, and hyphens');
+        if (typeof showNotification === 'function') {
+            showNotification('❌ Slug can only contain lowercase letters, numbers, and hyphens', 'error');
+        } else {
+            alert('Slug can only contain lowercase letters, numbers, and hyphens');
+        }
         return;
     }
 
@@ -281,7 +320,11 @@ async function handleGameSubmit(e) {
     try {
         const existingGame = await db.collection("games").where("slug", "==", slug).get();
         if (!existingGame.empty) {
-            alert('❌ Slug already exists. Please choose a different one.');
+            if (typeof showNotification === 'function') {
+                showNotification('❌ Slug already exists. Please choose a different one.', 'error');
+            } else {
+                alert('❌ Slug already exists. Please choose a different one.');
+            }
             return;
         }
     } catch (error) {
@@ -305,7 +348,11 @@ async function handleGameSubmit(e) {
         await saveGameToFirestore(title, slug, description, includes, thumbnailURL);
         
         // Success
-        alert('✅ Game created successfully!');
+        if (typeof showNotification === 'function') {
+            showNotification('✅ Game created successfully!', 'success');
+        } else {
+            alert('✅ Game created successfully!');
+        }
         document.getElementById('game-form').reset();
         clearFileUpload();
         
@@ -314,7 +361,11 @@ async function handleGameSubmit(e) {
         
     } catch (error) {
         console.error('Error:', error);
-        alert('❌ Error: ' + error.message);
+        if (typeof showNotification === 'function') {
+            showNotification('❌ Error: ' + error.message, 'error');
+        } else {
+            alert('❌ Error: ' + error.message);
+        }
     } finally {
         // Reset button
         const submitBtn = document.getElementById('game-submit-btn');
@@ -357,7 +408,11 @@ function handleChapterSubmit(e) {
     const content = document.getElementById('chapter-content').value.trim();
     
     if (!gameSlug || !section || !title || !content) {
-        alert('Please fill in all required fields');
+        if (typeof showNotification === 'function') {
+            showNotification('❌ Please fill in all required fields', 'error');
+        } else {
+            alert('Please fill in all required fields');
+        }
         return;
     }
 
@@ -400,13 +455,21 @@ function handleChapterSubmit(e) {
             });
         })
         .then(() => {
-            alert('✅ Chapter added successfully!');
+            if (typeof showNotification === 'function') {
+                showNotification('✅ Chapter added successfully!', 'success');
+            } else {
+                alert('✅ Chapter added successfully!');
+            }
             document.getElementById('chapter-form').reset();
             
         })
         .catch((error) => {
             console.error("Error adding chapter: ", error);
-            alert('❌ Error adding chapter: ' + error.message);
+            if (typeof showNotification === 'function') {
+                showNotification('❌ Error adding chapter: ' + error.message, 'error');
+            } else {
+                alert('❌ Error adding chapter: ' + error.message);
+            }
         })
         .finally(() => {
             // Reset button
@@ -449,7 +512,11 @@ function clearFileUpload() {
 // Function to add new admin
 async function addAdmin() {
     if (!currentUser) {
-        alert('Please sign in first');
+        if (typeof showNotification === 'function') {
+            showNotification('❌ Please sign in first', 'error');
+        } else {
+            alert('Please sign in first');
+        }
         return;
     }
     
@@ -457,14 +524,22 @@ async function addAdmin() {
     const newAdminName = document.getElementById('new-admin-name').value.trim();
     
     if (!newAdminEmail || !newAdminName) {
-        alert('Please fill in both email and name');
+        if (typeof showNotification === 'function') {
+            showNotification('❌ Please fill in both email and name', 'error');
+        } else {
+            alert('Please fill in both email and name');
+        }
         return;
     }
     
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(newAdminEmail)) {
-        alert('Please enter a valid email address');
+        if (typeof showNotification === 'function') {
+            showNotification('❌ Please enter a valid email address', 'error');
+        } else {
+            alert('Please enter a valid email address');
+        }
         return;
     }
     
@@ -472,7 +547,11 @@ async function addAdmin() {
         // Check if admin already exists
         const existingAdmin = await db.collection('admins').doc(newAdminEmail).get();
         if (existingAdmin.exists) {
-            alert('❌ Admin with this email already exists!');
+            if (typeof showNotification === 'function') {
+                showNotification('❌ Admin with this email already exists!', 'error');
+            } else {
+                alert('❌ Admin with this email already exists!');
+            }
             return;
         }
         
@@ -486,7 +565,11 @@ async function addAdmin() {
             addedByName: currentUser.displayName || currentUser.email
         });
         
-        alert('✅ Admin added successfully!');
+        if (typeof showNotification === 'function') {
+            showNotification('✅ Admin added successfully!', 'success');
+        } else {
+            alert('✅ Admin added successfully!');
+        }
         document.getElementById('new-admin-email').value = '';
         document.getElementById('new-admin-name').value = '';
         
@@ -495,7 +578,11 @@ async function addAdmin() {
         
     } catch (error) {
         console.error('Error adding admin:', error);
-        alert('❌ Error adding admin: ' + error.message);
+        if (typeof showNotification === 'function') {
+            showNotification('❌ Error adding admin: ' + error.message, 'error');
+        } else {
+            alert('❌ Error adding admin: ' + error.message);
+        }
     }
 }
 
@@ -558,12 +645,20 @@ async function loadAdminList() {
 // Function to remove admin
 async function removeAdmin(email) {
     if (!currentUser) {
-        alert('Please sign in first');
+        if (typeof showNotification === 'function') {
+            showNotification('❌ Please sign in first', 'error');
+        } else {
+            alert('Please sign in first');
+        }
         return;
     }
     
     if (email === currentUser.email) {
-        alert('You cannot remove yourself!');
+        if (typeof showNotification === 'function') {
+            showNotification('❌ You cannot remove yourself!', 'error');
+        } else {
+            alert('You cannot remove yourself!');
+        }
         return;
     }
     
@@ -573,11 +668,19 @@ async function removeAdmin(email) {
     
     try {
         await db.collection('admins').doc(email).delete();
-        alert('✅ Admin removed successfully!');
+        if (typeof showNotification === 'function') {
+            showNotification('✅ Admin removed successfully!', 'success');
+        } else {
+            alert('✅ Admin removed successfully!');
+        }
         loadAdminList();
     } catch (error) {
         console.error('Error removing admin:', error);
-        alert('❌ Error removing admin: ' + error.message);
+        if (typeof showNotification === 'function') {
+            showNotification('❌ Error removing admin: ' + error.message, 'error');
+        } else {
+            alert('❌ Error removing admin: ' + error.message);
+        }
     }
 }
 
@@ -599,9 +702,16 @@ function signOut() {
         console.log('✅ Signed out successfully');
         currentUser = null;
         showLoginScreen();
+        if (typeof showNotification === 'function') {
+            showNotification('👋 Signed out successfully', 'info');
+        }
     }).catch((error) => {
         console.error('Error signing out:', error);
-        alert('Error signing out: ' + error.message);
+        if (typeof showNotification === 'function') {
+            showNotification('Error signing out: ' + error.message, 'error');
+        } else {
+            alert('Error signing out: ' + error.message);
+        }
     });
 }
 

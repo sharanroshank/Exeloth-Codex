@@ -95,6 +95,9 @@
         </div>
     </nav>
 
+    <!-- Notification Container -->
+    <div id="notification-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
+
     <!-- LOGIN SECTION -->
     <section class="py-5 mt-5 login-container" id="login-section">
         <div class="container">
@@ -391,6 +394,7 @@
     
     <script src="https://unpkg.com/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
+    <script src="assets/js/auth.js"></script>
     <script src="assets/js/admin.js"></script>
     
     <script>
@@ -463,7 +467,11 @@
             };
             reader.readAsDataURL(file);
           } else {
-            alert('Please select an image file (PNG, JPG, GIF)');
+            if (typeof showNotification === 'function') {
+                showNotification('❌ Please select an image file (PNG, JPG, GIF)', 'error');
+            } else {
+                alert('Please select an image file (PNG, JPG, GIF)');
+            }
           }
         }
       }
