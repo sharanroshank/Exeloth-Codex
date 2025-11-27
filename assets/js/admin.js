@@ -86,7 +86,6 @@ function showAccessDenied(userEmail) {
     }
 }
 
-// ... (FUNGSI LAINNYA TETAP SAMA)
 // Update user info in UI
 function updateUserInfo(user) {
     const userInfoElement = document.getElementById('user-info');
@@ -475,17 +474,21 @@ async function loadAdminList() {
         querySnapshot.forEach((doc) => {
             const admin = doc.data();
             const adminItem = document.createElement('div');
-            adminItem.className = 'admin-item d-flex justify-content-between align-items-center p-3 border-bottom';
+            adminItem.className = 'admin-item';
             adminItem.innerHTML = `
-                <div class="flex-grow-1">
-                    <div class="d-flex align-items-center">
-                        <strong>${admin.name}</strong>
-                        <span class="badge ${admin.role === 'superadmin' ? 'bg-warning' : 'bg-primary'} ms-2">${admin.role}</span>
+                <div class="admin-info">
+                    <div class="admin-name">
+                        ${admin.name}
+                        <span class="badge ${admin.role === 'superadmin' ? 'bg-warning' : 'bg-primary'} badge-role">
+                            ${admin.role}
+                        </span>
                     </div>
-                    <div class="text-muted small">${admin.email}</div>
-                    <div class="text-muted smaller">Added: ${formatDate(admin.addedAt?.toDate())} by ${admin.addedByName || admin.addedBy || 'system'}</div>
+                    <div class="admin-email">${admin.email}</div>
+                    <div class="admin-meta">
+                        Added: ${formatDate(admin.addedAt?.toDate())} by ${admin.addedByName || admin.addedBy || 'system'}
+                    </div>
                 </div>
-                <div>
+                <div class="admin-actions">
                     <button class="btn btn-sm btn-outline-danger" onclick="removeAdmin('${admin.email}')" 
                             ${admin.role === 'superadmin' || admin.email === currentUser?.email ? 'disabled' : ''}
                             title="${admin.role === 'superadmin' ? 'Cannot remove superadmin' : admin.email === currentUser?.email ? 'Cannot remove yourself' : 'Remove admin'}">
@@ -503,7 +506,7 @@ async function loadAdminList() {
         const adminList = document.getElementById('admin-list');
         if (adminList) {
             adminList.innerHTML = `
-                <div class="alert alert-danger">
+                <div class="alert alert-danger m-3">
                     <i class="bi bi-exclamation-triangle me-2"></i>
                     Error loading admin list: ${error.message}
                 </div>
@@ -541,13 +544,30 @@ async function removeAdmin(email) {
 // Helper function to format date
 function formatDate(date) {
     if (!date) return 'Unknown';
-    return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
+    
+    const now = new Date();
+    const diffMs = now - date;
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) {
+        return 'Today, ' + date.toLocaleTimeString('en-US', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
+    } else if (diffDays === 1) {
+        return 'Yesterday, ' + date.toLocaleTimeString('en-US', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
+    } else {
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
 }
 
 // Initialize admin panel when DOM is loaded

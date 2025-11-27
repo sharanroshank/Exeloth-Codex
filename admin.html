@@ -47,8 +47,6 @@
     <!-- Notification Container -->
     <div id="notification-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
 
-    <!-- HILANGKAN LOGIN SECTION - LANGSUNG SHOW ADMIN PANEL JIKA SUDAH LOGIN -->
-
     <!-- ADMIN PANEL SECTION (langsung muncul jika sudah login) -->
     <section class="py-5 mt-5" id="admin-panel-section">
         <div class="container">
@@ -215,11 +213,12 @@
                     </div>
 
                     <!-- Admin Management -->
-                    <div class="card bg-dark mb-4">
+                    <div class="card bg-dark mb-4 admin-management-section">
                         <div class="card-header">
                             <h4><i class="bi bi-people me-2"></i>Admin Management</h4>
                         </div>
                         <div class="card-body">
+                            <!-- Add New Admin Form -->
                             <div class="row mb-4">
                                 <div class="col-md-5">
                                     <label for="new-admin-email" class="form-label">Email</label>
@@ -236,7 +235,8 @@
                                 </div>
                             </div>
                             
-                            <h6>Current Admins:</h6>
+                            <!-- Current Admins List -->
+                            <h6 class="mb-3">Current Admins:</h6>
                             <div id="admin-list" class="admin-list">
                                 <div class="text-center text-muted py-3">
                                     <i class="bi bi-people display-6"></i>

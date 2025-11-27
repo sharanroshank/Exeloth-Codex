@@ -134,25 +134,74 @@ body {
     border-color: #4a2a8a;
 }
 
-/* Admin Management Styles */
-.admin-item {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
-    margin-bottom: 8px;
-    transition: background 0.3s ease;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.admin-item:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.2);
+/* Admin Management Section */
+.admin-management-section {
+    border-left: 4px solid var(--warning-color);
+    background: rgba(255, 193, 7, 0.05);
 }
 
 .admin-list {
     max-height: 400px;
     overflow-y: auto;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.admin-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    transition: background-color 0.2s ease;
+}
+
+.admin-item:last-child {
+    border-bottom: none;
+}
+
+.admin-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.admin-item .admin-info {
+    flex: 1;
+}
+
+.admin-item .admin-name {
+    font-weight: 600;
+    color: var(--light-color);
+    margin-bottom: 0.25rem;
+    display: flex;
+    align-items: center;
+}
+
+.admin-item .admin-email {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+}
+
+.admin-item .admin-meta {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.75rem;
+}
+
+.admin-item .admin-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.badge-role {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+    margin-left: 0.5rem;
+    font-weight: 500;
+}
+
+/* Scrollbar styling untuk admin list */
 .admin-list::-webkit-scrollbar {
     width: 6px;
 }
@@ -171,49 +220,21 @@ body {
     background: #5a32a3;
 }
 
-.smaller {
-    font-size: 0.75rem;
+/* Form styling improvements */
+.admin-management-section .form-label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
 }
 
-/* Form Styles */
-.form-control {
-    background-color: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: var(--light-color);
+.admin-management-section .form-control {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-.form-control:focus {
-    background-color: rgba(255, 255, 255, 0.15);
+.admin-management-section .form-control:focus {
+    background: rgba(255, 255, 255, 0.12);
     border-color: var(--primary-color);
-    color: var(--light-color);
     box-shadow: 0 0 0 0.2rem rgba(111, 66, 193, 0.25);
-}
-
-.form-control::placeholder {
-    color: rgba(255, 255, 255, 0.5);
-}
-
-.form-text {
-    color: rgba(255, 255, 255, 0.6) !important;
-}
-
-.form-label {
-    color: var(--light-color);
-    font-weight: 500;
-}
-
-.form-check-input {
-    background-color: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.form-check-input:checked {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-}
-
-.form-check-label {
-    color: var(--light-color);
 }
 
 /* Button Styles */
@@ -225,6 +246,7 @@ body {
 .btn-outline-success:hover {
     background-color: var(--success-color);
     border-color: var(--success-color);
+    color: var(--dark-color);
 }
 
 .btn-outline-danger {
@@ -235,12 +257,14 @@ body {
 .btn-outline-danger:hover {
     background-color: var(--danger-color);
     border-color: var(--danger-color);
+    color: var(--light-color);
 }
 
 .btn-outline-danger:disabled {
     color: rgba(220, 53, 69, 0.5);
     border-color: rgba(220, 53, 69, 0.3);
     background-color: transparent;
+    cursor: not-allowed;
 }
 
 .btn-outline-secondary {
@@ -404,15 +428,6 @@ body {
     pointer-events: all;
 }
 
-/* Modal backdrop for better focus */
-.modal-backdrop {
-    background-color: rgba(0, 0, 0, 0.7);
-}
-
-.modal-backdrop.show {
-    opacity: 0.7;
-}
-
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .display-4 {
@@ -428,7 +443,24 @@ body {
     }
     
     .admin-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
         padding: 1rem !important;
+    }
+    
+    .admin-item .admin-actions {
+        align-self: flex-end;
+        width: 100%;
+        justify-content: flex-end;
+    }
+    
+    .admin-management-section .row {
+        gap: 1rem;
+    }
+    
+    .admin-management-section .col-md-2 {
+        margin-top: 0.5rem;
     }
     
     .card-body {
