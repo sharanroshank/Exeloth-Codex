@@ -2,46 +2,65 @@
 
 let currentUser = null;
 const notificationContainer = document.getElementById('notification-container');
-let isCheckingAdminAccess = false; // Flag untuk mencegah multiple checks
+let isCheckingAdminAccess = false;
+let isSigningIn = false; // Flag untuk mencegah multiple sign-in
 
-// Show Google Sign In Modal
+// Show Google Sign In - LANGSUNG LOGIN TANPA MODAL
 function showGoogleSignIn() {
-    const modal = new bootstrap.Modal(document.getElementById('googleSignInModal'));
-    modal.show();
+    if (isSigningIn) {
+        console.log('⏳ Sign-in already in progress...');
+        return;
+    }
     
-    // Set up Google sign-in
-    document.getElementById('google-signin-btn').onclick = signInWithGoogle;
-}
-
-// Sign in with Google
-function signInWithGoogle() {
+    isSigningIn = true;
+    console.log('🚀 Starting direct Google sign-in...');
+    
     const provider = new firebase.auth.GoogleAuthProvider();
     provider.addScope('profile');
     provider.addScope('email');
     
-    console.log('🚀 Starting Google sign-in...');
+    // Show loading state di navbar
+    const loginLink = document.getElementById('login-link');
+    if (loginLink) {
+        loginLink.innerHTML = '<i class="bi bi-arrow-repeat spinner-border spinner-border-sm me-1"></i> Signing in...';
+        loginLink.classList.add('disabled');
+    }
     
     auth.signInWithPopup(provider)
         .then((result) => {
             console.log('✅ Signed in successfully:', result.user.email);
+            isSigningIn = false;
             checkAdminAccess(result.user);
         })
         .catch((error) => {
             console.error('❌ Error signing in:', error);
+            isSigningIn = false;
+            
+            // Reset navbar state
+            resetNavbarLoginState();
             
             if (error.code === 'auth/popup-blocked') {
                 showNotification('Popup login diblokir. Silakan allow popup untuk website ini.', 'error');
             } else if (error.code === 'auth/popup-closed-by-user') {
                 console.log('User closed the popup');
+                showNotification('Login cancelled', 'info');
             } else {
                 showNotification('Error signing in: ' + error.message, 'error');
             }
         });
 }
 
+// Reset navbar login state
+function resetNavbarLoginState() {
+    const loginLink = document.getElementById('login-link');
+    if (loginLink) {
+        loginLink.innerHTML = '<i class="bi bi-box-arrow-in-right me-1"></i> Login';
+        loginLink.classList.remove('disabled');
+    }
+}
+
 // Check if user has admin access
 async function checkAdminAccess(user) {
-    // Prevent multiple simultaneous checks
     if (isCheckingAdminAccess) {
         console.log('⏳ Admin check already in progress...');
         return;
@@ -60,27 +79,21 @@ async function checkAdminAccess(user) {
             showNotification('✅ Login successful! Welcome, ' + (user.displayName || user.email), 'success');
             updateNavbar(true);
             
-            // Close modal jika ada di homepage
-            const modal = bootstrap.Modal.getInstance(document.getElementById('googleSignInModal'));
-            if (modal) {
-                modal.hide();
-            }
+            // Reset navbar state
+            resetNavbarLoginState();
             
-            // Cek jika sudah di admin page, jika tidak redirect
-            if (window.location.pathname.includes('admin.html')) {
-                console.log('✅ Already on admin page, no redirect needed');
-            } else {
-                console.log('🔄 Redirecting to admin panel...');
-                // Redirect to admin panel after 1.5 seconds
-                setTimeout(() => {
-                    window.location.href = 'admin.html';
-                }, 1500);
-            }
+            // Redirect to admin panel after 1 second
+            setTimeout(() => {
+                window.location.href = 'admin.html';
+            }, 1000);
             
         } else {
             // ❌ NOT ADMIN
             console.log('❌ Access denied - not in admin list:', user.email);
             showNotification('❌ Access Denied: You are not authorized to access admin panel', 'error');
+            
+            // Reset navbar state
+            resetNavbarLoginState();
             
             // Sign out non-admin users
             setTimeout(() => {
@@ -93,6 +106,9 @@ async function checkAdminAccess(user) {
         console.error('Error checking admin access:', error);
         showNotification('❌ Error checking access: ' + error.message, 'error');
         
+        // Reset navbar state
+        resetNavbarLoginState();
+        
         // Sign out on error
         setTimeout(() => {
             auth.signOut().then(() => {
@@ -101,6 +117,20 @@ async function checkAdminAccess(user) {
         }, 3000);
     } finally {
         isCheckingAdminAccess = false;
+    }
+}
+
+// Update navbar based on login status
+function updateNavbar(isLoggedIn) {
+    const loginNavItem = document.getElementById('login-nav-item');
+    const adminNavItem = document.getElementById('admin-nav-item');
+    
+    if (isLoggedIn && loginNavItem && adminNavItem) {
+        loginNavItem.classList.add('d-none');
+        adminNavItem.classList.remove('d-none');
+    } else if (loginNavItem && adminNavItem) {
+        loginNavItem.classList.remove('d-none');
+        adminNavItem.classList.add('d-none');
     }
 }
 
@@ -250,12 +280,13 @@ function initAuth() {
         auth.onAuthStateChanged((user) => {
             console.log('🔄 Auth state changed:', user ? user.email : 'No user');
             
-            if (user && !isCheckingAdminAccess) {
-                // Only check admin access if not already checking
+            if (user && !isCheckingAdminAccess && !isSigningIn) {
+                // Only check admin access if not already checking/signing in
                 checkAdminAccess(user);
             } else if (!user) {
                 currentUser = null;
                 updateNavbar(false);
+                resetNavbarLoginState();
                 
                 // Jika di admin page tapi tidak ada user, redirect ke login
                 if (window.location.pathname.includes('admin.html')) {
