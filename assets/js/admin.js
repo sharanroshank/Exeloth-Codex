@@ -1,7 +1,4 @@
-// assets/js/admin.js
-
-// Admin functionality dengan Firebase Storage upload
-let currentUser = null;
+// assets/js/admin.js - ADMIN PANEL ONLY FUNCTIONS
 let adminPanelInitialized = false;
 
 // Initialize admin panel
@@ -15,65 +12,10 @@ function initAdminPanel() {
     
     console.log('🚀 Initializing admin panel...');
     
-    // Check authentication state
-    auth.onAuthStateChanged(async (user) => {
-        console.log('🔄 Admin panel auth state changed:', user ? user.email : 'No user');
-        
-        if (user) {
-            try {
-                console.log('🔍 Checking admin access for:', user.email);
-                
-                // Check if user is in admins collection
-                const adminDoc = await db.collection('admins').doc(user.email).get();
-                
-                if (adminDoc.exists) {
-                    // ✅ ADMIN ACCESS GRANTED
-                    currentUser = user;
-                    showAdminPanel(user);
-                    console.log('✅ Admin access granted:', user.email);
-                    
-                    // Show welcome notification hanya sekali
-                    if (typeof showNotification === 'function' && !sessionStorage.getItem('welcomeShown')) {
-                        showNotification('✅ Welcome to Admin Panel, ' + (user.displayName || user.email), 'success');
-                        sessionStorage.setItem('welcomeShown', 'true');
-                    }
-                } else {
-                    // ❌ NOT ADMIN - Show access denied
-                    console.log('❌ Access denied - not in admin list:', user.email);
-                    if (typeof showNotification === 'function') {
-                        showNotification('❌ Access Denied: You are not authorized to access admin panel', 'error');
-                    }
-                    showAccessDenied(user.email);
-                    
-                    // Auto sign out after 3 seconds
-                    setTimeout(() => {
-                        auth.signOut();
-                    }, 3000);
-                }
-            } catch (error) {
-                console.error('Error checking admin access:', error);
-                if (typeof showNotification === 'function') {
-                    showNotification('❌ Error checking access: ' + error.message, 'error');
-                }
-                showAccessDenied(user.email);
-                
-                // Auto sign out on error
-                setTimeout(() => {
-                    auth.signOut();
-                }, 3000);
-            }
-        } else {
-            // Not logged in
-            currentUser = null;
-            showLoginScreen();
-            console.log('👤 No user, showing login screen');
-        }
-    });
-    
-    // Set up Google sign-in
+    // Set up Google sign-in untuk admin page
     const googleSignInBtn = document.getElementById('google-signin-btn');
     if (googleSignInBtn) {
-        googleSignInBtn.addEventListener('click', signInWithGoogle);
+        googleSignInBtn.addEventListener('click', showGoogleSignIn);
     }
     
     // Set up form submissions
@@ -102,19 +44,16 @@ function initAdminPanel() {
     console.log('✅ Admin panel initialization complete');
 }
 
-// Show login screen
+// Show login screen (hanya untuk admin page)
 function showLoginScreen() {
     const loginSection = document.getElementById('login-section');
     const adminSection = document.getElementById('admin-panel-section');
     
     if (loginSection) loginSection.classList.remove('d-none');
     if (adminSection) adminSection.classList.add('d-none');
-    
-    // Update navbar
-    updateNavbar(false);
 }
 
-// Show admin panel
+// Show admin panel (hanya untuk admin page)
 function showAdminPanel(user) {
     const loginSection = document.getElementById('login-section');
     const adminSection = document.getElementById('admin-panel-section');
@@ -122,15 +61,44 @@ function showAdminPanel(user) {
     if (loginSection) loginSection.classList.add('d-none');
     if (adminSection) adminSection.classList.remove('d-none');
     
-    // Update navbar
-    updateNavbar(true);
-    
     // Load data
     loadGameSlugs();
     loadAdminList();
     updateUserInfo(user);
     
     console.log('✅ Admin panel shown for:', user.email);
+}
+
+// Show access denied message (hanya untuk admin page)
+function showAccessDenied(userEmail) {
+    const loginSection = document.getElementById('login-section');
+    if (loginSection) {
+        loginSection.innerHTML = `
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-md-6">
+                        <div class="card bg-dark">
+                            <div class="card-body text-center p-5">
+                                <div class="mb-3">
+                                    <i class="bi bi-shield-x display-1 text-danger"></i>
+                                </div>
+                                <h4 class="text-danger mb-3">Access Denied</h4>
+                                <p class="mb-3">Admin panel access is restricted to authorized users only.</p>
+                                <p class="text-muted small mb-3">Logged in as: ${userEmail}</p>
+                                <p class="text-warning small mb-4">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                    Contact superadmin to get access
+                                </p>
+                                <button onclick="signOut()" class="btn btn-outline-secondary">
+                                    <i class="bi bi-box-arrow-right me-1"></i> Sign Out
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
 }
 
 // Update user info in UI
@@ -150,63 +118,6 @@ function updateUserInfo(user) {
     }
 }
 
-// Update navbar based on login status (for admin page)
-function updateNavbar(isLoggedIn) {
-    const loginNavItem = document.getElementById('login-nav-item');
-    const adminNavItem = document.getElementById('admin-nav-item');
-    
-    if (loginNavItem && adminNavItem) {
-        if (isLoggedIn) {
-            loginNavItem.classList.add('d-none');
-            adminNavItem.classList.remove('d-none');
-        } else {
-            loginNavItem.classList.remove('d-none');
-            adminNavItem.classList.add('d-none');
-        }
-    }
-}
-
-// Sign in with Google (for admin page)
-function signInWithGoogle() {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    
-    // Tambah scope untuk profile info
-    provider.addScope('profile');
-    provider.addScope('email');
-    
-    console.log('🚀 Starting Google sign-in from admin page...');
-    
-    auth.signInWithPopup(provider)
-        .then((result) => {
-            console.log('✅ Signed in successfully:', result.user.email);
-            if (typeof showNotification === 'function') {
-                showNotification('✅ Signed in successfully!', 'success');
-            }
-            // Auth state listener akan handle sisanya
-        })
-        .catch((error) => {
-            console.error('❌ Error signing in:', error);
-            
-            // Handle specific errors
-            if (error.code === 'auth/popup-blocked') {
-                if (typeof showNotification === 'function') {
-                    showNotification('Popup login diblokir. Silakan allow popup untuk website ini.', 'error');
-                } else {
-                    alert('Popup login diblokir. Silakan allow popup untuk website ini.');
-                }
-            } else if (error.code === 'auth/popup-closed-by-user') {
-                console.log('User closed the popup');
-            } else {
-                if (typeof showNotification === 'function') {
-                    showNotification('Error signing in: ' + error.message, 'error');
-                } else {
-                    alert('Error signing in: ' + error.message);
-                }
-            }
-        });
-}
-
-// ... (FUNGSI LAINNYA TETAP SAMA, TIDAK DIUBAH)
 // ✅ FUNCTION TO UPLOAD TO FIREBASE STORAGE
 async function uploadToFirebaseStorage(imageFile) {
     try {
@@ -302,51 +213,31 @@ async function handleGameSubmit(e) {
     
     // Validate form
     if (!title || !slug || !description) {
-        if (typeof showNotification === 'function') {
-            showNotification('❌ Please fill in all required fields', 'error');
-        } else {
-            alert('Please fill in all required fields');
-        }
+        showNotification('❌ Please fill in all required fields', 'error');
         return;
     }
 
     if (!thumbnailFile) {
-        if (typeof showNotification === 'function') {
-            showNotification('❌ Please select a thumbnail image', 'error');
-        } else {
-            alert('Please select a thumbnail image');
-        }
+        showNotification('❌ Please select a thumbnail image', 'error');
         return;
     }
 
     // Validate file size (max 5MB untuk Firebase Storage gratis)
     if (thumbnailFile.size > 5 * 1024 * 1024) {
-        if (typeof showNotification === 'function') {
-            showNotification('❌ File size too large. Maximum 5MB allowed.', 'error');
-        } else {
-            alert('File size too large. Maximum 5MB allowed.');
-        }
+        showNotification('❌ File size too large. Maximum 5MB allowed.', 'error');
         return;
     }
 
     // Validate file type
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
     if (!allowedTypes.includes(thumbnailFile.type)) {
-        if (typeof showNotification === 'function') {
-            showNotification('❌ Please select a valid image file (JPEG, PNG, GIF, WebP)', 'error');
-        } else {
-            alert('Please select a valid image file (JPEG, PNG, GIF, WebP)');
-        }
+        showNotification('❌ Please select a valid image file (JPEG, PNG, GIF, WebP)', 'error');
         return;
     }
 
     // ✅ VALIDATE SLUG FORMAT
     if (!/^[a-z0-9-]+$/.test(slug)) {
-        if (typeof showNotification === 'function') {
-            showNotification('❌ Slug can only contain lowercase letters, numbers, and hyphens', 'error');
-        } else {
-            alert('Slug can only contain lowercase letters, numbers, and hyphens');
-        }
+        showNotification('❌ Slug can only contain lowercase letters, numbers, and hyphens', 'error');
         return;
     }
 
@@ -354,11 +245,7 @@ async function handleGameSubmit(e) {
     try {
         const existingGame = await db.collection("games").where("slug", "==", slug).get();
         if (!existingGame.empty) {
-            if (typeof showNotification === 'function') {
-                showNotification('❌ Slug already exists. Please choose a different one.', 'error');
-            } else {
-                alert('❌ Slug already exists. Please choose a different one.');
-            }
+            showNotification('❌ Slug already exists. Please choose a different one.', 'error');
             return;
         }
     } catch (error) {
@@ -382,11 +269,7 @@ async function handleGameSubmit(e) {
         await saveGameToFirestore(title, slug, description, includes, thumbnailURL);
         
         // Success
-        if (typeof showNotification === 'function') {
-            showNotification('✅ Game created successfully!', 'success');
-        } else {
-            alert('✅ Game created successfully!');
-        }
+        showNotification('✅ Game created successfully!', 'success');
         document.getElementById('game-form').reset();
         clearFileUpload();
         
@@ -395,11 +278,7 @@ async function handleGameSubmit(e) {
         
     } catch (error) {
         console.error('Error:', error);
-        if (typeof showNotification === 'function') {
-            showNotification('❌ Error: ' + error.message, 'error');
-        } else {
-            alert('❌ Error: ' + error.message);
-        }
+        showNotification('❌ Error: ' + error.message, 'error');
     } finally {
         // Reset button
         const submitBtn = document.getElementById('game-submit-btn');
@@ -442,11 +321,7 @@ function handleChapterSubmit(e) {
     const content = document.getElementById('chapter-content').value.trim();
     
     if (!gameSlug || !section || !title || !content) {
-        if (typeof showNotification === 'function') {
-            showNotification('❌ Please fill in all required fields', 'error');
-        } else {
-            alert('Please fill in all required fields');
-        }
+        showNotification('❌ Please fill in all required fields', 'error');
         return;
     }
 
@@ -489,21 +364,13 @@ function handleChapterSubmit(e) {
             });
         })
         .then(() => {
-            if (typeof showNotification === 'function') {
-                showNotification('✅ Chapter added successfully!', 'success');
-            } else {
-                alert('✅ Chapter added successfully!');
-            }
+            showNotification('✅ Chapter added successfully!', 'success');
             document.getElementById('chapter-form').reset();
             
         })
         .catch((error) => {
             console.error("Error adding chapter: ", error);
-            if (typeof showNotification === 'function') {
-                showNotification('❌ Error adding chapter: ' + error.message, 'error');
-            } else {
-                alert('❌ Error adding chapter: ' + error.message);
-            }
+            showNotification('❌ Error adding chapter: ' + error.message, 'error');
         })
         .finally(() => {
             // Reset button
@@ -548,11 +415,7 @@ function clearFileUpload() {
 // Function to add new admin
 async function addAdmin() {
     if (!currentUser) {
-        if (typeof showNotification === 'function') {
-            showNotification('❌ Please sign in first', 'error');
-        } else {
-            alert('Please sign in first');
-        }
+        showNotification('❌ Please sign in first', 'error');
         return;
     }
     
@@ -560,22 +423,14 @@ async function addAdmin() {
     const newAdminName = document.getElementById('new-admin-name').value.trim();
     
     if (!newAdminEmail || !newAdminName) {
-        if (typeof showNotification === 'function') {
-            showNotification('❌ Please fill in both email and name', 'error');
-        } else {
-            alert('Please fill in both email and name');
-        }
+        showNotification('❌ Please fill in both email and name', 'error');
         return;
     }
     
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(newAdminEmail)) {
-        if (typeof showNotification === 'function') {
-            showNotification('❌ Please enter a valid email address', 'error');
-        } else {
-            alert('Please enter a valid email address');
-        }
+        showNotification('❌ Please enter a valid email address', 'error');
         return;
     }
     
@@ -583,11 +438,7 @@ async function addAdmin() {
         // Check if admin already exists
         const existingAdmin = await db.collection('admins').doc(newAdminEmail).get();
         if (existingAdmin.exists) {
-            if (typeof showNotification === 'function') {
-                showNotification('❌ Admin with this email already exists!', 'error');
-            } else {
-                alert('❌ Admin with this email already exists!');
-            }
+            showNotification('❌ Admin with this email already exists!', 'error');
             return;
         }
         
@@ -601,11 +452,7 @@ async function addAdmin() {
             addedByName: currentUser.displayName || currentUser.email
         });
         
-        if (typeof showNotification === 'function') {
-            showNotification('✅ Admin added successfully!', 'success');
-        } else {
-            alert('✅ Admin added successfully!');
-        }
+        showNotification('✅ Admin added successfully!', 'success');
         document.getElementById('new-admin-email').value = '';
         document.getElementById('new-admin-name').value = '';
         
@@ -614,11 +461,7 @@ async function addAdmin() {
         
     } catch (error) {
         console.error('Error adding admin:', error);
-        if (typeof showNotification === 'function') {
-            showNotification('❌ Error adding admin: ' + error.message, 'error');
-        } else {
-            alert('❌ Error adding admin: ' + error.message);
-        }
+        showNotification('❌ Error adding admin: ' + error.message, 'error');
     }
 }
 
@@ -686,20 +529,12 @@ async function loadAdminList() {
 // Function to remove admin
 async function removeAdmin(email) {
     if (!currentUser) {
-        if (typeof showNotification === 'function') {
-            showNotification('❌ Please sign in first', 'error');
-        } else {
-            alert('Please sign in first');
-        }
+        showNotification('❌ Please sign in first', 'error');
         return;
     }
     
     if (email === currentUser.email) {
-        if (typeof showNotification === 'function') {
-            showNotification('❌ You cannot remove yourself!', 'error');
-        } else {
-            alert('You cannot remove yourself!');
-        }
+        showNotification('❌ You cannot remove yourself!', 'error');
         return;
     }
     
@@ -709,19 +544,11 @@ async function removeAdmin(email) {
     
     try {
         await db.collection('admins').doc(email).delete();
-        if (typeof showNotification === 'function') {
-            showNotification('✅ Admin removed successfully!', 'success');
-        } else {
-            alert('✅ Admin removed successfully!');
-        }
+        showNotification('✅ Admin removed successfully!', 'success');
         loadAdminList();
     } catch (error) {
         console.error('Error removing admin:', error);
-        if (typeof showNotification === 'function') {
-            showNotification('❌ Error removing admin: ' + error.message, 'error');
-        } else {
-            alert('❌ Error removing admin: ' + error.message);
-        }
+        showNotification('❌ Error removing admin: ' + error.message, 'error');
     }
 }
 
@@ -737,60 +564,6 @@ function formatDate(date) {
     });
 }
 
-// Show access denied message
-function showAccessDenied(userEmail) {
-    const loginSection = document.getElementById('login-section');
-    if (loginSection) {
-        loginSection.innerHTML = `
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-md-6">
-                        <div class="card bg-dark">
-                            <div class="card-body text-center p-5">
-                                <div class="mb-3">
-                                    <i class="bi bi-shield-x display-1 text-danger"></i>
-                                </div>
-                                <h4 class="text-danger mb-3">Access Denied</h4>
-                                <p class="mb-3">Admin panel access is restricted to authorized users only.</p>
-                                <p class="text-muted small mb-3">Logged in as: ${userEmail}</p>
-                                <p class="text-warning small mb-4">
-                                    <i class="bi bi-exclamation-triangle"></i>
-                                    Contact superadmin to get access
-                                </p>
-                                <button onclick="signOut()" class="btn btn-outline-secondary">
-                                    <i class="bi bi-box-arrow-right me-1"></i> Sign Out
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-}
-
-// Sign out function
-function signOut() {
-    // Clear session storage
-    sessionStorage.removeItem('welcomeShown');
-    
-    auth.signOut().then(() => {
-        console.log('✅ Signed out successfully');
-        currentUser = null;
-        showLoginScreen();
-        if (typeof showNotification === 'function') {
-            showNotification('👋 Signed out successfully', 'info');
-        }
-    }).catch((error) => {
-        console.error('Error signing out:', error);
-        if (typeof showNotification === 'function') {
-            showNotification('Error signing out: ' + error.message, 'error');
-        } else {
-            alert('Error signing out: ' + error.message);
-        }
-    });
-}
-
 // Initialize admin panel when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     console.log('📄 Admin page DOM loaded');
@@ -798,7 +571,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Export functions for global access
-window.signOut = signOut;
 window.addAdmin = addAdmin;
 window.removeAdmin = removeAdmin;
 window.clearFileUpload = clearFileUpload;
