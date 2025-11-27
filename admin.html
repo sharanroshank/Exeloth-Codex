@@ -47,30 +47,10 @@
     <!-- Notification Container -->
     <div id="notification-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
 
-    <!-- LOGIN SECTION -->
-    <section class="py-5 mt-5 login-container" id="login-section">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-md-6">
-                    <div class="card bg-dark">
-                        <div class="card-body text-center p-5">
-                            <div class="mb-4">
-                                <i class="bi bi-shield-lock display-1 text-primary"></i>
-                            </div>
-                            <h2 class="mb-3">Admin Login</h2>
-                            <p class="text-muted mb-4">Sign in with your Google account to access the admin panel</p>
-                            <button id="google-signin-btn" class="btn btn-primary btn-lg w-100">
-                                <i class="bi bi-google me-2"></i> Sign in with Google
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+    <!-- HILANGKAN LOGIN SECTION - LANGSUNG SHOW ADMIN PANEL JIKA SUDAH LOGIN -->
 
-    <!-- ADMIN PANEL SECTION (akan muncul setelah login) -->
-    <section class="py-5 mt-5 d-none" id="admin-panel-section">
+    <!-- ADMIN PANEL SECTION (langsung muncul jika sudah login) -->
+    <section class="py-5 mt-5" id="admin-panel-section">
         <div class="container">
             <div class="row">
                 <div class="col-12">
@@ -84,7 +64,7 @@
                         </div>
                     </div>
 
-                    <!-- HILANGKAN TAB NAVIGATION YANG MENUNJUK KE ADMIN PANEL -->
+                    <!-- Game Management -->
                     <div class="card bg-dark mb-4">
                         <div class="card-header">
                             <h3><i class="bi bi-controller me-2"></i>Game Management</h3>
@@ -182,6 +162,7 @@
                         </div>
                     </div>
 
+                    <!-- Chapter Management -->
                     <div class="card bg-dark mb-4">
                         <div class="card-header">
                             <h3><i class="bi bi-journal-text me-2"></i>Chapter Management</h3>
@@ -233,7 +214,7 @@
                         </div>
                     </div>
 
-                    <!-- ADMIN MANAGEMENT SECTION -->
+                    <!-- Admin Management -->
                     <div class="card bg-dark mb-4">
                         <div class="card-header">
                             <h4><i class="bi bi-people me-2"></i>Admin Management</h4>
@@ -265,6 +246,7 @@
                         </div>
                     </div>
 
+                    <!-- Quick Guide -->
                     <div class="card bg-dark mb-4 guide-section">
                         <div class="card-header">
                             <h4><i class="bi bi-info-circle me-2"></i>Quick Guide</h4>
@@ -300,6 +282,7 @@
                         </div>
                     </div>
 
+                    <!-- Sign Out -->
                     <div class="card bg-dark mb-4">
                         <div class="card-body text-center">
                             <button class="btn btn-outline-secondary" onclick="signOut()">

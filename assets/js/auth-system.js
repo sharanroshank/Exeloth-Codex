@@ -18,11 +18,6 @@ function initAuthSystem() {
             currentUser = null;
             updateNavbar(false);
             resetNavbarLoginState();
-            
-            // Jika di admin page, show login screen
-            if (window.location.pathname.includes('admin.html')) {
-                showLoginScreen();
-            }
         }
     });
 }
@@ -50,8 +45,14 @@ async function handleUserSignedIn(user) {
             // Update navbar di semua page
             updateNavbar(true);
             
-            // JANGAN REDIRECT OTOMATIS - biarkan user tetap di page yang sama
-            if (window.location.pathname.includes('admin.html')) {
+            // REDIRECT KE ADMIN PANEL SETELAH LOGIN BERHASIL
+            if (!window.location.pathname.includes('admin.html')) {
+                console.log('🔄 Redirecting to admin panel...');
+                showNotification('✅ Login successful! Redirecting to admin panel...', 'success');
+                setTimeout(() => {
+                    window.location.href = 'admin.html';
+                }, 1000);
+            } else {
                 // Jika sudah di admin page, show admin panel
                 showAdminPanel(user);
                 
@@ -60,9 +61,6 @@ async function handleUserSignedIn(user) {
                     showNotification('✅ Welcome to Admin Panel, ' + (user.displayName || user.email), 'success');
                     sessionStorage.setItem('welcomeShown', 'true');
                 }
-            } else {
-                // Jika di homepage, hanya show notification tanpa redirect
-                showNotification('✅ Login successful! You can access admin panel from navbar.', 'success');
             }
             
         } else {
@@ -73,11 +71,6 @@ async function handleUserSignedIn(user) {
             // Update navbar
             updateNavbar(false);
             resetNavbarLoginState();
-            
-            // Jika di admin page, show access denied
-            if (window.location.pathname.includes('admin.html')) {
-                showAccessDenied(user.email);
-            }
             
             // Auto sign out after 3 seconds
             setTimeout(() => {
@@ -126,7 +119,7 @@ function showGoogleSignIn() {
         .then((result) => {
             console.log('✅ Signed in successfully:', result.user.email);
             isSigningIn = false;
-            // Auth state listener akan handle sisanya
+            // Auth state listener akan handle sisanya (termasuk redirect ke admin panel)
         })
         .catch((error) => {
             console.error('❌ Error signing in:', error);
@@ -182,8 +175,7 @@ function signOut() {
         updateNavbar(false);
         showNotification('👋 Signed out successfully', 'info');
         
-        // JANGAN redirect otomatis, biarkan user tetap di page yang sama
-        // Hanya jika di admin page, redirect ke homepage
+        // Jika di admin page, redirect ke homepage setelah sign out
         if (window.location.pathname.includes('admin.html')) {
             setTimeout(() => {
                 window.location.href = 'index.html';

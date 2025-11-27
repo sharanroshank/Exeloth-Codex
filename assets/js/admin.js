@@ -12,12 +12,6 @@ function initAdminPanel() {
     
     console.log('🚀 Initializing admin panel...');
     
-    // Set up Google sign-in untuk admin page
-    const googleSignInBtn = document.getElementById('google-signin-btn');
-    if (googleSignInBtn) {
-        googleSignInBtn.addEventListener('click', showGoogleSignIn);
-    }
-    
     // Set up form submissions
     const gameForm = document.getElementById('game-form');
     if (gameForm) {
@@ -44,22 +38,13 @@ function initAdminPanel() {
     console.log('✅ Admin panel initialization complete');
 }
 
-// Show login screen (hanya untuk admin page)
-function showLoginScreen() {
-    const loginSection = document.getElementById('login-section');
-    const adminSection = document.getElementById('admin-panel-section');
-    
-    if (loginSection) loginSection.classList.remove('d-none');
-    if (adminSection) adminSection.classList.add('d-none');
-}
-
 // Show admin panel (hanya untuk admin page)
 function showAdminPanel(user) {
-    const loginSection = document.getElementById('login-section');
+    // Langsung show admin panel tanpa login screen
     const adminSection = document.getElementById('admin-panel-section');
-    
-    if (loginSection) loginSection.classList.add('d-none');
-    if (adminSection) adminSection.classList.remove('d-none');
+    if (adminSection) {
+        adminSection.classList.remove('d-none');
+    }
     
     // Load data
     loadGameSlugs();
@@ -71,9 +56,9 @@ function showAdminPanel(user) {
 
 // Show access denied message (hanya untuk admin page)
 function showAccessDenied(userEmail) {
-    const loginSection = document.getElementById('login-section');
-    if (loginSection) {
-        loginSection.innerHTML = `
+    const adminSection = document.getElementById('admin-panel-section');
+    if (adminSection) {
+        adminSection.innerHTML = `
             <div class="container">
                 <div class="row justify-content-center">
                     <div class="col-md-6">
@@ -101,6 +86,7 @@ function showAccessDenied(userEmail) {
     }
 }
 
+// ... (FUNGSI LAINNYA TETAP SAMA)
 // Update user info in UI
 function updateUserInfo(user) {
     const userInfoElement = document.getElementById('user-info');
