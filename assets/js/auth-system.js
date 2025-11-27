@@ -45,14 +45,21 @@ async function handleUserSignedIn(user) {
             // Update navbar di semua page
             updateNavbar(true);
             
-            // REDIRECT KE ADMIN PANEL SETELAH LOGIN BERHASIL
-            if (!window.location.pathname.includes('admin.html')) {
-                console.log('🔄 Redirecting to admin panel...');
+            // HANYA REDIRECT KE ADMIN PANEL JIKA:
+            // 1. User baru saja login dari tombol Login di navbar (bukan page refresh)
+            // 2. Atau jika user mengakses admin.html secara langsung
+            const isFromLoginAction = sessionStorage.getItem('loginAction') === 'true';
+            const isOnAdminPage = window.location.pathname.includes('admin.html');
+            
+            if (isFromLoginAction && !isOnAdminPage) {
+                console.log('🔄 Redirecting to admin panel after login...');
                 showNotification('✅ Login successful! Redirecting to admin panel...', 'success');
+                // Hapus flag setelah digunakan
+                sessionStorage.removeItem('loginAction');
                 setTimeout(() => {
                     window.location.href = 'admin.html';
                 }, 1000);
-            } else {
+            } else if (isOnAdminPage) {
                 // Jika sudah di admin page, show admin panel
                 showAdminPanel(user);
                 
@@ -61,6 +68,9 @@ async function handleUserSignedIn(user) {
                     showNotification('✅ Welcome to Admin Panel, ' + (user.displayName || user.email), 'success');
                     sessionStorage.setItem('welcomeShown', 'true');
                 }
+            } else {
+                // Jika user login dari page lain (bukan dari tombol login), tetap di page tersebut
+                showNotification('✅ Login successful!', 'success');
             }
             
         } else {
@@ -104,6 +114,9 @@ function showGoogleSignIn() {
     isSigningIn = true;
     console.log('🚀 Starting direct Google sign-in...');
     
+    // SET FLAG BAHWA INI ADALAH ACTION LOGIN DARI TOMBOL
+    sessionStorage.setItem('loginAction', 'true');
+    
     // Show loading state di navbar
     const loginLink = document.getElementById('login-link');
     if (loginLink) {
@@ -119,11 +132,14 @@ function showGoogleSignIn() {
         .then((result) => {
             console.log('✅ Signed in successfully:', result.user.email);
             isSigningIn = false;
-            // Auth state listener akan handle sisanya (termasuk redirect ke admin panel)
+            // Auth state listener akan handle sisanya (termasuk redirect ke admin panel jika perlu)
         })
         .catch((error) => {
             console.error('❌ Error signing in:', error);
             isSigningIn = false;
+            
+            // Hapus flag jika login gagal
+            sessionStorage.removeItem('loginAction');
             
             // Reset navbar state
             resetNavbarLoginState();
@@ -168,6 +184,7 @@ function updateNavbar(isLoggedIn) {
 function signOut() {
     // Clear session storage
     sessionStorage.removeItem('welcomeShown');
+    sessionStorage.removeItem('loginAction');
     
     auth.signOut().then(() => {
         console.log('✅ Signed out successfully');
