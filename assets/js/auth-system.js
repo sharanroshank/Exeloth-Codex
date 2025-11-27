@@ -50,13 +50,8 @@ async function handleUserSignedIn(user) {
             // Update navbar di semua page
             updateNavbar(true);
             
-            // Jika di homepage, show notification dan redirect ke admin
-            if (!window.location.pathname.includes('admin.html')) {
-                showNotification('✅ Login successful! Redirecting to admin panel...', 'success');
-                setTimeout(() => {
-                    window.location.href = 'admin.html';
-                }, 1500);
-            } else {
+            // JANGAN REDIRECT OTOMATIS - biarkan user tetap di page yang sama
+            if (window.location.pathname.includes('admin.html')) {
                 // Jika sudah di admin page, show admin panel
                 showAdminPanel(user);
                 
@@ -65,6 +60,9 @@ async function handleUserSignedIn(user) {
                     showNotification('✅ Welcome to Admin Panel, ' + (user.displayName || user.email), 'success');
                     sessionStorage.setItem('welcomeShown', 'true');
                 }
+            } else {
+                // Jika di homepage, hanya show notification tanpa redirect
+                showNotification('✅ Login successful! You can access admin panel from navbar.', 'success');
             }
             
         } else {
@@ -184,7 +182,8 @@ function signOut() {
         updateNavbar(false);
         showNotification('👋 Signed out successfully', 'info');
         
-        // Jika di admin page, redirect ke homepage setelah sign out
+        // JANGAN redirect otomatis, biarkan user tetap di page yang sama
+        // Hanya jika di admin page, redirect ke homepage
         if (window.location.pathname.includes('admin.html')) {
             setTimeout(() => {
                 window.location.href = 'index.html';
