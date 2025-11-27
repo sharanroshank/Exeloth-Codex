@@ -2,11 +2,23 @@
 
 // Admin functionality dengan Firebase Storage upload
 let currentUser = null;
+let adminPanelInitialized = false;
 
 // Initialize admin panel
 function initAdminPanel() {
+    if (adminPanelInitialized) {
+        console.log('⚠️ Admin panel already initialized');
+        return;
+    }
+    
+    adminPanelInitialized = true;
+    
+    console.log('🚀 Initializing admin panel...');
+    
     // Check authentication state
     auth.onAuthStateChanged(async (user) => {
+        console.log('🔄 Admin panel auth state changed:', user ? user.email : 'No user');
+        
         if (user) {
             try {
                 console.log('🔍 Checking admin access for:', user.email);
@@ -19,8 +31,11 @@ function initAdminPanel() {
                     currentUser = user;
                     showAdminPanel(user);
                     console.log('✅ Admin access granted:', user.email);
-                    if (typeof showNotification === 'function') {
+                    
+                    // Show welcome notification hanya sekali
+                    if (typeof showNotification === 'function' && !sessionStorage.getItem('welcomeShown')) {
                         showNotification('✅ Welcome to Admin Panel, ' + (user.displayName || user.email), 'success');
+                        sessionStorage.setItem('welcomeShown', 'true');
                     }
                 } else {
                     // ❌ NOT ADMIN - Show access denied
@@ -29,7 +44,11 @@ function initAdminPanel() {
                         showNotification('❌ Access Denied: You are not authorized to access admin panel', 'error');
                     }
                     showAccessDenied(user.email);
-                    auth.signOut();
+                    
+                    // Auto sign out after 3 seconds
+                    setTimeout(() => {
+                        auth.signOut();
+                    }, 3000);
                 }
             } catch (error) {
                 console.error('Error checking admin access:', error);
@@ -37,55 +56,81 @@ function initAdminPanel() {
                     showNotification('❌ Error checking access: ' + error.message, 'error');
                 }
                 showAccessDenied(user.email);
-                auth.signOut();
+                
+                // Auto sign out on error
+                setTimeout(() => {
+                    auth.signOut();
+                }, 3000);
             }
         } else {
             // Not logged in
             currentUser = null;
             showLoginScreen();
+            console.log('👤 No user, showing login screen');
         }
     });
     
     // Set up Google sign-in
-    document.getElementById('google-signin-btn').addEventListener('click', signInWithGoogle);
+    const googleSignInBtn = document.getElementById('google-signin-btn');
+    if (googleSignInBtn) {
+        googleSignInBtn.addEventListener('click', signInWithGoogle);
+    }
     
     // Set up form submissions
-    document.getElementById('game-form').addEventListener('submit', handleGameSubmit);
-    document.getElementById('chapter-form').addEventListener('submit', handleChapterSubmit);
+    const gameForm = document.getElementById('game-form');
+    if (gameForm) {
+        gameForm.addEventListener('submit', handleGameSubmit);
+    }
+    
+    const chapterForm = document.getElementById('chapter-form');
+    if (chapterForm) {
+        chapterForm.addEventListener('submit', handleChapterSubmit);
+    }
     
     // Auto-generate slug from title
-    document.getElementById('game-title').addEventListener('input', function() {
-        const slugField = document.getElementById('game-slug');
-        if (!slugField.value) {
-            const slug = generateSlug(this.value);
-            slugField.value = slug;
-        }
-    });
+    const gameTitleInput = document.getElementById('game-title');
+    if (gameTitleInput) {
+        gameTitleInput.addEventListener('input', function() {
+            const slugField = document.getElementById('game-slug');
+            if (!slugField.value) {
+                const slug = generateSlug(this.value);
+                slugField.value = slug;
+            }
+        });
+    }
+    
+    console.log('✅ Admin panel initialization complete');
 }
 
 // Show login screen
 function showLoginScreen() {
-    document.getElementById('login-section').classList.remove('d-none');
-    document.getElementById('admin-panel-section').classList.add('d-none');
+    const loginSection = document.getElementById('login-section');
+    const adminSection = document.getElementById('admin-panel-section');
+    
+    if (loginSection) loginSection.classList.remove('d-none');
+    if (adminSection) adminSection.classList.add('d-none');
     
     // Update navbar
-    document.getElementById('login-nav-item').classList.remove('d-none');
-    document.getElementById('admin-nav-item').classList.add('d-none');
+    updateNavbar(false);
 }
 
 // Show admin panel
 function showAdminPanel(user) {
-    document.getElementById('login-section').classList.add('d-none');
-    document.getElementById('admin-panel-section').classList.remove('d-none');
+    const loginSection = document.getElementById('login-section');
+    const adminSection = document.getElementById('admin-panel-section');
+    
+    if (loginSection) loginSection.classList.add('d-none');
+    if (adminSection) adminSection.classList.remove('d-none');
     
     // Update navbar
-    document.getElementById('login-nav-item').classList.add('d-none');
-    document.getElementById('admin-nav-item').classList.remove('d-none');
+    updateNavbar(true);
     
     // Load data
     loadGameSlugs();
     loadAdminList();
     updateUserInfo(user);
+    
+    console.log('✅ Admin panel shown for:', user.email);
 }
 
 // Update user info in UI
@@ -105,7 +150,23 @@ function updateUserInfo(user) {
     }
 }
 
-// Sign in with Google
+// Update navbar based on login status (for admin page)
+function updateNavbar(isLoggedIn) {
+    const loginNavItem = document.getElementById('login-nav-item');
+    const adminNavItem = document.getElementById('admin-nav-item');
+    
+    if (loginNavItem && adminNavItem) {
+        if (isLoggedIn) {
+            loginNavItem.classList.add('d-none');
+            adminNavItem.classList.remove('d-none');
+        } else {
+            loginNavItem.classList.remove('d-none');
+            adminNavItem.classList.add('d-none');
+        }
+    }
+}
+
+// Sign in with Google (for admin page)
 function signInWithGoogle() {
     const provider = new firebase.auth.GoogleAuthProvider();
     
@@ -113,7 +174,7 @@ function signInWithGoogle() {
     provider.addScope('profile');
     provider.addScope('email');
     
-    console.log('🚀 Starting Google sign-in...');
+    console.log('🚀 Starting Google sign-in from admin page...');
     
     auth.signInWithPopup(provider)
         .then((result) => {
@@ -121,6 +182,7 @@ function signInWithGoogle() {
             if (typeof showNotification === 'function') {
                 showNotification('✅ Signed in successfully!', 'success');
             }
+            // Auth state listener akan handle sisanya
         })
         .catch((error) => {
             console.error('❌ Error signing in:', error);
@@ -144,35 +206,7 @@ function signInWithGoogle() {
         });
 }
 
-// Show access denied message
-function showAccessDenied(userEmail) {
-    document.getElementById('login-section').innerHTML = `
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-md-6">
-                    <div class="card bg-dark">
-                        <div class="card-body text-center p-5">
-                            <div class="mb-3">
-                                <i class="bi bi-shield-x display-1 text-danger"></i>
-                            </div>
-                            <h4 class="text-danger mb-3">Access Denied</h4>
-                            <p class="mb-3">Admin panel access is restricted to authorized users only.</p>
-                            <p class="text-muted small mb-3">Logged in as: ${userEmail}</p>
-                            <p class="text-warning small mb-4">
-                                <i class="bi bi-exclamation-triangle"></i>
-                                Contact superadmin to get access
-                            </p>
-                            <button onclick="signOut()" class="btn btn-outline-secondary">
-                                <i class="bi bi-box-arrow-right me-1"></i> Sign Out
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
+// ... (FUNGSI LAINNYA TETAP SAMA, TIDAK DIUBAH)
 // ✅ FUNCTION TO UPLOAD TO FIREBASE STORAGE
 async function uploadToFirebaseStorage(imageFile) {
     try {
@@ -483,17 +517,19 @@ function loadGameSlugs() {
     db.collection("games").orderBy("createdAt", "desc").get()
         .then((querySnapshot) => {
             const gameSlugSelect = document.getElementById('chapter-game-slug');
-            gameSlugSelect.innerHTML = '<option value="">Select a game</option>';
-            
-            querySnapshot.forEach((doc) => {
-                const game = doc.data();
-                const option = document.createElement('option');
-                option.value = game.slug;
-                option.textContent = game.title;
-                gameSlugSelect.appendChild(option);
-            });
-            
-            console.log('✅ Loaded game slugs:', querySnapshot.size);
+            if (gameSlugSelect) {
+                gameSlugSelect.innerHTML = '<option value="">Select a game</option>';
+                
+                querySnapshot.forEach((doc) => {
+                    const game = doc.data();
+                    const option = document.createElement('option');
+                    option.value = game.slug;
+                    option.textContent = game.title;
+                    gameSlugSelect.appendChild(option);
+                });
+                
+                console.log('✅ Loaded game slugs:', querySnapshot.size);
+            }
         })
         .catch((error) => {
             console.error("Error loading game slugs: ", error);
@@ -592,6 +628,8 @@ async function loadAdminList() {
         const querySnapshot = await db.collection('admins').orderBy('addedAt', 'desc').get();
         const adminList = document.getElementById('admin-list');
         
+        if (!adminList) return;
+        
         adminList.innerHTML = '';
         
         if (querySnapshot.empty) {
@@ -633,12 +671,15 @@ async function loadAdminList() {
         
     } catch (error) {
         console.error('Error loading admin list:', error);
-        document.getElementById('admin-list').innerHTML = `
-            <div class="alert alert-danger">
-                <i class="bi bi-exclamation-triangle me-2"></i>
-                Error loading admin list: ${error.message}
-            </div>
-        `;
+        const adminList = document.getElementById('admin-list');
+        if (adminList) {
+            adminList.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Error loading admin list: ${error.message}
+                </div>
+            `;
+        }
     }
 }
 
@@ -696,8 +737,43 @@ function formatDate(date) {
     });
 }
 
+// Show access denied message
+function showAccessDenied(userEmail) {
+    const loginSection = document.getElementById('login-section');
+    if (loginSection) {
+        loginSection.innerHTML = `
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-md-6">
+                        <div class="card bg-dark">
+                            <div class="card-body text-center p-5">
+                                <div class="mb-3">
+                                    <i class="bi bi-shield-x display-1 text-danger"></i>
+                                </div>
+                                <h4 class="text-danger mb-3">Access Denied</h4>
+                                <p class="mb-3">Admin panel access is restricted to authorized users only.</p>
+                                <p class="text-muted small mb-3">Logged in as: ${userEmail}</p>
+                                <p class="text-warning small mb-4">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                    Contact superadmin to get access
+                                </p>
+                                <button onclick="signOut()" class="btn btn-outline-secondary">
+                                    <i class="bi bi-box-arrow-right me-1"></i> Sign Out
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+}
+
 // Sign out function
 function signOut() {
+    // Clear session storage
+    sessionStorage.removeItem('welcomeShown');
+    
     auth.signOut().then(() => {
         console.log('✅ Signed out successfully');
         currentUser = null;
@@ -717,7 +793,7 @@ function signOut() {
 
 // Initialize admin panel when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Initializing admin panel...');
+    console.log('📄 Admin page DOM loaded');
     initAdminPanel();
 });
 

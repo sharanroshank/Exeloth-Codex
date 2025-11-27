@@ -9,60 +9,9 @@
     <link rel="stylesheet" href="https://unpkg.com/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
-    
-    <style>
-      .spinner-border-sm { width: 1rem; height: 1rem; }
-      .guide-section { border-left: 4px solid #0dcaf0; background: rgba(13, 202, 240, 0.1); }
-      .upload-preview { max-width: 300px; max-height: 200px; object-fit: cover; border-radius: 8px; margin-top: 10px; border: 2px solid #6f42c1; }
-      .drag-drop-area { border: 2px dashed #6f42c1; border-radius: 8px; padding: 2rem; text-align: center; background: rgba(111, 66, 193, 0.05); cursor: pointer; transition: all 0.3s ease; }
-      .drag-drop-area:hover { background: rgba(111, 66, 193, 0.1); border-color: #5a32a3; }
-      .drag-drop-area.dragover { background: rgba(111, 66, 193, 0.2); border-color: #4a2a8a; }
-      .admin-item { background: rgba(255, 255, 255, 0.05); border-radius: 8px; margin-bottom: 8px; transition: background 0.3s ease; }
-      .admin-item:hover { background: rgba(255, 255, 255, 0.08); }
-      .admin-list { max-height: 400px; overflow-y: auto; }
-      .smaller { font-size: 0.75rem; }
-      .login-container { min-height: 70vh; display: flex; align-items: center; justify-content: center; }
-
-      /* Style untuk Nav Tabs */
-      .nav-tabs .nav-link {
-        color: rgba(255, 255, 255, 0.7);
-        border: none;
-        border-bottom: 2px solid transparent;
-      }
-      .nav-tabs .nav-link:hover {
-        color: #fff;
-        border-bottom-color: rgba(255, 255, 255, 0.3);
-      }
-      .nav-tabs .nav-link.active {
-        color: #fff;
-        background-color: rgba(255, 255, 255, 0.05);
-        border-bottom: 2px solid var(--primary-color);
-      }
-
-      /* Header card putih */
-      .card-header h3,
-      .card-header h4 {
-          color: #FFFFFF;
-      }
-      
-      /* Konten Quick Guide */
-      .guide-section .card-body h6,
-      .guide-section .card-body ol,
-      .guide-section .card-body li {
-          color: #FFFFFF;
-      }
-
-      /* Konten Daftar Admin */
-      .admin-item strong {
-          color: #FFFFFF;
-      }
-      
-      .admin-item .badge.bg-warning {
-          color: #FFFFFF !important;
-      }
-    </style>
 </head>
 <body>
+    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div class="container">
             <a class="navbar-brand fw-bold" href="index.html">Exeloth Codex</a>
@@ -385,15 +334,16 @@
         </div>
     </section>
 
+    <!-- Firebase & Bootstrap Scripts -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     
     <script src="assets/js/firebase-config.js"></script>
-    
     <script src="https://unpkg.com/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
+    <!-- Auth System harus di-load sebelum Admin -->
     <script src="assets/js/auth.js"></script>
     <script src="assets/js/admin.js"></script>
     
@@ -407,45 +357,15 @@
       const fileName = document.getElementById('file-name');
 
       // Click to select file
-      dragDropArea.addEventListener('click', () => {
-        fileInput.click();
-      });
+      if (dragDropArea) {
+        dragDropArea.addEventListener('click', () => {
+          fileInput.click();
+        });
+      }
 
       // File input change
-      fileInput.addEventListener('change', handleFileSelect);
-
-      // Drag & drop events
-      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        dragDropArea.addEventListener(eventName, preventDefaults, false);
-      });
-
-      function preventDefaults(e) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-
-      ['dragenter', 'dragover'].forEach(eventName => {
-        dragDropArea.addEventListener(eventName, highlight, false);
-      });
-
-      ['dragleave', 'drop'].forEach(eventName => {
-        dragDropArea.addEventListener(eventName, unhighlight, false);
-      });
-
-      function highlight() {
-        dragDropArea.classList.add('dragover');
-      }
-
-      function unhighlight() {
-        dragDropArea.classList.remove('dragover');
-      }
-
-      dragDropArea.addEventListener('drop', handleDrop, false);
-
-      function handleDrop(e) {
-        const dt = e.dataTransfer;
-        const files = dt.files;
-        handleFiles(files);
+      if (fileInput) {
+        fileInput.addEventListener('change', handleFileSelect);
       }
 
       function handleFileSelect(e) {
@@ -460,10 +380,10 @@
             // Show preview
             const reader = new FileReader();
             reader.onload = function(e) {
-              thumbnailPreview.src = e.target.result;
-              uploadPlaceholder.style.display = 'none';
-              uploadPreview.style.display = 'block';
-              fileName.textContent = file.name;
+              if (thumbnailPreview) thumbnailPreview.src = e.target.result;
+              if (uploadPlaceholder) uploadPlaceholder.style.display = 'none';
+              if (uploadPreview) uploadPreview.style.display = 'block';
+              if (fileName) fileName.textContent = file.name;
             };
             reader.readAsDataURL(file);
           } else {
@@ -474,12 +394,6 @@
             }
           }
         }
-      }
-
-      function clearFileUpload() {
-        fileInput.value = '';
-        uploadPlaceholder.style.display = 'block';
-        uploadPreview.style.display = 'none';
       }
 
       // Enter key to submit admin form
