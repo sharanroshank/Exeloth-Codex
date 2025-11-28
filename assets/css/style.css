@@ -767,8 +767,8 @@ select option {
 /* Memperbaiki tombol silang (Close X) agar berwarna hitam */
 /* Sebelumnya ada filter invert yang membuatnya putih, kita matikan filter itu */
 .notification .btn-close {
-    filter: none !important; 
-    opacity: 0.6 !important;
+    filter: invert(1) !important; /* Mengubah ikon hitam default menjadi putih */
+    opacity: 0.9 !important;       /* Sedikit transparansi agar terlihat elegan */
 }
 
 .notification .btn-close:hover {

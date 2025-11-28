@@ -5,11 +5,11 @@ let isSigningIn = false;
 
 // Initialize auth system for all pages
 function initAuthSystem() {
-    console.log('🚀 Initializing auth system...');
+    console.log('Initializing auth system...');
     
     // Check authentication state - GLOBAL LISTENER
     auth.onAuthStateChanged(async (user) => {
-        console.log('🔄 Auth state changed:', user ? user.email : 'No user');
+        console.log('Auth state changed:', user ? user.email : 'No user');
         
         if (user) {
             await handleUserSignedIn(user);
@@ -25,14 +25,14 @@ function initAuthSystem() {
 // Handle user signed in
 async function handleUserSignedIn(user) {
     if (isCheckingAdminAccess) {
-        console.log('⏳ Admin check already in progress...');
+        console.log('Admin check already in progress...');
         return;
     }
     
     isCheckingAdminAccess = true;
     
     try {
-        console.log('🔍 Checking admin access for:', user.email);
+        console.log('Checking admin access for:', user.email);
         
         // Check if user is in admins collection
         const adminDoc = await db.collection('admins').doc(user.email).get();
@@ -40,7 +40,7 @@ async function handleUserSignedIn(user) {
         if (adminDoc.exists) {
             // ✅ ADMIN ACCESS GRANTED
             currentUser = user;
-            console.log('✅ Admin access granted:', user.email);
+            console.log('Admin access granted:', user.email);
             
             // Update navbar di semua page
             updateNavbar(true);
@@ -53,7 +53,7 @@ async function handleUserSignedIn(user) {
             
             if (isFromLoginAction && !isOnAdminPage) {
                 console.log('🔄 Redirecting to admin panel after login...');
-                showNotification('✅ Login successful! Redirecting to admin panel...', 'success');
+                showNotification('Login successful! Redirecting to admin panel...', 'success');
                 // Hapus flag setelah digunakan
                 sessionStorage.removeItem('loginAction');
                 setTimeout(() => {
@@ -65,18 +65,18 @@ async function handleUserSignedIn(user) {
                 
                 // Show welcome notification hanya sekali
                 if (!sessionStorage.getItem('welcomeShown')) {
-                    showNotification('✅ Welcome to Admin Panel, ' + (user.displayName || user.email), 'success');
+                    showNotification('Welcome to Admin Panel, ' + (user.displayName || user.email), 'success');
                     sessionStorage.setItem('welcomeShown', 'true');
                 }
             } else {
                 // Jika user login dari page lain (bukan dari tombol login), tetap di page tersebut
-                showNotification('✅ Login successful!', 'success');
+                showNotification('Login successful!', 'success');
             }
             
         } else {
             // ❌ NOT ADMIN
-            console.log('❌ Access denied - not in admin list:', user.email);
-            showNotification('❌ Access Denied: You are not authorized to access admin panel', 'error');
+            console.log('Access denied - not in admin list:', user.email);
+            showNotification('Access Denied: You are not authorized to access admin panel', 'error');
             
             // Update navbar
             updateNavbar(false);
@@ -89,7 +89,7 @@ async function handleUserSignedIn(user) {
         }
     } catch (error) {
         console.error('Error checking admin access:', error);
-        showNotification('❌ Error checking access: ' + error.message, 'error');
+        showNotification('Error checking access: ' + error.message, 'error');
         
         // Update navbar
         updateNavbar(false);
@@ -107,12 +107,12 @@ async function handleUserSignedIn(user) {
 // Show Google Sign In - LANGSUNG LOGIN TANPA MODAL
 function showGoogleSignIn() {
     if (isSigningIn) {
-        console.log('⏳ Sign-in already in progress...');
+        console.log('Sign-in already in progress...');
         return;
     }
     
     isSigningIn = true;
-    console.log('🚀 Starting direct Google sign-in...');
+    console.log('Starting direct Google sign-in...');
     
     // SET FLAG BAHWA INI ADALAH ACTION LOGIN DARI TOMBOL
     sessionStorage.setItem('loginAction', 'true');
@@ -130,12 +130,12 @@ function showGoogleSignIn() {
     
     auth.signInWithPopup(provider)
         .then((result) => {
-            console.log('✅ Signed in successfully:', result.user.email);
+            console.log('Signed in successfully:', result.user.email);
             isSigningIn = false;
             // Auth state listener akan handle sisanya (termasuk redirect ke admin panel jika perlu)
         })
         .catch((error) => {
-            console.error('❌ Error signing in:', error);
+            console.error('Error signing in:', error);
             isSigningIn = false;
             
             // Hapus flag jika login gagal
@@ -187,10 +187,10 @@ function signOut() {
     sessionStorage.removeItem('loginAction');
     
     auth.signOut().then(() => {
-        console.log('✅ Signed out successfully');
+        console.log('Signed out successfully');
         currentUser = null;
         updateNavbar(false);
-        showNotification('👋 Signed out successfully', 'info');
+        showNotification('Signed out successfully', 'info');
         
         // Jika di admin page, redirect ke homepage setelah sign out
         if (window.location.pathname.includes('admin.html')) {
