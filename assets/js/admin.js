@@ -366,26 +366,50 @@ function handleChapterSubmit(e) {
 
 // Load game slugs for dropdown
 function loadGameSlugs() {
-    db.collection("games").orderBy("createdAt", "desc").get()
-        .then((querySnapshot) => {
-            const gameSlugSelect = document.getElementById('chapter-game-slug');
-            if (gameSlugSelect) {
-                gameSlugSelect.innerHTML = '<option value="">Select a game</option>';
-                
+    const gameSlugSelect = document.getElementById('chapter-game-slug');
+    
+    // Pastikan elemen dropdown ada
+    if (gameSlugSelect) {
+        // Bersihkan isi dropdown dulu
+        gameSlugSelect.innerHTML = '';
+        
+        // 1. BUAT PLACEHOLDER (KASUS 13)
+        // Kita set disabled, selected, dan hidden agar tidak muncul di list
+        const placeholder = document.createElement('option');
+        placeholder.value = "";
+        placeholder.textContent = "Select a game";
+        placeholder.disabled = true;
+        placeholder.selected = true;
+        placeholder.hidden = true;
+        gameSlugSelect.appendChild(placeholder);
+
+        // 2. TAMBAHKAN WUTHERING WAVES MANUAL (KASUS 12)
+        const wwOption = document.createElement('option');
+        wwOption.value = "wuthering-waves";
+        wwOption.textContent = "Wuthering Waves";
+        gameSlugSelect.appendChild(wwOption);
+
+        // 3. LOAD GAME LAIN DARI DATABASE (JIKA ADA)
+        db.collection("games").orderBy("createdAt", "desc").get()
+            .then((querySnapshot) => {
                 querySnapshot.forEach((doc) => {
                     const game = doc.data();
-                    const option = document.createElement('option');
-                    option.value = game.slug;
-                    option.textContent = game.title;
-                    gameSlugSelect.appendChild(option);
+                    
+                    // Cek biar tidak duplikat dengan Wuthering Waves yang kita tambah manual
+                    if (game.slug !== 'wuthering-waves') {
+                        const option = document.createElement('option');
+                        option.value = game.slug;
+                        option.textContent = game.title;
+                        gameSlugSelect.appendChild(option);
+                    }
                 });
                 
                 console.log('✅ Loaded game slugs:', querySnapshot.size);
-            }
-        })
-        .catch((error) => {
-            console.error("Error loading game slugs: ", error);
-        });
+            })
+            .catch((error) => {
+                console.error("Error loading game slugs: ", error);
+            });
+    }
 }
 
 // Clear file upload (helper function)
