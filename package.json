@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "description": "Gacha game story portal",
   "scripts": {
-    "build": "node netlify/inject-env.js",
-    "deploy": "netlify deploy --prod --dir=."
-  },
+  "build": "node inject-env.js"
+},
   "dependencies": {
     "node-fetch": "^2.6.7",
     "nunjucks": "^3.2.4"
