@@ -685,3 +685,34 @@ body {
 .form-check-label {
     color: var(--light-color);
 }
+
+/* 1. Memaksa warna dasar teks di dalam semua Card menjadi terang */
+.card {
+    color: var(--light-color) !important;
+}
+
+/* 2. Memastikan semua Heading (Judul Besar/Kecil) berwarna Putih Mutlak */
+.card h1, .card h2, .card h3, .card h4, .card h5, .card h6, .card-header {
+    color: #ffffff !important;
+}
+
+/* 3. Memastikan List (Daftar angka/poin) di Quick Guide terlihat jelas */
+.card ol, .card ul, .card li {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* 4. Memastikan teks paragraf deskripsi terlihat jelas */
+.card p {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* 5. Memperbaiki teks di dalam Alert (Kotak Info Biru di Quick Guide) */
+.alert-info {
+    color: #0dcaf0 !important; /* Warna Cyan terang agar kontras */
+    background-color: rgba(13, 202, 240, 0.1) !important;
+    border-color: rgba(13, 202, 240, 0.2);
+}
+
+.alert-info strong {
+    color: #ffffff !important; /* Teks tebal di dalam alert jadi putih */
+}
