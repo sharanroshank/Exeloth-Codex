@@ -18,6 +18,12 @@ function initAuthSystem() {
             currentUser = null;
             updateNavbar(false);
             resetNavbarLoginState();
+            
+            // [FIX KASUS 17 - SIGN OUT REDIRECT]
+            // Security: Jika user logout saat di halaman admin (baik /admin.html atau /admin), tendang ke home
+            if (window.location.pathname.includes('admin')) {
+                window.location.href = 'index.html';
+            }
         }
     });
 }
@@ -38,7 +44,7 @@ async function handleUserSignedIn(user) {
         const adminDoc = await db.collection('admins').doc(user.email).get();
         
         if (adminDoc.exists) {
-            // ✅ ADMIN ACCESS GRANTED
+            // ADMIN ACCESS GRANTED
             currentUser = user;
             console.log('Admin access granted:', user.email);
             
@@ -49,10 +55,10 @@ async function handleUserSignedIn(user) {
             // 1. User baru saja login dari tombol Login di navbar (bukan page refresh)
             // 2. Atau jika user mengakses admin.html secara langsung
             const isFromLoginAction = sessionStorage.getItem('loginAction') === 'true';
-            const isOnAdminPage = window.location.pathname.includes('admin.html');
+            const isOnAdminPage = window.location.pathname.includes('admin'); // Cek lebih fleksibel (html atau tanpa html)
             
             if (isFromLoginAction && !isOnAdminPage) {
-                console.log('🔄 Redirecting to admin panel after login...');
+                console.log('Redirecting to admin panel after login...');
                 showNotification('Login successful! Redirecting to admin panel...', 'success');
                 // Hapus flag setelah digunakan
                 sessionStorage.removeItem('loginAction');
@@ -60,8 +66,18 @@ async function handleUserSignedIn(user) {
                     window.location.href = 'admin.html';
                 }, 1000);
             } else if (isOnAdminPage) {
-                // Jika sudah di admin page, show admin panel
-                showAdminPanel(user);
+                // [FIX KASUS 17 - RACE CONDITION LOGIN PERTAMA]
+                // Kita beri jeda 500ms agar admin.js punya waktu untuk load fungsinya
+                console.log('Waiting for admin scripts to load...');
+                setTimeout(() => {
+                    if (typeof showAdminPanel === 'function') {
+                        showAdminPanel(user);
+                    } else {
+                        console.error('Admin functions not loaded yet. Retrying...');
+                        // Retry sekali lagi jika masih gagal
+                        setTimeout(() => showAdminPanel(user), 1000);
+                    }
+                }, 500);
                 
                 // Show welcome notification hanya sekali
                 if (!sessionStorage.getItem('welcomeShown')) {
@@ -74,7 +90,7 @@ async function handleUserSignedIn(user) {
             }
             
         } else {
-            // ❌ NOT ADMIN
+            // NOT ADMIN
             console.log('Access denied - not in admin list:', user.email);
             showNotification('Access Denied: You are not authorized to access admin panel', 'error');
             
@@ -192,8 +208,9 @@ function signOut() {
         updateNavbar(false);
         showNotification('Signed out successfully', 'info');
         
-        // Jika di admin page, redirect ke homepage setelah sign out
-        if (window.location.pathname.includes('admin.html')) {
+        // [FIX KASUS 17 - SIGN OUT REDIRECT]
+        // Gunakan .includes('admin') agar mencakup /admin.html maupun /admin (bersih)
+        if (window.location.pathname.includes('admin')) {
             setTimeout(() => {
                 window.location.href = 'index.html';
             }, 1000);
@@ -226,6 +243,7 @@ function showNotification(message, type = 'info') {
     
     setTimeout(() => {
         const notification = document.createElement('div');
+        // Tetap menggunakan class alert untuk warna background
         notification.className = `notification alert alert-${getAlertType(type)} d-flex align-items-center`;
         
         notification.style.cssText = `
@@ -240,10 +258,8 @@ function showNotification(message, type = 'info') {
             transition: all 0.3s ease-in-out;
         `;
         
-        const icon = getNotificationIcon(type);
-        
+        // TANPA EMOJI/IKON
         notification.innerHTML = `
-            <i class="bi ${icon} me-2 fs-5"></i>
             <div class="flex-grow-1">${message}</div>
             <button type="button" class="btn-close btn-close-white ms-2" onclick="closeNotification(this)"></button>
         `;
@@ -292,15 +308,7 @@ function getAlertType(type) {
     return types[type] || 'info';
 }
 
-function getNotificationIcon(type) {
-    const icons = {
-        'success': 'bi-check-circle-fill',
-        'error': 'bi-x-circle-fill',
-        'warning': 'bi-exclamation-triangle-fill',
-        'info': 'bi-info-circle-fill'
-    };
-    return icons[type] || 'bi-info-circle-fill';
-}
+// HAPUS FUNGSI getNotificationIcon KARENA SUDAH TIDAK DIPAKAI
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
