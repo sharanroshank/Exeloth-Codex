@@ -716,3 +716,33 @@ body {
 .alert-info strong {
     color: #0dcaf0 !important; /* MENGIKUTI WARNA BIRU/CYAN PARENT-NYA */
 }
+
+/* Menghapus garis border default Bootstrap di bawah tab */
+.nav-tabs {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Style tombol tab saat TIDAK aktif */
+.nav-tabs .nav-link {
+    color: rgba(255, 255, 255, 0.6); /* Warna teks abu-abu */
+    background: transparent;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+/* Efek hover pada tombol tab */
+.nav-tabs .nav-link:hover {
+    color: #fff;
+    border: none;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Style tombol tab saat AKTIF (Diklik) */
+.nav-tabs .nav-link.active {
+    color: #fff !important;
+    background-color: transparent !important;
+    border: none !important;
+    border-bottom: 3px solid var(--primary-color) !important; /* Garis ungu di bawah */
+}
