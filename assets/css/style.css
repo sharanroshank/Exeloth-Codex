@@ -714,5 +714,5 @@ body {
 }
 
 .alert-info strong {
-    color: #ffffff !important; /* Teks tebal di dalam alert jadi putih */
+    color: #0dcaf0 !important; /* MENGIKUTI WARNA BIRU/CYAN PARENT-NYA */
 }
