@@ -156,8 +156,11 @@ function renderStorySection(sectionId, sectionTitle, chapters) {
 
 // Initialize based on current page
 document.addEventListener('DOMContentLoaded', function() {
+    // Cek apakah di halaman index/home
     if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/') {
-        loadGames();
+        // KOMENTARI BARIS INI AGAR TAMPILAN STATIS KITA TIDAK TERHAPUS
+        // loadGames(); 
+        console.log("Using static homepage design");
     } else if (window.location.pathname.endsWith('game.html')) {
         loadGameProfile();
     }
