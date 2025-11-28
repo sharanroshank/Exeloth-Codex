@@ -563,3 +563,77 @@ body {
         transition: none;
     }
 }
+
+/* assets/css/style.css - Tambahan di bagian bawah */
+
+/* ==================== NEW HOMEPAGE STYLES ==================== */
+
+/* Navbar adjustment */
+.navbar-brand {
+    letter-spacing: 1px;
+}
+
+/* Hero Section (Jumbotron Baru) */
+.hero-section {
+    /* Warna background hero section sedikit lebih terang dari navbar */
+    background-color: #2c3035; 
+    min-height: 80vh; /* Tinggi minimal agar terlihat penuh */
+    padding-top: 80px;
+    padding-bottom: 80px;
+}
+
+/* Latar belakang bagian Codex (sama gelapnya dengan navbar/footer) */
+.bg-darker {
+    background-color: var(--darker-color) !important;
+}
+
+/* --- Efek Responsif (Hover Scale) --- */
+/* Kelas utilitas untuk efek membesar saat kursor diarahkan */
+.hover-scale {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: inline-block; /* Penting agar transform berfungsi pada link */
+}
+
+.hover-scale:hover {
+    transform: scale(1.05); /* Membesar 5% */
+}
+
+/* Khusus untuk tombol biru agar shadow lebih terasa */
+.btn.hover-scale:hover {
+    box-shadow: 0 10px 20px -10px rgba(13, 202, 240, 0.5);
+}
+
+
+/* --- Game Card dengan Text Overlay --- */
+.card-game-link {
+    text-decoration: none;
+    display: block;
+}
+
+.card-game-overlay-container {
+    /* Pastikan container relatif agar teks absolute bisa di tengah */
+    position: relative; 
+    height: 250px;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.card-game-overlay-container img {
+    /* Transisi untuk efek brightness */
+    transition: filter 0.3s ease;
+}
+
+/* Saat card di-hover, gambar menjadi sedikit lebih terang */
+.card-game-link:hover .card-game-overlay-container img {
+    filter: brightness(0.8) !important; /* Override style inline */
+}
+
+.card-overlay-text {
+    /* Memberikan bayangan pada teks agar lebih mudah dibaca di atas gambar */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    z-index: 10;
+}
+
+.card-overlay-text h3 {
+    font-size: 1.75rem;
+}

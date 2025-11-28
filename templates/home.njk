@@ -1,36 +1,45 @@
 {% extends "base.njk" %}
 
-{% block title %}Exeloth Codex - The best source of guides for your favorite gacha games{% endblock %}
+{% block title %}Exeloth Codex - Tempat membaca cerita game favoritmu{% endblock %}
 
 {% block content %}
-<!-- Jumbotron -->
-<section class="jumbotron-section">
+<section class="hero-section d-flex align-items-center">
     <div class="container">
-        <div class="row align-items-center min-vh-100">
-            <div class="col-lg-8">
-                <h1 class="display-4 fw-bold mb-4">The best source of guides for your favorite gacha games</h1>
-                <p class="lead mb-4">Exeloth Codex provides news, tier lists and detailed guides for Honkai: Star Rail, Wuthering Waves, Zenless Zone Zero, Reverse 1999 and other gacha games. Everything you need in one place!</p>
-                <a href="#popular-games" class="btn btn-primary btn-lg">Explore Popular Games</a>
+        <div class="row">
+            <div class="col-lg-8 pt-5">
+                <h1 class="display-4 fw-bold text-white mb-4">Tempat untuk membaca cerita game-game favoritmu</h1>
+                <p class="lead text-light mb-5">Exeloth Codex adalah sebuah website yang menyediakan sebuah cerita dari game-game seperti Honkai Star Rail, Reverse 1999, Wuthering Waves, dan masih banyak lagi!</p>
+                <a href="#codex-list" class="btn btn-primary btn-lg rounded-pill px-5 py-2 hover-scale">
+                    <i class="bi bi-book-half me-2"></i> Mulai Baca
+                </a>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Popular Games Section -->
-<section id="popular-games" class="py-5 bg-dark">
-    <div class="container">
-        <h2 class="text-center mb-5">Popular Games</h2>
-        <div class="row">
+<section id="codex-list" class="py-5 bg-darker">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold text-white">
+                <i class="bi bi-journal-bookmark-fill me-2"></i> Codex
+            </h2>
+        </div>
+
+        <div class="row justify-content-center">
             {% for game in games %}
             <div class="col-md-6 col-lg-4 mb-4">
-                <div class="card game-card bg-dark h-100">
-                    <img src="{{ game.thumbnailURL }}" class="card-img-top" alt="{{ game.title }}" style="height: 200px; object-fit: cover;">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ game.title }}</h5>
-                        <p class="card-text">{{ game.description }}</p>
-                        <a href="/game/{{ game.slug }}" class="btn btn-primary">View Details</a>
+                <a href="/game/{{ game.slug }}" class="card-game-link hover-scale">
+                    <div class="card-game-overlay-container rounded-4 overflow-hidden position-relative shadow-lg">
+                        <img src="{{ game.thumbnailURL }}" class="w-100 h-100 object-fit-cover" alt="{{ game.title }}" style="height: 250px; filter: brightness(0.6);">
+                        
+                        <div class="card-overlay-text position-absolute top-50 start-50 translate-middle text-center w-100 px-3">
+                            <h3 class="text-white fw-bold fst-italic mb-1">{{ game.title }}</h3>
+                            {% if game.description %}
+                            <p class="text-light small mb-0 d-none d-md-block">{{ game.description }}</p>
+                            {% endif %}
+                        </div>
                     </div>
-                </div>
+                </a>
             </div>
             {% endfor %}
         </div>

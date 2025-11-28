@@ -43,19 +43,25 @@ exports.handler = async (event) => {
     } else {
       templateName = 'home.njk';
       templateData = {
+        // HANYA MENAMPILKAN WUTHERING WAVES UNTUK SEMENTARA
         games: [
+          {
+            title: 'Wuthering Waves', 
+            slug: 'wuthering-waves',
+            // Deskripsi singkat untuk overlay (opsional)
+            description: 'Open-world action RPG', 
+            // Pastikan path ini sesuai dengan tempat Anda menyimpan gambar di Langkah 1
+            thumbnailURL: '/assets/img/games/wuthering-waves.jpg'
+          }
+          // Game lain dikomentari dulu
+          /*,
           {
             title: 'Honkai: Star Rail',
             slug: 'honkai-star-rail',
             description: 'Space fantasy RPG with turn-based combat',
             thumbnailURL: 'https://i.ibb.co/example/honkai-thumbnail.jpg'
-          },
-          {
-            title: 'Wuthering Waves', 
-            slug: 'wuthering-waves',
-            description: 'Open-world action RPG',
-            thumbnailURL: 'https://i.ibb.co/example/wuthering-thumbnail.jpg'
           }
+          */
         ]
       };
     }
