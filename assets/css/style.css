@@ -746,3 +746,31 @@ body {
     border: none !important;
     border-bottom: 3px solid var(--primary-color) !important; /* Garis ungu di bawah */
 }
+
+/* Memaksa opsi di dalam dropdown berwarna hitam di atas latar putih */
+select option {
+    background-color: #ffffff !important; /* Latar Putih */
+    color: #000000 !important; /* Teks Hitam */
+}
+
+/* Memaksa semua teks di dalam pop-up notifikasi berwarna gelap/hitam */
+.notification {
+    color: #212529 !important; /* Warna hitam soft (Dark Gray) agar enak dibaca */
+    font-weight: 500; /* Sedikit ditebalkan agar makin jelas */
+}
+
+/* Memperbaiki warna Ikon di dalam notifikasi agar ikut hitam */
+.notification i {
+    color: #212529 !important;
+}
+
+/* Memperbaiki tombol silang (Close X) agar berwarna hitam */
+/* Sebelumnya ada filter invert yang membuatnya putih, kita matikan filter itu */
+.notification .btn-close {
+    filter: none !important; 
+    opacity: 0.6 !important;
+}
+
+.notification .btn-close:hover {
+    opacity: 1 !important;
+}
