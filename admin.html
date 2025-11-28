@@ -14,26 +14,32 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="index.html">Exeloth Codex</a>
+            <a class="navbar-brand fw-bold text-uppercase" href="index.html">Exeloth Codex</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#upcoming">Upcoming Games</a></li>
+                <ul class="navbar-nav ms-auto gap-lg-3">
                     <li class="nav-item">
-                        <a class="nav-link" href="https://ko-fi.com" target="_blank">
-                            <i class="bi bi-cup-hot-fill me-1"></i> Ko-fi
+                        <a class="nav-link" href="index.html">
+                            <i class="bi bi-house-door-fill me-1"></i> Home
                         </a>
                     </li>
-                    <!-- LOGIN BUTTON -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html#coming-soon">
+                            <i class="bi bi-hourglass-split me-1"></i> Coming Soon
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://saweria.co" target="_blank">
+                            <i class="bi bi-gift-fill me-1"></i> Saweria
+                        </a>
+                    </li>
                     <li class="nav-item" id="login-nav-item">
                         <a class="nav-link" href="#" id="login-link" onclick="showGoogleSignIn()">
-                            <i class="bi bi-box-arrow-in-right me-1"></i> Login
+                            <i class="bi bi-person-fill me-1"></i> Login
                         </a>
                     </li>
-                    <!-- ADMIN PANEL LINK (akan muncul setelah login) -->
                     <li class="nav-item d-none" id="admin-nav-item">
                         <a class="nav-link active" href="admin.html">
                             <i class="bi bi-speedometer2 me-1"></i> Admin Panel

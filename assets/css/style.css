@@ -637,3 +637,51 @@ body {
 .card-overlay-text h3 {
     font-size: 1.75rem;
 }
+
+/* Mengubah warna teks input menjadi putih dan background menjadi gelap transparan */
+.form-control, 
+.form-select {
+    background-color: rgba(255, 255, 255, 0.08) !important; /* Latar gelap transparan */
+    color: #ffffff !important; /* Teks Putih */
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Mengatur tampilan saat input diklik (Focus) */
+.form-control:focus, 
+.form-select:focus {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important; /* Pastikan teks tetap putih saat mengetik */
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(111, 66, 193, 0.25);
+}
+
+/* Mengubah warna teks Label (Judul di atas input) menjadi putih */
+.form-label {
+    color: var(--light-color);
+    font-weight: 500;
+}
+
+/* Mengubah warna teks Placeholder (Teks bayangan petunjuk) */
+.form-control::placeholder {
+    color: rgba(255, 255, 255, 0.5); /* Putih agak pudar */
+}
+
+/* Memperbaiki warna teks petunjuk kecil di bawah input */
+.form-text {
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Memastikan Checkbox terlihat jelas */
+.form-check-input {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.form-check-label {
+    color: var(--light-color);
+}
