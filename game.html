@@ -15,30 +15,39 @@
         .navbar.fixed-top { display: none !important; }
         body { padding-top: 0 !important; background-color: #34353a; }
 
-        /* [KASUS 5] Top Bar Styling - Memberi background agar terpisah dari konten */
-        .top-bar {
-            background-color: #25262b; /* Warna sama dengan sidebar */
-            padding: 15px 30px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            /* Agar tetap di atas saat scroll (Sticky Header) */
-            position: sticky;
-            top: 0;
-            z-index: 900;
-        }
+        /* Update .top-bar sedikit untuk memastikan positioning aman */
+.top-bar {
+    /* Style lama tetap sama, pastikan ada position relative atau sticky */
+    position: sticky; 
+    /* ... style lama lainnya ... */
+}
 
-        /* [KASUS 6] Fix Tombol Garis 3 di Mobile */
-        @media (max-width: 768px) {
-            #sidebarCollapse {
-                display: block !important; /* Paksa muncul di HP */
-                font-size: 1.8rem;
-                padding: 5px;
-            }
-        }
+/* --- LOGO TENGAH (KASUS 9) --- */
+.game-logo-center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%); /* Trik jitu agar benar-benar di titik tengah */
+    z-index: 10;
+}
+
+.game-logo-center img {
+    height: 45px; /* Sesuaikan tinggi logo agar pas di bar */
+    width: auto;
+    object-fit: contain;
+    transition: transform 0.3s;
+}
+
+.game-logo-center img:hover {
+    transform: scale(1.05); /* Efek zoom sedikit saat dihover */
+}
+
+/* Responsif untuk HP: Kecilkan sedikit logo */
+@media (max-width: 768px) {
+    .game-logo-center img {
+        height: 30px;
+    }
+}
 
         /* [KASUS 4] Style Tombol Favorit Toggle */
         .btn-favorite {
@@ -113,16 +122,22 @@
             </div>
         </nav>
 
-        <div id="content" style="padding: 0;"> <div class="top-bar">
+        <div class="top-bar">
+                
                 <div class="d-flex align-items-center gap-3">
                     <button type="button" id="sidebarCollapse">
                         <i class="bi bi-list"></i>
                     </button>
                 </div>
 
+                <div class="game-logo-center">
+                    <img src="assets/img/games/logo-wuthering-waves.jpg" alt="Wuthering Waves Logo">
+                </div>
+
                 <div class="d-flex align-items-center gap-4">
                     <a href="https://saweria.co" target="_blank" class="text-white text-decoration-none fw-bold hover-scale">
-                        <i class="bi bi-gift-fill me-1 text-warning"></i> Saweria
+                        <i class="bi bi-gift-fill me-1 text-warning"></i> 
+                        <span class="d-none d-md-inline">Saweria</span>
                     </a>
                     
                     <div id="auth-container">

@@ -48,8 +48,9 @@ function showAdminPanel(user) {
     // Load data
     loadGameSlugs();
     loadAdminList();
-    loadSections(); // <--- TAMBAHKAN INI (Load Sections saat panel dibuka)
+    loadSections();
     updateUserInfo(user);
+    loadUpcomingGames();
     
     console.log('✅ Admin panel shown for:', user.email);
 }
@@ -602,6 +603,8 @@ window.addAdmin = addAdmin;
 window.removeAdmin = removeAdmin;
 window.clearFileUpload = clearFileUpload;
 
+
+
 // 1. Tambah Section Baru
 async function addSection() {
     const input = document.getElementById('new-section-name');
@@ -645,7 +648,8 @@ function loadSections() {
             // Reset UI
             if (listContainer) listContainer.innerHTML = '';
             if (dropdown) {
-                dropdown.innerHTML = '<option value="" disabled selected>Select a section</option>';
+                // TAMBAHKAN 'hidden' DI SINI
+                dropdown.innerHTML = '<option value="" disabled selected hidden>Select a section</option>';
             }
 
             // Jika kosong, buat default section
@@ -747,3 +751,107 @@ window.addSection = addSection;
 window.editSection = editSection;
 window.deleteSection = deleteSection;
 window.loadSections = loadSections;
+
+
+
+// 1. Tambah Coming Soon Game
+async function addUpcomingGame() {
+    const titleInput = document.getElementById('upcoming-title');
+    const fileInput = document.getElementById('upcoming-thumbnail');
+    const submitBtn = document.getElementById('btn-add-upcoming');
+    
+    const title = titleInput.value.trim();
+    const file = fileInput.files[0];
+
+    if (!title || !file) {
+        showNotification('❌ Judul dan Gambar harus diisi!', 'error');
+        return;
+    }
+
+    try {
+        // UI Loading
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Uploading...';
+
+        // A. Upload Gambar ke Folder Khusus
+        const storageRef = storage.ref().child(`upcoming-thumbnails/${Date.now()}-${file.name}`);
+        const snapshot = await storageRef.put(file);
+        const downloadURL = await snapshot.ref.getDownloadURL();
+
+        // B. Simpan ke Firestore
+        await db.collection('upcoming_games').add({
+            title: title,
+            thumbnailURL: downloadURL,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        showNotification('✅ Coming Soon game berhasil ditambahkan!', 'success');
+        
+        // Reset Form
+        titleInput.value = '';
+        fileInput.value = '';
+        
+        // Refresh List
+        loadUpcomingGames();
+
+    } catch (error) {
+        console.error("Error adding upcoming:", error);
+        showNotification('❌ Error: ' + error.message, 'error');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="bi bi-cloud-upload me-1"></i> Upload';
+    }
+}
+
+// 2. Load Daftar Coming Soon (Untuk Admin)
+function loadUpcomingGames() {
+    const container = document.getElementById('upcoming-list-container');
+    if (!container) return;
+
+    db.collection('upcoming_games').orderBy('createdAt', 'desc').get()
+        .then((snapshot) => {
+            container.innerHTML = '';
+            
+            if (snapshot.empty) {
+                container.innerHTML = '<div class="col-12 text-center text-muted">Belum ada game coming soon.</div>';
+                return;
+            }
+
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                const card = document.createElement('div');
+                card.className = 'col-md-4 mb-3';
+                card.innerHTML = `
+                    <div class="card bg-darker border-secondary h-100">
+                        <img src="${data.thumbnailURL}" class="card-img-top" style="height: 150px; object-fit: cover;">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0 text-white">${data.title}</h6>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteUpcomingGame('${doc.id}', '${data.title}')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        })
+        .catch((error) => console.error("Error loading upcoming:", error));
+}
+
+// 3. Hapus Coming Soon Game
+async function deleteUpcomingGame(id, title) {
+    if (confirm(`Hapus "${title}" dari daftar Coming Soon?`)) {
+        try {
+            await db.collection('upcoming_games').doc(id).delete();
+            showNotification('✅ Game dihapus.', 'success');
+            loadUpcomingGames();
+        } catch (error) {
+            showNotification('❌ Gagal hapus: ' + error.message, 'error');
+        }
+    }
+}
+
+// Export fungsi ke window
+window.addUpcomingGame = addUpcomingGame;
+window.deleteUpcomingGame = deleteUpcomingGame;
+window.loadUpcomingGames = loadUpcomingGames;

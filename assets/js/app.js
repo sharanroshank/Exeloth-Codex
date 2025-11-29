@@ -165,3 +165,50 @@ document.addEventListener('DOMContentLoaded', function() {
         loadGameProfile();
     }
 });
+
+
+// Function load Coming Soon untuk Homepage
+function loadComingSoonFrontend() {
+    const container = document.getElementById('coming-soon-container');
+    if (!container) return;
+
+    db.collection('upcoming_games').orderBy('createdAt', 'desc').get()
+        .then((snapshot) => {
+            container.innerHTML = '';
+
+            if (snapshot.empty) {
+                container.innerHTML = '<p class="text-muted text-center">Belum ada info coming soon.</p>';
+                return;
+            }
+
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                
+                // Gunakan style card yang sama dengan Codex, tapi hilangkan link <a>
+                const col = document.createElement('div');
+                col.className = 'col-md-6 col-lg-4 mb-4';
+                col.innerHTML = `
+                    <div class="card-game-overlay-container rounded-4 overflow-hidden position-relative shadow-lg" style="cursor: default;">
+                        <img src="${data.thumbnailURL}" class="w-100 h-100 object-fit-cover" alt="${data.title}" style="height: 250px; filter: brightness(0.6);">
+                        
+                        <div class="card-overlay-text position-absolute top-50 start-50 translate-middle text-center w-100 px-3">
+                            <h3 class="text-white fw-bold fst-italic mb-1">${data.title}</h3>
+                            <span class="badge bg-warning text-dark mt-2">Coming Soon</span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(col);
+            });
+        })
+        .catch((error) => console.error("Error loading frontend upcoming:", error));
+}
+
+// Panggil fungsi ini saat halaman dimuat
+document.addEventListener('DOMContentLoaded', function() {
+    // ... kode lama ...
+    
+    // Cek jika di homepage, panggil loadComingSoon
+    if (document.getElementById('coming-soon-container')) {
+        loadComingSoonFrontend();
+    }
+});
