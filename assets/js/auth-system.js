@@ -45,11 +45,9 @@ async function handleUserSignedIn(user) {
         const adminDoc = await db.collection('admins').doc(user.email).get();
         
         if (adminDoc.exists) {
-            // ✅ ADMIN ACCESS GRANTED
+            // ✅ ADMIN ACCESS GRANTED (Biarkan bagian ini seperti semula)
             currentUser = user;
             console.log('Admin access granted:', user.email);
-            
-            // Update navbar di semua page
             updateNavbar(true);
             
             // HANYA REDIRECT KE ADMIN PANEL JIKA:
@@ -96,18 +94,24 @@ async function handleUserSignedIn(user) {
             }
             
         } else {
-            // ❌ NOT ADMIN
+            // ❌ NOT ADMIN (INI BAGIAN YANG DIUBAH)
             console.log('Access denied - not in admin list:', user.email);
-            showNotification('Access Denied: You are not authorized to access admin panel', 'error');
             
-            // Update navbar
+            // 1. Beritahu user
+            showNotification('Access Denied: You are not authorized. Account removed.', 'error');
+            
+            // 2. Reset tampilan UI
             updateNavbar(false);
             resetNavbarLoginState();
             
-            // Auto sign out after 3 seconds
-            setTimeout(() => {
+            // 3. HAPUS AKUN dari Firebase Auth agar tidak nyangkut di database
+            user.delete().then(() => {
+                console.log('Unauthorized user record deleted from Firebase.');
+            }).catch((error) => {
+                // Jika gagal hapus (jarang terjadi), lakukan sign out biasa sebagai cadangan
+                console.error('Error deleting user:', error);
                 auth.signOut();
-            }, 3000);
+            });
         }
     } catch (error) {
         console.error('Error checking admin access:', error);
