@@ -268,9 +268,16 @@
                         <a href="game.html?slug=${slug}" class="card-game-link hover-scale text-decoration-none">
                             <div class="card-game-overlay-container rounded-4 overflow-hidden position-relative shadow-lg">
                                 
-                                <div class="position-absolute top-0 end-0 m-3 px-3 py-1 rounded-pill text-white shadow-sm" 
-                                     style="z-index: 10; background: rgba(0,0,0,0.6); font-size: 0.8rem; border: 1px solid rgba(255,255,255,0.2);">
-                                    <i class="bi bi-calendar-event me-1"></i> ${game.date}
+                                <div class="position-absolute top-0 end-0 m-3 d-flex align-items-center gap-2" style="z-index: 10;">
+                                    
+                                    <span class="badge ${badgeClass} rounded-pill px-3 py-2 shadow-sm border border-light border-opacity-25">
+                                        ${game.category}
+                                    </span>
+
+                                    <div class="px-3 py-1 rounded-pill text-white shadow-sm" 
+                                         style="background: rgba(0,0,0,0.6); font-size: 0.8rem; border: 1px solid rgba(255,255,255,0.2);">
+                                        <i class="bi bi-calendar-event me-1"></i> ${game.date}
+                                    </div>
                                 </div>
 
                                 <img src="${game.img}" class="w-100 h-100 object-fit-cover" alt="${game.title}" 
@@ -282,16 +289,10 @@
                                         ${game.title}
                                     </h3>
 
-                                    <p class="text-light small mb-2 fw-light" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8); opacity: 0.9;">
+                                    <p class="text-light small mb-0 d-none d-md-block fw-light" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8); opacity: 0.9;">
                                         ${game.desc}
                                     </p>
                                     
-                                    <div>
-                                        <span class="badge ${badgeClass} rounded-pill px-3 py-2 shadow-sm border border-light border-opacity-25">
-                                            ${game.category}
-                                        </span>
-                                    </div>
-
                                 </div>
                             </div>
                         </a>
