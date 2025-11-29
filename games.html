@@ -145,8 +145,8 @@
     <script src="assets/js/firebase-config.js"></script>
     <script src="assets/js/auth-system.js"></script>
 
-<script>
-        // --- DATA GAMES (Contoh) ---
+    <script>
+        // --- DATA GAMES ---
         const publicGamesData = [
             { 
                 id: 1, 
@@ -199,8 +199,7 @@
         ];
 
         let publicCurrentPage = 1;
-        
-        // UBAH INI: Kita turunkan jadi 3 per halaman supaya Pagination MUNCUL (karena data cuma 6)
+        // Kita set 3 item per halaman agar tombol pagination muncul (karena total data cuma 6)
         const publicItemsPerPage = 3; 
         
         let publicFilteredData = [...publicGamesData];
@@ -256,7 +255,7 @@
             }
 
             gamesToShow.forEach(game => {
-                // Logic Badge Warna untuk Tombol Tengah
+                // Logic Badge Warna
                 let badgeClass = 'bg-secondary';
                 if (game.category === 'New Release') badgeClass = 'bg-success';
                 if (game.category === 'Ongoing') badgeClass = 'bg-info text-dark';
@@ -265,7 +264,7 @@
 
                 const slug = game.title.toLowerCase().replace(/[^a-z0-9]/g, '-');
 
-                // --- STRUKTUR HTML DIPERBARUI ---
+                // --- STRUKTUR HTML UPDATE ---
                 const html = `
                     <div class="col-md-6 col-lg-4 mb-4">
                         <a href="game.html?slug=${slug}" class="card-game-link hover-scale text-decoration-none">
@@ -277,14 +276,23 @@
                                 </div>
 
                                 <img src="${game.img}" class="w-100 h-100 object-fit-cover" alt="${game.title}" 
-                                     style="height: 250px; filter: brightness(0.6); transition: filter 0.3s ease;">
+                                     style="height: 250px; filter: brightness(0.5); transition: filter 0.3s ease;">
                                 
                                 <div class="card-overlay-text position-absolute top-50 start-50 translate-middle text-center w-100 px-3">
-                                    <h3 class="text-white fw-bold fst-italic mb-2" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">${game.title}</h3>
                                     
-                                    <span class="badge ${badgeClass} rounded-pill px-3 py-2 shadow-sm">
-                                        ${game.category}
-                                    </span>
+                                    <h3 class="text-white fw-bold fst-italic mb-2" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.9); letter-spacing: 1px;">
+                                        ${game.title}
+                                    </h3>
+                                    
+                                    <div class="mb-3">
+                                        <span class="badge ${badgeClass} rounded-pill px-3 py-2 shadow-sm border border-light border-opacity-25">
+                                            ${game.category}
+                                        </span>
+                                    </div>
+
+                                    <p class="text-light small mb-0 d-none d-md-block fw-light" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8); opacity: 0.9;">
+                                        ${game.desc}
+                                    </p>
                                 </div>
                             </div>
                         </a>
@@ -300,7 +308,6 @@
             const container = document.getElementById('publicPaginationContainer');
             container.innerHTML = '';
 
-            // Jika halaman cuma 1 atau 0, pagination tidak dirender
             if (totalPages <= 1) return;
 
             // Prev
@@ -331,8 +338,7 @@
             if (page < 1) return;
             publicCurrentPage = page;
             renderPublicGames();
-            // Scroll ke atas sedikit saat ganti halaman biar enak
-            document.getElementById('codex-list')?.scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('publicGamesContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     </script>
 </body>
