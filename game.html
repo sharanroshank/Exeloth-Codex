@@ -14,21 +14,18 @@
         /* --- CSS KHUSUS HALAMAN GAME DASHBOARD --- */
 
         /* 1. Global Layout Fixes */
-        /* Body diberi padding agar tidak tertutup Navbar Fixed di atas */
         body { 
             padding-top: 76px !important; 
             background-color: #34353a; 
         }
 
         /* 2. Sidebar Positioning */
-        /* Sidebar harus turun 76px (tinggi navbar) dan tingginya dikurangi 76px */
         #sidebar {
             top: 76px !important; 
             height: calc(100vh - 76px) !important;
-            z-index: 900; /* Di bawah z-index Navbar Bootstrap (1030) */
+            z-index: 900; 
         }
         
-        /* Overlay untuk mobile juga harus turun */
         .overlay-sidebar {
             top: 76px;
         }
@@ -55,7 +52,7 @@
 
         /* 4. Top Bar Styling (Menu Hamburger) */
         .top-bar {
-            background-color: rgba(37, 38, 43, 0.9); /* Sedikit transparan */
+            background-color: rgba(37, 38, 43, 0.9);
             backdrop-filter: blur(5px);
             padding: 15px 30px;
             border-bottom: 1px solid rgba(255,255,255,0.05);
@@ -64,7 +61,7 @@
             align-items: center;
             margin-bottom: 30px;
             position: sticky;
-            top: 76px; /* Sticky tepat di bawah Navbar Utama */
+            top: 76px; 
             z-index: 800;
         }
 
@@ -100,7 +97,7 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            z-index: -1; /* Paling belakang */
+            z-index: -1;
             background: url('assets/img/games/background-wuthering-waves.jpg') no-repeat center center;
             background-size: cover;
             opacity: 0.15;
@@ -109,7 +106,6 @@
             pointer-events: none;
         }
 
-        /* Wrapper agar konten di depan background */
         .dashboard-wrapper {
             background-color: transparent !important;
             position: relative;
@@ -213,8 +209,7 @@
                         <i class="bi bi-list"></i> <span class="ms-2 d-none d-md-inline font-monospace">MENU CERITA</span>
                     </button>
                 </div>
-
-                </div>
+            </div>
 
             <div class="container-fluid px-4 pb-5">
                 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -304,7 +299,7 @@
             dismissBtn.addEventListener('click', function() {
                 sidebar.classList.add('active'); 
                 if (window.innerWidth <= 768) {
-                   sidebar.classList.remove('active'); // Di mobile logic active terbalik atau CSS-nya beda
+                   sidebar.classList.remove('active'); 
                    overlay.style.display = 'none';
                 }
             });
@@ -321,7 +316,7 @@
             });
 
             overlay.addEventListener('click', function() {
-                sidebar.classList.remove('active'); // Sesuaikan dengan CSS sidebar mobile Anda
+                sidebar.classList.remove('active');
                 overlay.style.display = 'none';
             });
         });
