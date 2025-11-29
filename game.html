@@ -15,60 +15,60 @@
         .navbar.fixed-top { display: none !important; }
         body { padding-top: 0 !important; background-color: #34353a; }
 
-        /* --- TOP BAR STYLE (LENGKAP) --- */
-.top-bar {
-    background-color: #25262b; /* Warna latar (Penting agar tidak transparan) */
-    padding: 15px 30px;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-    
-    /* Agar menempel di atas */
-    position: sticky; 
-    top: 0;
-    z-index: 900;
-}
+        /* Style Sidebar Dismiss Button (Posisi Kanan) */
+        #dismiss {
+            width: 35px;
+            height: 35px;
+            line-height: 35px;
+            text-align: center;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: 0.3s;
+            
+            /* Posisi di Kanan Sidebar */
+            align-self: flex-end; 
+            margin-top: 15px;
+            margin-right: 20px;
+            margin-bottom: 10px;
+        }
 
-/* --- LOGO TENGAH (FIXED) --- */
-.game-logo-center {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%); /* Posisi tepat di tengah absolut */
-    z-index: 910;
-    pointer-events: none; /* Agar klik tembus ke bawah jika logo transparan */
-}
+        #dismiss:hover {
+            background: var(--primary-color);
+        }
 
-.game-logo-center img {
-    height: 40px; /* Atur tinggi logo */
-    width: auto;
-    display: block;
-    /* Filter bayangan agar logo terlihat jelas di background gelap */
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); 
-}
+        /* Top Bar Styling (Tanpa Logo) */
+        .top-bar {
+            background-color: #25262b;
+            padding: 15px 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: space-between; /* Kiri dan Kanan */
+            align-items: center;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 900;
+        }
 
-/* Responsif HP: Kecilkan logo */
-@media (max-width: 768px) {
-    .game-logo-center img {
-        height: 28px;
-    }
-    .top-bar {
-        padding: 15px 20px;
-    }
-}
+        /* Fix Tombol Garis 3 di Mobile */
+        @media (max-width: 768px) {
+            #sidebarCollapse {
+                display: block !important;
+                font-size: 1.8rem;
+                padding: 5px;
+            }
+        }
 
-        /* [KASUS 4] Style Tombol Favorit Toggle */
+        /* Style Tombol Favorit Toggle */
         .btn-favorite {
             transition: all 0.3s ease;
-            border: 1px solid #ff6b6b; /* Outline default */
+            border: 1px solid #ff6b6b;
             background: transparent;
             color: #ff6b6b;
         }
         
-        /* State Aktif (Saat dipencet) */
         .btn-favorite.active {
             background-color: #ff6b6b;
             color: white;
@@ -92,11 +92,11 @@
         <nav id="sidebar">
             <div class="sidebar-header">
                 <div class="sidebar-brand">EXELOTH CODEX</div>
-            </div>
+                </div>
 
             <div id="dismiss">
-                    <i class="bi bi-x-lg"></i>
-                </div>
+                <i class="bi bi-x-lg"></i>
+            </div>
 
             <ul class="list-unstyled sidebar-menu">
                 <li>
@@ -133,16 +133,13 @@
             </div>
         </nav>
 
+        <div id="content" style="padding: 0;">
+            
             <div class="top-bar">
-                
                 <div class="d-flex align-items-center gap-3">
                     <button type="button" id="sidebarCollapse">
                         <i class="bi bi-list"></i>
                     </button>
-                </div>
-
-                <div class="game-logo-center">
-                    <img src="assets/img/games/logo-wuthering-waves.png" alt="Wuthering Waves">
                 </div>
 
                 <div class="d-flex align-items-center gap-4">
@@ -185,7 +182,6 @@
     <div id="notification-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -193,22 +189,17 @@
     <script src="assets/js/auth-system.js"></script>
     
     <script>
-        // ================= KASUS 4: FAVORITE TOGGLE =================
+        // TOGGLE FAVORITE
         let isFavorite = false;
-
         function toggleFavorite() {
             const btn = document.getElementById('favorite-btn');
             const icon = document.getElementById('favorite-icon');
-            
-            isFavorite = !isFavorite; // Balik status (true <-> false)
-
+            isFavorite = !isFavorite;
             if (isFavorite) {
-                // Keadaan Aktif
                 btn.classList.add('active');
                 icon.classList.remove('bi-star');
                 icon.classList.add('bi-star-fill');
             } else {
-                // Keadaan Non-Aktif
                 btn.classList.remove('active');
                 icon.classList.remove('bi-star-fill');
                 icon.classList.add('bi-star');
@@ -216,41 +207,27 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            // ================= KASUS 6: MOBILE SIDEBAR FIX =================
             const sidebar = document.getElementById('sidebar');
             const dismissBtn = document.getElementById('dismiss');
             const collapseBtn = document.getElementById('sidebarCollapse');
-            const content = document.getElementById('content');
-            const overlay = document.createElement('div'); // Buat overlay gelap untuk mobile
+            const overlay = document.createElement('div');
             
-            // Setup Overlay style
             overlay.style.cssText = `
-                display: none;
-                position: fixed;
-                top: 0; left: 0; width: 100vw; height: 100vh;
-                background: rgba(0,0,0,0.5);
-                z-index: 998;
-                transition: opacity 0.3s;
+                display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+                background: rgba(0,0,0,0.5); z-index: 998; transition: opacity 0.3s;
             `;
             document.body.appendChild(overlay);
 
-            // Logic Tutup Sidebar (X)
             dismissBtn.addEventListener('click', function() {
-                sidebar.classList.add('active'); // Di Desktop: Hilang | Di Mobile: Muncul
-                
-                // Logic khusus Mobile
+                sidebar.classList.add('active'); 
                 if (window.innerWidth <= 768) {
-                   sidebar.classList.remove('active'); // Karena di CSS mobile, defaultnya hidden (-260px). 'active' buat dia muncul (0px).
+                   sidebar.classList.remove('active');
                    overlay.style.display = 'none';
                 }
             });
 
-            // Logic Buka/Tutup Sidebar (Garis 3)
             collapseBtn.addEventListener('click', function() {
-                // Toggle class active
                 sidebar.classList.toggle('active');
-                
-                // Jika di Mobile, atur overlay
                 if (window.innerWidth <= 768) {
                     if (sidebar.classList.contains('active')) {
                         overlay.style.display = 'block';
@@ -260,22 +237,17 @@
                 }
             });
 
-            // Klik Overlay untuk tutup sidebar (UX Mobile)
             overlay.addEventListener('click', function() {
                 sidebar.classList.remove('active');
                 overlay.style.display = 'none';
             });
 
-            // ================= KASUS 3: AUTH / AVATAR LOGIC =================
+            // AUTH LOGIC
             const authContainer = document.getElementById('auth-container');
-            
-            // Listener status Login
             auth.onAuthStateChanged((user) => {
                 if (user) {
-                    // SUDAH LOGIN: Tampilkan Avatar
                     const photoURL = user.photoURL || 'https://ui-avatars.com/api/?name=User&background=random';
                     const name = user.displayName || 'User';
-                    
                     authContainer.innerHTML = `
                         <div class="dropdown">
                             <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
@@ -290,7 +262,6 @@
                         </div>
                     `;
                 } else {
-                    // BELUM LOGIN: Tampilkan Tombol Login
                     authContainer.innerHTML = `
                         <button onclick="showGoogleSignIn()" class="btn btn-outline-light btn-sm rounded-pill px-3 fw-bold hover-scale">
                             <i class="bi bi-google me-2"></i> Login
