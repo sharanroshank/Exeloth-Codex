@@ -11,11 +11,13 @@
     <link rel="stylesheet" href="assets/css/style.css">
     
     <style>
-        /* Override gaya body agar cocok dengan sidebar dashboard */
-        body { padding-top: 0 !important; background-color: #34353a; }
-        .navbar.fixed-top { display: none !important; } /* Sembunyikan navbar lama */
+        /* --- Styles Khusus Admin Dashboard --- */
         
-        /* Style Section Content agar bisa ditoggle */
+        /* Reset & Base */
+        body { padding-top: 0 !important; background-color: #34353a; }
+        .navbar.fixed-top { display: none !important; } /* Sembunyikan navbar global lama */
+        
+        /* Animasi Transisi Halaman */
         .admin-section-content { display: none; animation: fadeIn 0.3s; }
         .admin-section-content.active { display: block; }
         
@@ -24,26 +26,46 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Style Profile Settings */
+        /* Profile Picture Settings */
         .profile-pic-container {
             position: relative;
             width: 120px;
             height: 120px;
             margin: 0 auto;
+            background-color: #212529;
         }
         .profile-pic-overlay {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.6);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             opacity: 0;
-            transition: 0.3s;
+            transition: all 0.3s ease;
             cursor: pointer;
         }
         .profile-pic-container:hover .profile-pic-overlay { opacity: 1; }
+        
+        /* Sidebar Active State Customization */
+        .nav-link-custom {
+            color: rgba(255,255,255,0.7);
+            padding: 12px 20px;
+            display: block;
+            text-decoration: none;
+            border-left: 4px solid transparent;
+            transition: all 0.3s;
+        }
+        .nav-link-custom:hover {
+            background: rgba(255,255,255,0.05);
+            color: white;
+        }
+        .nav-link-custom.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-left-color: var(--primary-color, #6f42c1);
+        }
     </style>
 </head>
 <body>
@@ -54,104 +76,101 @@
         
         <nav id="sidebar">
             <div class="sidebar-header">
-                <div class="sidebar-brand">EXELOTH ADMIN</div>
+                <div class="sidebar-brand text-uppercase ls-1">Exeloth Admin</div>
                 <div id="dismiss">
                     <i class="bi bi-x-lg"></i>
                 </div>
             </div>
 
-            <ul class="list-unstyled sidebar-menu">
+            <ul class="list-unstyled sidebar-menu mt-3">
                 <li>
                     <a href="#" class="nav-link-custom active" onclick="switchTab('content', this)">
-                        <i class="bi bi-pencil-square"></i> Manajemen Konten
+                        <i class="bi bi-pencil-square me-2"></i> Manajemen Konten
                     </a>
                 </li>
                 <li>
                     <a href="#" class="nav-link-custom" onclick="switchTab('admin-settings', this)">
-                        <i class="bi bi-shield-lock"></i> Pengaturan Admin
+                        <i class="bi bi-shield-lock me-2"></i> Pengaturan Admin
                     </a>
                 </li>
                 <li>
                     <a href="#" class="nav-link-custom" onclick="switchTab('profile-settings', this)">
-                        <i class="bi bi-gear"></i> Pengaturan
+                        <i class="bi bi-person-circle me-2"></i> Profil Saya
                     </a>
                 </li>
             </ul>
 
             <div class="sidebar-footer">
-                <a href="index.html" class="text-decoration-none text-light d-flex align-items-center gap-2">
-                    <i class="bi bi-house-door"></i> Ke Homepage
+                <a href="index.html" class="text-decoration-none text-light d-flex align-items-center gap-2 px-3 py-2">
+                    <i class="bi bi-box-arrow-left"></i> Kembali ke Home
                 </a>
             </div>
         </nav>
 
         <div id="content" style="padding: 0;">
             
-            <div class="top-bar">
+            <div class="top-bar sticky-top">
                 <div class="d-flex align-items-center gap-3">
                     <button type="button" id="sidebarCollapse">
                         <i class="bi bi-list"></i>
                     </button>
-                    <h4 class="mb-0 text-white" id="page-title">Manajemen Konten</h4>
+                    <h5 class="mb-0 text-white fw-bold" id="page-title">Manajemen Konten</h5>
                 </div>
 
-                <div class="d-flex align-items-center gap-4">
-                    <div id="user-info-top" class="text-end d-none d-md-block">
+                <div class="d-flex align-items-center gap-3">
+                    <div id="user-info-top" class="text-end d-none d-md-block lh-1">
                         </div>
-                    <button class="btn btn-outline-danger btn-sm rounded-pill" onclick="signOut()">
-                        <i class="bi bi-box-arrow-right me-1"></i> Sign Out
+                    
+                    <button class="btn btn-outline-danger btn-sm rounded-pill px-3" onclick="signOut()">
+                        <i class="bi bi-power me-1"></i> Sign Out
                     </button>
                 </div>
             </div>
 
-            <div class="container-fluid px-4 pb-5" id="admin-panel-section">
+            <div class="container-fluid px-4 pb-5 pt-3" id="admin-panel-section">
                 
                 <div id="content-section" class="admin-section-content active">
                     
-                    <div class="card bg-dark mb-4 guide-section">
-                        <div class="card-header">
-                            <h4><i class="bi bi-info-circle me-2"></i>Quick Guide</h4>
+                    <div class="card bg-dark mb-4 guide-section border-start border-4 border-info">
+                        <div class="card-header bg-transparent">
+                            <h5 class="mb-0 text-info"><i class="bi bi-info-circle me-2"></i>Panduan Cepat</h5>
                         </div>
                         <div class="card-body">
-                            <div class="row">
+                            <div class="row g-4">
                                 <div class="col-md-6">
-                                    <h6><i class="bi bi-1-circle me-2"></i>Upload Game:</h6>
-                                    <ol>
-                                        <li>Isi data game (title, slug, description)</li>
-                                        <li><strong>Drag & drop</strong> thumbnail image</li>
-                                        <li>Klik <strong>"Create Game"</strong></li>
+                                    <h6 class="text-white"><i class="bi bi-1-circle me-2"></i>Cara Upload Game:</h6>
+                                    <ol class="text-muted small mb-0">
+                                        <li>Isi judul, slug, dan deskripsi game.</li>
+                                        <li><strong>Drag & drop</strong> gambar thumbnail ke area upload.</li>
+                                        <li>Klik tombol <strong>"Create Game"</strong>.</li>
                                     </ol>
                                 </div>
                                 <div class="col-md-6">
-                                    <h6><i class="bi bi-2-circle me-2"></i>Add Chapter:</h6>
-                                    <ol>
-                                        <li>Pastikan Section sudah dibuat di <strong>Section Management</strong></li>
-                                        <li>Pilih game dan section dari dropdown</li>
-                                        <li>Klik <strong>"Add Chapter"</strong></li>
+                                    <h6 class="text-white"><i class="bi bi-2-circle me-2"></i>Cara Tambah Chapter:</h6>
+                                    <ol class="text-muted small mb-0">
+                                        <li>Pastikan <strong>Section</strong> sudah dibuat di menu Section Management.</li>
+                                        <li>Pilih Game dan Section dari dropdown.</li>
+                                        <li>Isi judul chapter dan kontennya, lalu simpan.</li>
                                     </ol>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="card bg-dark mb-4">
-                        <div class="card-header">
-                            <h3><i class="bi bi-controller me-2"></i>Game Management</h3>
+                    <div class="card bg-dark mb-4 border-secondary">
+                        <div class="card-header border-secondary">
+                            <h5 class="mb-0 text-white"><i class="bi bi-controller me-2"></i>Game Management</h5>
                         </div>
                         <div class="card-body">
                             <form id="game-form">
                                 <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="game-title" class="form-label">Game Title</label>
-                                            <input type="text" class="form-control" id="game-title" required>
-                                        </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="game-title" class="form-label">Game Title</label>
+                                        <input type="text" class="form-control" id="game-title" required>
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label for="game-slug" class="form-label">Slug (URL-friendly)</label>
-                                            <input type="text" class="form-control" id="game-slug" placeholder="Will auto-generate">
-                                        </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="game-slug" class="form-label">Slug (URL-friendly)</label>
+                                        <input type="text" class="form-control" id="game-slug" placeholder="Auto-generated">
                                     </div>
                                 </div>
                                 
@@ -160,16 +179,20 @@
                                     <textarea class="form-control" id="game-description" rows="3" required></textarea>
                                 </div>
 
-                                <div class="mb-3">
+                                <div class="mb-4">
                                     <label class="form-label">Thumbnail Image</label>
                                     <div class="drag-drop-area" id="drag-drop-area">
                                         <div id="upload-placeholder">
                                             <i class="bi bi-cloud-arrow-up display-4 text-muted mb-3"></i>
-                                            <p class="mb-1">Click to upload or drag and drop</p>
+                                            <p class="mb-0 text-muted">Click or Drag & Drop image here</p>
                                         </div>
                                         <div id="upload-preview" style="display: none;">
                                             <img id="thumbnail-preview" class="upload-preview" src="" alt="Preview">
-                                            <button type="button" class="btn btn-sm btn-outline-danger mt-2" onclick="clearFileUpload()">Remove</button>
+                                            <div class="mt-2">
+                                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearFileUpload()">
+                                                    <i class="bi bi-trash me-1"></i> Remove
+                                                </button>
+                                            </div>
                                         </div>
                                         <input type="file" id="game-thumbnail" accept="image/*" style="display: none;">
                                     </div>
@@ -184,39 +207,39 @@
                         </div>
                     </div>
 
-                    <div class="card bg-dark mb-4">
-                        <div class="card-header">
-                            <h3><i class="bi bi-hourglass-split me-2"></i>Coming Soon Management</h3>
+                    <div class="card bg-dark mb-4 border-secondary">
+                        <div class="card-header border-secondary">
+                            <h5 class="mb-0 text-white"><i class="bi bi-hourglass-split me-2"></i>Coming Soon Management</h5>
                         </div>
                         <div class="card-body">
-                            <div class="row mb-4">
+                            <div class="row g-3 mb-4">
                                 <div class="col-md-5">
                                     <label class="form-label">Game Title</label>
-                                    <input type="text" class="form-control" id="upcoming-title" placeholder="Nama Game Coming Soon">
+                                    <input type="text" class="form-control" id="upcoming-title" placeholder="Nama Game">
                                 </div>
                                 <div class="col-md-5">
                                     <label class="form-label">Thumbnail Image</label>
                                     <input type="file" class="form-control" id="upcoming-thumbnail" accept="image/*">
                                 </div>
                                 <div class="col-md-2 d-flex align-items-end">
-                                    <button class="btn btn-primary w-100" id="btn-add-upcoming" onclick="addUpcomingGame()">
-                                        <i class="bi bi-cloud-upload me-1"></i> Upload
+                                    <button class="btn btn-success w-100" id="btn-add-upcoming" onclick="addUpcomingGame()">
+                                        <i class="bi bi-upload me-1"></i> Upload
                                     </button>
                                 </div>
                             </div>
-                            <hr class="border-secondary my-4">
+                            <hr class="border-secondary">
                             <h6 class="text-muted mb-3">Daftar Coming Soon:</h6>
-                            <div id="upcoming-list-container" class="row">
-                                <div class="text-center text-muted col-12">Loading...</div>
+                            <div id="upcoming-list-container" class="row g-3">
+                                <div class="col-12 text-center text-muted">Loading...</div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="card bg-dark mb-4 h-100">
-                                <div class="card-header">
-                                    <h3><i class="bi bi-list-stars me-2"></i>Section Management</h3>
+                    <div class="row g-4">
+                        <div class="col-lg-6">
+                            <div class="card bg-dark h-100 border-secondary">
+                                <div class="card-header border-secondary">
+                                    <h5 class="mb-0 text-white"><i class="bi bi-list-stars me-2"></i>Section Management</h5>
                                 </div>
                                 <div class="card-body">
                                     <div class="input-group mb-3">
@@ -225,16 +248,16 @@
                                             <i class="bi bi-plus-lg"></i>
                                         </button>
                                     </div>
-                                    <div id="section-list-container" class="list-group list-group-flush rounded bg-darker border border-secondary" style="max-height: 300px; overflow-y: auto;">
+                                    <div id="section-list-container" class="list-group list-group-flush rounded bg-darker border border-secondary overflow-auto" style="max-height: 300px;">
                                         <div class="text-center p-3 text-muted">Loading sections...</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="card bg-dark mb-4 h-100">
-                                <div class="card-header">
-                                    <h3><i class="bi bi-journal-text me-2"></i>Chapter Management</h3>
+                        <div class="col-lg-6">
+                            <div class="card bg-dark h-100 border-secondary">
+                                <div class="card-header border-secondary">
+                                    <h5 class="mb-0 text-white"><i class="bi bi-journal-text me-2"></i>Chapter Management</h5>
                                 </div>
                                 <div class="card-body">
                                     <form id="chapter-form">
@@ -271,31 +294,31 @@
                 </div>
 
                 <div id="admin-settings-section" class="admin-section-content">
-                    <div class="card bg-dark mb-4 admin-management-section">
-                        <div class="card-header">
-                            <h4><i class="bi bi-people me-2"></i>Admin Management</h4>
+                    <div class="card bg-dark mb-4 border-warning border-start border-4">
+                        <div class="card-header bg-transparent">
+                            <h5 class="mb-0 text-warning"><i class="bi bi-people-fill me-2"></i>Admin Management</h5>
                         </div>
                         <div class="card-body">
-                            <div class="row mb-4">
+                            <div class="row g-3 mb-4">
                                 <div class="col-md-5">
-                                    <label for="new-admin-email" class="form-label">Email</label>
+                                    <label class="form-label">Email</label>
                                     <input type="email" class="form-control" id="new-admin-email" placeholder="admin@example.com">
                                 </div>
                                 <div class="col-md-5">
-                                    <label for="new-admin-name" class="form-label">Name</label>
+                                    <label class="form-label">Name</label>
                                     <input type="text" class="form-control" id="new-admin-name" placeholder="Admin Name">
                                 </div>
                                 <div class="col-md-2 d-flex align-items-end">
-                                    <button class="btn btn-outline-success w-100" onclick="addAdmin()">
-                                        <i class="bi bi-plus-circle me-1"></i> Add
+                                    <button class="btn btn-outline-warning w-100" onclick="addAdmin()">
+                                        <i class="bi bi-person-plus me-1"></i> Add
                                     </button>
                                 </div>
                             </div>
                             
-                            <h6 class="mb-3">Current Admins:</h6>
-                            <div id="admin-list" class="admin-list">
-                                <div class="text-center text-muted py-3">
-                                    <i class="bi bi-people display-6"></i>
+                            <h6 class="text-white mb-3">Daftar Admin Aktif:</h6>
+                            <div id="admin-list" class="admin-list border border-secondary rounded p-2" style="max-height: 400px; overflow-y: auto;">
+                                <div class="text-center text-muted py-4">
+                                    <i class="bi bi-people display-6 d-block mb-2"></i>
                                     <p>Loading admin list...</p>
                                 </div>
                             </div>
@@ -305,59 +328,62 @@
 
                 <div id="profile-settings-section" class="admin-section-content">
                     <div class="row justify-content-center">
-                        <div class="col-md-8">
-                            <div class="card bg-dark">
-                                <div class="card-header border-bottom border-secondary">
-                                    <h4 class="mb-0">Profile Settings</h4>
+                        <div class="col-lg-8 col-xl-7">
+                            <div class="card bg-dark border-secondary shadow-lg">
+                                <div class="card-header border-secondary py-3">
+                                    <h5 class="mb-0 text-white"><i class="bi bi-gear-fill me-2"></i>Edit Profile</h5>
                                 </div>
                                 <div class="card-body p-4">
                                     <form id="profile-form" onsubmit="handleProfileUpdate(event)">
-                                        <div class="text-center mb-4">
-                                            <div class="profile-pic-container rounded-circle overflow-hidden mb-2 border border-2 border-primary">
+                                        <div class="text-center mb-5">
+                                            <div class="profile-pic-container rounded-circle overflow-hidden mb-3 border border-2 border-primary shadow">
                                                 <img id="settings-profile-img" src="https://ui-avatars.com/api/?name=Admin" class="w-100 h-100 object-fit-cover" alt="Profile">
                                                 <label for="profile-upload" class="profile-pic-overlay">
                                                     <i class="bi bi-camera-fill text-white fs-3"></i>
                                                 </label>
                                             </div>
                                             <input type="file" id="profile-upload" class="d-none" accept="image/*" onchange="previewProfileImage(this)">
-                                            <small class="text-muted d-block">Click image to change</small>
+                                            <p class="text-muted small mb-0">Klik gambar untuk mengganti foto</p>
                                         </div>
 
-                                        <div class="row mb-3">
+                                        <div class="row g-3 mb-4">
                                             <div class="col-md-6">
                                                 <label class="form-label">Display Name</label>
-                                                <input type="text" class="form-control" id="settings-name" placeholder="Your Name">
+                                                <input type="text" class="form-control" id="settings-name" placeholder="Nama Lengkap">
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label">Username</label>
                                                 <div class="input-group">
-                                                    <span class="input-group-text bg-dark border-secondary text-light">@</span>
+                                                    <span class="input-group-text bg-darker border-secondary text-muted">@</span>
                                                     <input type="text" class="form-control" id="settings-username" placeholder="username">
                                                 </div>
+                                                <div class="form-text text-muted smaller">Username hanya tampilan (dari email).</div>
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="form-label">Email Address</label>
+                                                <input type="email" class="form-control bg-darker text-muted cursor-not-allowed" id="settings-email" readonly disabled>
+                                                <div class="form-text text-muted smaller"><i class="bi bi-lock-fill me-1"></i>Email terhubung dengan akun Google dan tidak dapat diubah.</div>
                                             </div>
                                         </div>
 
                                         <div class="mb-4">
-                                            <label class="form-label">Email Address</label>
-                                            <input type="email" class="form-control bg-darker text-muted" id="settings-email" readonly disabled>
-                                            <div class="form-text">Email cannot be changed as it is linked to your Google account.</div>
-                                        </div>
-
-                                        <div class="mb-4">
-                                            <label class="form-label mb-3">Connected Accounts</label>
+                                            <label class="form-label mb-2">Connected Accounts</label>
                                             <div class="d-flex align-items-center p-3 rounded bg-darker border border-secondary">
-                                                <i class="bi bi-google text-white fs-4 me-3"></i>
-                                                <div class="flex-grow-1">
-                                                    <h6 class="mb-0 text-white">Google</h6>
-                                                    <small class="text-success">Connected</small>
+                                                <div class="bg-white rounded-circle p-1 me-3 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" alt="Google">
                                                 </div>
-                                                <button type="button" class="btn btn-sm btn-outline-secondary" disabled>Unlink</button>
+                                                <div class="flex-grow-1">
+                                                    <h6 class="mb-0 text-white">Google Account</h6>
+                                                    <small class="text-success"><i class="bi bi-check-circle-fill me-1"></i>Connected</small>
+                                                </div>
                                             </div>
                                         </div>
 
-                                        <div class="d-flex justify-content-end gap-2">
-                                            <button type="button" class="btn btn-outline-secondary" onclick="loadProfileData()">Reset</button>
-                                            <button type="submit" class="btn btn-primary px-4">Save Changes</button>
+                                        <div class="d-flex justify-content-end gap-2 pt-2 border-top border-secondary">
+                                            <button type="button" class="btn btn-outline-secondary px-4" onclick="loadProfileData()">Reset</button>
+                                            <button type="submit" class="btn btn-primary px-4">
+                                                <i class="bi bi-save me-2"></i>Save Changes
+                                            </button>
                                         </div>
                                     </form>
                                 </div>
@@ -381,24 +407,25 @@
     <script src="assets/js/admin.js"></script>
     
     <script>
-        // 1. FUNGSI SIDEBAR TOGGLE & TABS
         document.addEventListener('DOMContentLoaded', function() {
-            // Setup Sidebar Toggle (Mobile)
+            // 1. SETUP SIDEBAR MOBILE
             const sidebar = document.getElementById('sidebar');
             const dismissBtn = document.getElementById('dismiss');
             const collapseBtn = document.getElementById('sidebarCollapse');
             const overlay = document.createElement('div');
             
-            overlay.style.cssText = `display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 998; transition: opacity 0.3s;`;
+            // Style Overlay
+            overlay.style.cssText = `display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 998; transition: opacity 0.3s; backdrop-filter: blur(2px);`;
             document.body.appendChild(overlay);
 
+            // Event Listeners Sidebar
             dismissBtn.addEventListener('click', () => {
-                sidebar.classList.add('active');
+                sidebar.classList.add('active'); // active = hidden (margin-left negative)
                 overlay.style.display = 'none';
             });
 
             collapseBtn.addEventListener('click', () => {
-                sidebar.classList.remove('active'); // Di game.html 'active' berarti hidden (margin negative)
+                sidebar.classList.remove('active'); // show sidebar
                 if (window.innerWidth <= 768) overlay.style.display = 'block';
             });
 
@@ -407,38 +434,162 @@
                 overlay.style.display = 'none';
             });
 
-            // Load Profile Data saat auth siap
+            // 2. LOAD PROFILE DATA SAAT LOGIN
             auth.onAuthStateChanged((user) => {
                 if(user) {
                     loadProfileData(user);
-                    // Update header info
-                    const userInfoTop = document.getElementById('user-info-top');
-                    if(userInfoTop) {
-                        userInfoTop.innerHTML = `
-                            <div class="fw-bold text-white small">${user.displayName || 'Admin'}</div>
-                            <div class="text-white-50 smaller" style="font-size: 0.75rem;">${user.email}</div>
-                        `;
-                    }
+                    updateTopBarUser(user);
                 }
             });
 
-            // Drag & Drop logic untuk Form Game (dari admin.html lama)
+            // 3. SETUP DRAG & DROP THUMBNAIL (Fitur Lama)
+            setupDragDrop();
+        });
+
+        // --- FUNGSI NAVIGASI TABS ---
+        function switchTab(tabName, element) {
+            // Update Active State Menu
+            document.querySelectorAll('.nav-link-custom').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+
+            // Sembunyikan Semua Section
+            document.querySelectorAll('.admin-section-content').forEach(el => el.classList.remove('active'));
+
+            // Tampilkan Section Terpilih & Update Judul
+            const pageTitle = document.getElementById('page-title');
+            
+            if (tabName === 'content') {
+                document.getElementById('content-section').classList.add('active');
+                pageTitle.textContent = 'Manajemen Konten';
+            } else if (tabName === 'admin-settings') {
+                document.getElementById('admin-settings-section').classList.add('active');
+                pageTitle.textContent = 'Pengaturan Admin';
+            } else if (tabName === 'profile-settings') {
+                document.getElementById('profile-settings-section').classList.add('active');
+                pageTitle.textContent = 'Profil Saya';
+            }
+
+            // Auto-close sidebar di mobile
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.add('active');
+                document.querySelector('div[style*="z-index: 998"]').style.display = 'none';
+            }
+        }
+
+        // --- FUNGSI MANAJEMEN PROFIL ---
+        
+        // Load data user ke form
+        function loadProfileData(userInput) {
+            const user = userInput || firebase.auth().currentUser;
+            if(!user) return;
+
+            document.getElementById('settings-email').value = user.email;
+            document.getElementById('settings-name').value = user.displayName || '';
+            
+            // Gunakan foto profil dari Firebase atau generate avatar default
+            const photoUrl = user.photoURL || `https://ui-avatars.com/api/?name=${user.email}&background=random`;
+            document.getElementById('settings-profile-img').src = photoUrl;
+            
+            // Generate username visual dari email
+            const defaultUsername = user.email.split('@')[0];
+            document.getElementById('settings-username').value = defaultUsername;
+        }
+
+        // Update info user di pojok kanan atas
+        function updateTopBarUser(user) {
+            const userInfoTop = document.getElementById('user-info-top');
+            if(userInfoTop) {
+                userInfoTop.innerHTML = `
+                    <div class="fw-bold text-white small">${user.displayName || 'Admin'}</div>
+                    <div class="text-white-50" style="font-size: 0.7rem;">${user.email}</div>
+                `;
+            }
+        }
+
+        // Preview gambar saat dipilih
+        function previewProfileImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('settings-profile-img').src = e.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Simpan perubahan profil
+        async function handleProfileUpdate(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerHTML;
+            
+            // Loading State
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
+
+            const newName = document.getElementById('settings-name').value;
+            const fileInput = document.getElementById('profile-upload');
+            const user = firebase.auth().currentUser;
+
+            try {
+                let newPhotoURL = user.photoURL;
+
+                // 1. Upload foto baru jika ada file yang dipilih
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    // Simpan di folder profile-pictures/{UID}
+                    const storageRef = firebase.storage().ref(`profile-pictures/${user.uid}`);
+                    await storageRef.put(file);
+                    newPhotoURL = await storageRef.getDownloadURL();
+                }
+
+                // 2. Update Profil Firebase Auth
+                await user.updateProfile({
+                    displayName: newName,
+                    photoURL: newPhotoURL
+                });
+
+                // 3. Berhasil
+                showNotification('✅ Profil berhasil diperbarui!', 'success');
+                
+                // Refresh tampilan
+                updateTopBarUser(user);
+                loadProfileData(user);
+
+            } catch (error) {
+                console.error("Error updating profile:", error);
+                showNotification('❌ Gagal update: ' + error.message, 'error');
+            } finally {
+                // Reset Tombol
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+
+        // Helper: Drag & Drop Thumbnail Game
+        function setupDragDrop() {
             const dragDropArea = document.getElementById('drag-drop-area');
             const fileInput = document.getElementById('game-thumbnail');
+            
             if (dragDropArea && fileInput) {
                 dragDropArea.addEventListener('click', () => fileInput.click());
                 fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
-                dragDropArea.addEventListener('dragover', (e) => { e.preventDefault(); dragDropArea.classList.add('dragover'); });
+                
+                dragDropArea.addEventListener('dragover', (e) => { 
+                    e.preventDefault(); 
+                    dragDropArea.classList.add('dragover'); 
+                });
+                
                 dragDropArea.addEventListener('dragleave', () => dragDropArea.classList.remove('dragover'));
+                
                 dragDropArea.addEventListener('drop', (e) => {
                     e.preventDefault();
                     dragDropArea.classList.remove('dragover');
-                    const files = e.dataTransfer.files;
-                    fileInput.files = files; // Assign dropped files to input
-                    handleFiles(files);
+                    fileInput.files = e.dataTransfer.files;
+                    handleFiles(e.dataTransfer.files);
                 });
             }
-        });
+        }
 
         function handleFiles(files) {
             const thumbnailPreview = document.getElementById('thumbnail-preview');
@@ -453,110 +604,6 @@
                     if (uploadPreview) uploadPreview.style.display = 'block';
                 };
                 reader.readAsDataURL(files[0]);
-            }
-        }
-
-        // 2. FUNGSI GANTI TAB SIDEBAR
-        function switchTab(tabName, element) {
-            // Reset active class di menu
-            document.querySelectorAll('.nav-link-custom').forEach(el => el.classList.remove('active'));
-            element.classList.add('active');
-
-            // Sembunyikan semua section
-            document.querySelectorAll('.admin-section-content').forEach(el => el.classList.remove('active'));
-
-            // Tampilkan section yang dipilih & Update Judul
-            const pageTitle = document.getElementById('page-title');
-            if (tabName === 'content') {
-                document.getElementById('content-section').classList.add('active');
-                pageTitle.textContent = 'Manajemen Konten';
-            } else if (tabName === 'admin-settings') {
-                document.getElementById('admin-settings-section').classList.add('active');
-                pageTitle.textContent = 'Pengaturan Admin';
-            } else if (tabName === 'profile-settings') {
-                document.getElementById('profile-settings-section').classList.add('active');
-                pageTitle.textContent = 'Pengaturan Akun';
-            }
-
-            // Tutup sidebar di mobile setelah klik
-            if (window.innerWidth <= 768) {
-                document.getElementById('sidebar').classList.add('active');
-                document.querySelector('div[style*="z-index: 998"]').style.display = 'none'; // hide overlay
-            }
-        }
-
-        // 3. FUNGSI PROFILE SETTINGS
-        function loadProfileData(userInput) {
-            const user = userInput || firebase.auth().currentUser;
-            if(!user) return;
-
-            // Isi form dengan data user saat ini
-            document.getElementById('settings-email').value = user.email;
-            document.getElementById('settings-name').value = user.displayName || '';
-            document.getElementById('settings-profile-img').src = user.photoURL || `https://ui-avatars.com/api/?name=${user.email}`;
-            
-            // Username (Simulasi: Ambil dari email sebelum @ jika displayName kosong)
-            const defaultUsername = user.email.split('@')[0];
-            document.getElementById('settings-username').value = defaultUsername;
-        }
-
-        function previewProfileImage(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('settings-profile-img').src = e.target.result;
-                }
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        async function handleProfileUpdate(e) {
-            e.preventDefault();
-            const btn = e.target.querySelector('button[type="submit"]');
-            const originalText = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Saving...';
-
-            const newName = document.getElementById('settings-name').value;
-            const fileInput = document.getElementById('profile-upload');
-            const user = firebase.auth().currentUser;
-
-            try {
-                let newPhotoURL = user.photoURL;
-
-                // 1. Upload foto baru jika ada
-                if (fileInput.files.length > 0) {
-                    const file = fileInput.files[0];
-                    const storageRef = firebase.storage().ref(`profile-pictures/${user.uid}`);
-                    await storageRef.put(file);
-                    newPhotoURL = await storageRef.getDownloadURL();
-                }
-
-                // 2. Update Firebase Auth Profile
-                await user.updateProfile({
-                    displayName: newName,
-                    photoURL: newPhotoURL
-                });
-
-                // 3. Update UI
-                showNotification('✅ Profile updated successfully!', 'success');
-                loadProfileData(user); // Reload data visual
-                
-                // Update info di top bar
-                const userInfoTop = document.getElementById('user-info-top');
-                if(userInfoTop) {
-                    userInfoTop.innerHTML = `
-                        <div class="fw-bold text-white small">${newName}</div>
-                        <div class="text-white-50 smaller" style="font-size: 0.75rem;">${user.email}</div>
-                    `;
-                }
-
-            } catch (error) {
-                console.error("Error updating profile:", error);
-                showNotification('❌ Update failed: ' + error.message, 'error');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = originalText;
             }
         }
     </script>
