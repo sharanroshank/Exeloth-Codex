@@ -11,9 +11,58 @@
     <link rel="stylesheet" href="assets/css/style.css">
 
     <style>
-        /* Sembunyikan navbar bawaan jika terbawa dari CSS global */
+        /* Global Reset */
         .navbar.fixed-top { display: none !important; }
         body { padding-top: 0 !important; background-color: #34353a; }
+
+        /* [KASUS 5] Top Bar Styling - Memberi background agar terpisah dari konten */
+        .top-bar {
+            background-color: #25262b; /* Warna sama dengan sidebar */
+            padding: 15px 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            /* Agar tetap di atas saat scroll (Sticky Header) */
+            position: sticky;
+            top: 0;
+            z-index: 900;
+        }
+
+        /* [KASUS 6] Fix Tombol Garis 3 di Mobile */
+        @media (max-width: 768px) {
+            #sidebarCollapse {
+                display: block !important; /* Paksa muncul di HP */
+                font-size: 1.8rem;
+                padding: 5px;
+            }
+        }
+
+        /* [KASUS 4] Style Tombol Favorit Toggle */
+        .btn-favorite {
+            transition: all 0.3s ease;
+            border: 1px solid #ff6b6b; /* Outline default */
+            background: transparent;
+            color: #ff6b6b;
+        }
+        
+        /* State Aktif (Saat dipencet) */
+        .btn-favorite.active {
+            background-color: #ff6b6b;
+            color: white;
+            box-shadow: 0 0 15px rgba(255, 107, 107, 0.4);
+        }
+
+        /* User Profile & Login Button Styles */
+        .user-profile img {
+            border: 2px solid rgba(255,255,255,0.2);
+            transition: 0.3s;
+        }
+        .user-profile img:hover {
+            border-color: var(--primary-color);
+        }
     </style>
 </head>
 <body>
@@ -63,8 +112,7 @@
             </div>
         </nav>
 
-        <div id="content">
-            <div class="top-bar">
+        <div id="content" style="padding: 0;"> <div class="top-bar">
                 <div class="d-flex align-items-center gap-3">
                     <button type="button" id="sidebarCollapse">
                         <i class="bi bi-list"></i>
@@ -72,22 +120,25 @@
                 </div>
 
                 <div class="d-flex align-items-center gap-4">
-                    <a href="https://saweria.co" target="_blank" class="text-white text-decoration-none fw-bold">Saweria</a>
-                    <div class="user-profile">
-                        <img src="https://ui-avatars.com/api/?name=User&background=ff6b6b&color=fff" class="rounded-circle" width="40" height="40" alt="Profile">
+                    <a href="https://saweria.co" target="_blank" class="text-white text-decoration-none fw-bold hover-scale">
+                        <i class="bi bi-gift-fill me-1 text-warning"></i> Saweria
+                    </a>
+                    
+                    <div id="auth-container">
+                        <div class="spinner-border spinner-border-sm text-light" role="status"></div>
                     </div>
                 </div>
             </div>
 
-            <div class="container-fluid px-4">
+            <div class="container-fluid px-4 pb-5">
                 <div class="d-flex justify-content-end mb-4">
-                    <button class="btn btn-favorite">
-                        <i class="bi bi-star me-1"></i> Favorit
+                    <button class="btn btn-favorite rounded-pill px-4" id="favorite-btn" onclick="toggleFavorite()">
+                        <i class="bi bi-star me-2" id="favorite-icon"></i> <span id="favorite-text">Favorit</span>
                     </button>
                 </div>
 
-                <div class="text-center mt-5">
-                    <h1 class="fw-bold mb-4">Tentang Game</h1>
+                <div class="text-center mt-3">
+                    <h1 class="fw-bold mb-4 text-white">Tentang Game</h1>
                     
                     <div class="row justify-content-center">
                         <div class="col-lg-8 text-start text-white-50">
@@ -103,23 +154,122 @@
             </div>
         </div>
     </div>
+    
+    <div id="notification-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="assets/js/firebase-config.js"></script>
+    <script src="assets/js/auth-system.js"></script>
+    
     <script>
+        // ================= KASUS 4: FAVORITE TOGGLE =================
+        let isFavorite = false;
+
+        function toggleFavorite() {
+            const btn = document.getElementById('favorite-btn');
+            const icon = document.getElementById('favorite-icon');
+            
+            isFavorite = !isFavorite; // Balik status (true <-> false)
+
+            if (isFavorite) {
+                // Keadaan Aktif
+                btn.classList.add('active');
+                icon.classList.remove('bi-star');
+                icon.classList.add('bi-star-fill');
+            } else {
+                // Keadaan Non-Aktif
+                btn.classList.remove('active');
+                icon.classList.remove('bi-star-fill');
+                icon.classList.add('bi-star');
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
+            // ================= KASUS 6: MOBILE SIDEBAR FIX =================
             const sidebar = document.getElementById('sidebar');
             const dismissBtn = document.getElementById('dismiss');
             const collapseBtn = document.getElementById('sidebarCollapse');
+            const content = document.getElementById('content');
+            const overlay = document.createElement('div'); // Buat overlay gelap untuk mobile
+            
+            // Setup Overlay style
+            overlay.style.cssText = `
+                display: none;
+                position: fixed;
+                top: 0; left: 0; width: 100vw; height: 100vh;
+                background: rgba(0,0,0,0.5);
+                z-index: 998;
+                transition: opacity 0.3s;
+            `;
+            document.body.appendChild(overlay);
 
-            // Tutup Sidebar (Klik X)
+            // Logic Tutup Sidebar (X)
             dismissBtn.addEventListener('click', function() {
-                sidebar.classList.add('active'); 
+                sidebar.classList.add('active'); // Di Desktop: Hilang | Di Mobile: Muncul
+                
+                // Logic khusus Mobile
+                if (window.innerWidth <= 768) {
+                   sidebar.classList.remove('active'); // Karena di CSS mobile, defaultnya hidden (-260px). 'active' buat dia muncul (0px).
+                   overlay.style.display = 'none';
+                }
             });
 
-            // Buka Sidebar (Klik Garis 3)
+            // Logic Buka/Tutup Sidebar (Garis 3)
             collapseBtn.addEventListener('click', function() {
+                // Toggle class active
+                sidebar.classList.toggle('active');
+                
+                // Jika di Mobile, atur overlay
+                if (window.innerWidth <= 768) {
+                    if (sidebar.classList.contains('active')) {
+                        overlay.style.display = 'block';
+                    } else {
+                        overlay.style.display = 'none';
+                    }
+                }
+            });
+
+            // Klik Overlay untuk tutup sidebar (UX Mobile)
+            overlay.addEventListener('click', function() {
                 sidebar.classList.remove('active');
+                overlay.style.display = 'none';
+            });
+
+            // ================= KASUS 3: AUTH / AVATAR LOGIC =================
+            const authContainer = document.getElementById('auth-container');
+            
+            // Listener status Login
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    // SUDAH LOGIN: Tampilkan Avatar
+                    const photoURL = user.photoURL || 'https://ui-avatars.com/api/?name=User&background=random';
+                    const name = user.displayName || 'User';
+                    
+                    authContainer.innerHTML = `
+                        <div class="dropdown">
+                            <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="${photoURL}" alt="" width="35" height="35" class="rounded-circle me-2" style="object-fit: cover;">
+                                <span class="d-none d-sm-inline small fw-bold">${name.split(' ')[0]}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
+                                <li><a class="dropdown-item" href="#">Profile</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="#" onclick="signOut()">Sign out</a></li>
+                            </ul>
+                        </div>
+                    `;
+                } else {
+                    // BELUM LOGIN: Tampilkan Tombol Login
+                    authContainer.innerHTML = `
+                        <button onclick="showGoogleSignIn()" class="btn btn-outline-light btn-sm rounded-pill px-3 fw-bold hover-scale">
+                            <i class="bi bi-google me-2"></i> Login
+                        </button>
+                    `;
+                }
             });
         });
     </script>

@@ -65,31 +65,38 @@ async function handleUserSignedIn(user) {
         // Cek database admin
         const adminDoc = await db.collection('admins').doc(user.email).get();
         
-        if (adminDoc.exists) {
+if (adminDoc.exists) {
             // ✅ ADMIN RESMI - Izinkan masuk
             currentUser = user;
             console.log('Admin access granted:', user.email);
             
             updateNavbar(true);
             
-            // Logika Redirect (Sama seperti sebelumnya)
             const isFromLoginAction = sessionStorage.getItem('loginAction') === 'true';
             const isOnAdminPage = window.location.pathname.includes('admin');
             
-            if (isFromLoginAction && !isOnAdminPage) {
-                showNotification('Login successful! Redirecting...', 'success');
-                sessionStorage.removeItem('loginAction');
-                setTimeout(() => { window.location.href = 'admin.html'; }, 1000);
-            } else if (isOnAdminPage) {
+            // 1. LOGIKA NOTIFIKASI & REDIRECT (Hanya jika user BARU SAJA login via tombol)
+            if (isFromLoginAction) {
+                showNotification('Login successful!', 'success');
+                sessionStorage.removeItem('loginAction'); // Hapus flag agar notifikasi tidak muncul lagi saat refresh
+                
+                // Redirect ke admin jika belum di sana
+                if (!isOnAdminPage) {
+                    setTimeout(() => { window.location.href = 'admin.html'; }, 1000);
+                }
+            }
+            // Jika isFromLoginAction = false, kita diam saja (SILENT MODE) saat pindah halaman
+            
+            // 2. LOGIKA MEMUAT PANEL ADMIN (Hanya jika sedang di halaman admin)
+            if (isOnAdminPage) {
                 setTimeout(() => {
                     if (typeof showAdminPanel === 'function') {
                         showAdminPanel(user);
                     } else {
+                        // Tunggu sebentar jika script admin.js belum siap
                         setTimeout(() => showAdminPanel(user), 500);
                     }
                 }, 500);
-            } else {
-                showNotification('Login successful!', 'success');
             }
             
         } else {
