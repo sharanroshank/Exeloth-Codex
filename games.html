@@ -4,60 +4,120 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daftar Games - Exeloth Codex</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
+
     <style>
-        /* Custom CSS untuk Filter Box */
+        /* --- CSS KHUSUS HALAMAN INI --- */
+
+        /* 1. Filter Box Styling */
         .filter-box {
-            background-color: #212529;
+            background-color: #212529; /* Dark bg */
             border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 10px;
-        }
-        
-        .game-card-public {
-            background-color: #1a1d20;
             border-radius: 12px;
-            overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            height: 100%;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        /* 2. Card Style: Overlay (Mirip Screenshot) */
+        .card-game-overlay {
             position: relative;
+            border-radius: 15px; /* Sudut membulat (rounded-4) */
+            overflow: hidden;
+            height: 280px; /* Tinggi kartu fix */
+            transition: all 0.3s ease;
+            cursor: pointer;
             border: 1px solid rgba(255,255,255,0.05);
+            background-color: #000;
         }
 
-        .game-card-public:hover {
+        /* Efek Hover: Zoom dikit & Shadow */
+        .card-game-overlay:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
-            border-color: var(--primary-color);
+            box-shadow: 0 10px 20px rgba(13, 202, 240, 0.2); /* Glow biru muda */
+            border-color: rgba(13, 202, 240, 0.5);
         }
 
-        .game-card-img-wrapper {
-            height: 180px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .game-card-img-wrapper img {
+        /* Gambar Background */
+        .card-game-overlay img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.3s;
+            filter: brightness(0.6); /* Gelapkan gambar agar teks terbaca */
+            transition: filter 0.3s, transform 0.5s;
         }
 
-        .game-card-public:hover .game-card-img-wrapper img {
-            transform: scale(1.05);
+        .card-game-overlay:hover img {
+            filter: brightness(0.4); /* Lebih gelap saat hover */
+            transform: scale(1.1); /* Zoom in gambar */
         }
 
+        /* Kontainer Teks di Tengah */
+        .card-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            width: 100%;
+            padding: 0 15px;
+            z-index: 10;
+        }
+
+        /* Judul Game */
+        .game-title {
+            color: #fff;
+            font-weight: 800; /* Bold banget */
+            font-style: italic;
+            font-size: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Subtitle / Deskripsi Pendek */
+        .game-subtitle {
+            color: rgba(255,255,255,0.8);
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        }
+
+        /* Badge Status (Pojok Kanan Atas) */
         .status-badge {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            padding: 4px 10px;
+            top: 15px;
+            right: 15px;
+            padding: 5px 12px;
             border-radius: 20px;
-            z-index: 2;
+            font-size: 0.75rem;
+            font-weight: bold;
+            z-index: 20;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+
+        /* Warna Badge Custom */
+        .badge-new { background: #28a745; color: white; }
+        .badge-ongoing { background: #0dcaf0; color: black; }
+        .badge-coming { background: #ffc107; color: black; }
+        .badge-ended { background: #dc3545; color: white; }
+
+        /* Pagination Style */
+        .pagination .page-link {
+            background-color: #212529;
+            border-color: #495057;
+            color: #fff;
+        }
+        .pagination .page-item.active .page-link {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+        .pagination .page-item.disabled .page-link {
+            background-color: #1a1d20;
+            color: #6c757d;
         }
     </style>
 </head>
@@ -99,22 +159,27 @@
     <section class="py-5 mt-5">
         <div class="container">
             
-            <h2 class="text-white fw-bold mb-4">Daftar Games</h2>
+            <div class="text-center mb-5">
+                <h2 class="text-white fw-bold display-5">
+                    <i class="bi bi-collection-play me-2"></i> Codex Library
+                </h2>
+                <p class="text-muted">Temukan panduan dan cerita dari game favoritmu</p>
+            </div>
 
             <div class="filter-box p-4 mb-5">
                 <div class="row g-3">
                     <div class="col-md-4">
-                        <label class="form-label text-white-50 small">Cari Nama Game</label>
+                        <label class="form-label text-white-50 small">Cari Game</label>
                         <div class="input-group">
                             <span class="input-group-text bg-dark border-secondary text-white"><i class="bi bi-search"></i></span>
-                            <input type="text" id="publicSearchName" class="form-control bg-dark text-white border-secondary" placeholder="Contoh: Wuthering Waves...">
+                            <input type="text" id="publicSearchName" class="form-control bg-dark text-white border-secondary" placeholder="Wuthering Waves...">
                         </div>
                     </div>
                     
                     <div class="col-md-3">
-                        <label class="form-label text-white-50 small">Kategori Status</label>
+                        <label class="form-label text-white-50 small">Status</label>
                         <select id="publicFilterCategory" class="form-select bg-dark text-white border-secondary">
-                            <option value="all">Semua Kategori</option>
+                            <option value="all">Semua Status</option>
                             <option value="New Release">New Release</option>
                             <option value="Ongoing">Ongoing</option>
                             <option value="Coming Soon">Coming Soon</option>
@@ -123,20 +188,23 @@
                     </div>
 
                     <div class="col-md-3">
-                        <label class="form-label text-white-50 small">Tanggal Rilis</label>
+                        <label class="form-label text-white-50 small">Rilis</label>
                         <input type="date" id="publicFilterDate" class="form-control bg-dark text-white border-secondary">
                     </div>
 
                     <div class="col-md-2 d-flex align-items-end">
-                        <button onclick="resetPublicFilters()" class="btn btn-outline-light w-100">
-                            Reset
+                        <button onclick="resetPublicFilters()" class="btn btn-outline-info w-100 fw-bold">
+                            Reset Filter
                         </button>
                     </div>
                 </div>
             </div>
 
             <div class="row g-4" id="publicGamesContainer">
-                <div class="col-12 text-center text-white py-5">Loading games...</div>
+                <div class="col-12 text-center text-white py-5">
+                    <div class="spinner-border text-info" role="status"></div>
+                    <p class="mt-2">Memuat library...</p>
+                </div>
             </div>
 
             <nav class="mt-5">
@@ -148,12 +216,8 @@
     </section>
 
     <footer class="bg-darker py-4 mt-5 border-top border-secondary">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <p class="mb-0 text-muted">© Exeloth Codex — community guides for gacha fans</p>
-                </div>
-            </div>
+        <div class="container text-center">
+            <p class="mb-0 text-muted small">© 2024 Exeloth Codex — All rights reserved.</p>
         </div>
     </footer>
 
@@ -164,20 +228,22 @@
     <script src="assets/js/auth-system.js"></script>
 
     <script>
-        // --- DATA DUMMY (Sesuai Screenshot Anda) ---
-        // Jika backend Firebase sudah siap, bagian ini diganti dengan fetch dari Firebase
+        // --- DATA GAMES (Contoh) ---
+        // Gambar menggunakan placeholder sementara
         const publicGamesData = [
             { 
                 id: 1, 
                 title: "Arknights: Endfield", 
                 category: "Coming Soon", 
+                desc: "3D Real-time Strategy RPG",
                 date: "2025-01-01", 
-                img: "assets/img/games/wuthering-waves.jpg" // Ganti dengan gambar asli
+                img: "assets/img/games/wuthering-waves.jpg" 
             },
             { 
                 id: 2, 
                 title: "Wuthering Waves", 
                 category: "New Release", 
+                desc: "Open-world Action RPG",
                 date: "2024-05-22", 
                 img: "assets/img/games/wuthering-waves.jpg"
             },
@@ -185,6 +251,7 @@
                 id: 3, 
                 title: "Reverse: 1999", 
                 category: "Ongoing", 
+                desc: "Time-travel Strategic RPG",
                 date: "2023-10-26", 
                 img: "assets/img/games/wuthering-waves.jpg"
             },
@@ -192,6 +259,7 @@
                 id: 4, 
                 title: "Genshin Impact", 
                 category: "Ongoing", 
+                desc: "Open-world Adventure",
                 date: "2020-09-28", 
                 img: "assets/img/games/wuthering-waves.jpg" 
             },
@@ -199,6 +267,7 @@
                 id: 5, 
                 title: "Honkai: Star Rail", 
                 category: "Ongoing", 
+                desc: "Space Fantasy RPG",
                 date: "2023-04-26", 
                 img: "assets/img/games/wuthering-waves.jpg" 
             },
@@ -206,25 +275,25 @@
                 id: 6, 
                 title: "Zenless Zone Zero", 
                 category: "Coming Soon", 
+                desc: "Urban Fantasy Action",
                 date: "2024-07-04", 
                 img: "assets/img/games/wuthering-waves.jpg" 
             },
         ];
 
         let publicCurrentPage = 1;
-        const publicItemsPerPage = 4; // Tampilkan 4 game per halaman
+        const publicItemsPerPage = 4;
         let publicFilteredData = [...publicGamesData];
 
-        // --- EVENT LISTENERS ---
         document.addEventListener('DOMContentLoaded', () => {
-            renderPublicGames(); // Load pertama kali
+            renderPublicGames();
             
+            // Event Listeners
             document.getElementById('publicSearchName').addEventListener('input', applyPublicFilters);
             document.getElementById('publicFilterCategory').addEventListener('change', applyPublicFilters);
             document.getElementById('publicFilterDate').addEventListener('change', applyPublicFilters);
         });
 
-        // --- FUNGSI FILTER ---
         function applyPublicFilters() {
             const search = document.getElementById('publicSearchName').value.toLowerCase();
             const category = document.getElementById('publicFilterCategory').value;
@@ -237,7 +306,7 @@
                 return matchName && matchCategory && matchDate;
             });
 
-            publicCurrentPage = 1; // Reset ke halaman 1
+            publicCurrentPage = 1;
             renderPublicGames();
         }
 
@@ -248,12 +317,10 @@
             applyPublicFilters();
         }
 
-        // --- FUNGSI RENDER GAMES ---
         function renderPublicGames() {
             const container = document.getElementById('publicGamesContainer');
             container.innerHTML = '';
 
-            // Pagination Logic
             const startIndex = (publicCurrentPage - 1) * publicItemsPerPage;
             const endIndex = startIndex + publicItemsPerPage;
             const gamesToShow = publicFilteredData.slice(startIndex, endIndex);
@@ -261,38 +328,33 @@
             if (gamesToShow.length === 0) {
                 container.innerHTML = `
                     <div class="col-12 text-center text-muted py-5">
-                        <i class="bi bi-controller display-4 d-block mb-3"></i>
-                        <h5>Game tidak ditemukan.</h5>
-                        <p>Coba ubah kata kunci pencarian atau filter.</p>
+                        <i class="bi bi-emoji-frown display-4 mb-3 d-block"></i>
+                        <h5>Tidak ada game yang cocok.</h5>
                     </div>`;
                 renderPublicPagination(0);
                 return;
             }
 
             gamesToShow.forEach(game => {
-                // Tentukan Warna Badge
+                // Logic Badge Warna
                 let badgeClass = 'bg-secondary';
-                if (game.category === 'New Release') badgeClass = 'bg-success';
-                if (game.category === 'Ongoing') badgeClass = 'bg-info text-dark';
-                if (game.category === 'Coming Soon') badgeClass = 'bg-warning text-dark';
-                if (game.category === 'Ended') badgeClass = 'bg-danger';
+                if (game.category === 'New Release') badgeClass = 'badge-new';
+                if (game.category === 'Ongoing') badgeClass = 'badge-ongoing';
+                if (game.category === 'Coming Soon') badgeClass = 'badge-coming';
+                if (game.category === 'Ended') badgeClass = 'badge-ended';
 
                 const html = `
                     <div class="col-md-6 col-lg-3">
-                        <a href="game.html?slug=${game.title.toLowerCase().replace(/ /g, '-')}" class="text-decoration-none">
-                            <div class="game-card-public">
-                                <span class="status-badge ${badgeClass}">${game.category}</span>
-                                <div class="game-card-img-wrapper">
-                                    <img src="${game.img}" alt="${game.title}">
-                                </div>
-                                <div class="p-3">
-                                    <h5 class="fw-bold text-white mb-2">${game.title}</h5>
-                                    <p class="text-white-50 small mb-0">
-                                        <i class="bi bi-calendar-event me-2"></i> ${game.date}
-                                    </p>
-                                </div>
+                        <div class="card-game-overlay" onclick="window.location.href='game.html?slug=${game.title.toLowerCase().replace(/[^a-z0-9]/g, '-')}'">
+                            <span class="status-badge ${badgeClass}">${game.category}</span>
+                            
+                            <img src="${game.img}" alt="${game.title}">
+                            
+                            <div class="card-content">
+                                <h3 class="game-title">${game.title}</h3>
+                                <p class="game-subtitle">${game.desc}</p>
                             </div>
-                        </a>
+                        </div>
                     </div>
                 `;
                 container.innerHTML += html;
@@ -301,38 +363,34 @@
             renderPublicPagination(Math.ceil(publicFilteredData.length / publicItemsPerPage));
         }
 
-        // --- FUNGSI RENDER PAGINATION ---
         function renderPublicPagination(totalPages) {
             const container = document.getElementById('publicPaginationContainer');
             container.innerHTML = '';
 
             if (totalPages <= 1) return;
 
-            // Tombol Previous
+            // Prev
             const prevDisabled = publicCurrentPage === 1 ? 'disabled' : '';
             container.innerHTML += `
                 <li class="page-item ${prevDisabled}">
-                    <a class="page-link bg-dark text-white border-secondary" href="#" onclick="changePublicPage(${publicCurrentPage - 1}); return false;">Previous</a>
-                </li>
-            `;
+                    <a class="page-link" href="#" onclick="changePublicPage(${publicCurrentPage - 1}); return false;">&laquo;</a>
+                </li>`;
 
-            // Angka Halaman
+            // Numbers
             for (let i = 1; i <= totalPages; i++) {
-                const activeClass = i === publicCurrentPage ? 'bg-primary border-primary active' : 'bg-dark border-secondary text-white';
+                const activeClass = i === publicCurrentPage ? 'active' : '';
                 container.innerHTML += `
-                    <li class="page-item">
-                        <a class="page-link ${activeClass}" href="#" onclick="changePublicPage(${i}); return false;">${i}</a>
-                    </li>
-                `;
+                    <li class="page-item ${activeClass}">
+                        <a class="page-link" href="#" onclick="changePublicPage(${i}); return false;">${i}</a>
+                    </li>`;
             }
 
-            // Tombol Next
+            // Next
             const nextDisabled = publicCurrentPage === totalPages ? 'disabled' : '';
             container.innerHTML += `
                 <li class="page-item ${nextDisabled}">
-                    <a class="page-link bg-dark text-white border-secondary" href="#" onclick="changePublicPage(${publicCurrentPage + 1}); return false;">Next</a>
-                </li>
-            `;
+                    <a class="page-link" href="#" onclick="changePublicPage(${publicCurrentPage + 1}); return false;">&raquo;</a>
+                </li>`;
         }
 
         function changePublicPage(page) {
