@@ -13,40 +13,40 @@
         display: none !important;
     }
 
-    /* --- UPDATE KASUS 1: Background & Logo --- */
-    
-    /* 1. Container untuk Background Image */
+    /* --- [BARU] BACKGROUND SETTINGS --- */
     .game-bg-overlay {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
-        height: 85vh; /* Tinggi gambar tidak sampai full ke bawah agar fade out natural */
-        background-image: url('/assets/img/games/background-wuthering-waves.jpg'); /* Pastikan nama file sesuai */
+        height: 85vh; /* Tidak full ke bawah agar transisi fade out halus */
+        
+        /* Gambar Background */
+        background-image: url('/assets/img/games/background-wuthering-waves.jpg');
         background-size: cover;
         background-position: center top;
-        opacity: 0.15; /* Opasitas sangat rendah sesuai request */
-        z-index: 0; /* Di belakang konten */
         
-        /* Efek Fade Out di bagian bawah gambar */
-        -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
-        mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+        /* Opasitas Rendah */
+        opacity: 0.15; 
+        z-index: 0; /* Di belakang konten */
         pointer-events: none; /* Agar klik tembus ke belakang */
+
+        /* Efek Fade Out di bagian bawah gambar */
+        -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+        mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
     }
 
-    /* 2. Memastikan Konten berada di atas Background */
+    /* Memastikan konten ada di atas background */
     .content-wrapper {
         position: relative;
         z-index: 1;
     }
 
-    /* Style Logo */
-    .game-logo-img {
-        max-width: 250px; /* Ukuran logo */
-        width: 100%;
-        height: auto;
-        display: block;
-        margin-bottom: 1rem;
+    /* --- [BARU] LOGO KECIL --- */
+    .game-logo-small {
+        max-height: 50px; /* Ukuran kecil sesuai tinggi tombol */
+        width: auto;
+        object-fit: contain;
     }
 </style>
 {% endblock %}
@@ -81,7 +81,8 @@
         
         <div class="game-bg-overlay"></div>
 
-        <div class="top-bar position-relative z-1"> <div class="d-flex align-items-center gap-3">
+        <div class="top-bar position-relative z-1">
+            <div class="d-flex align-items-center gap-3">
                 <button type="button" id="sidebarCollapse">
                     <i class="bi bi-list"></i>
                 </button>
@@ -95,16 +96,19 @@
         </div>
 
         <div class="container-fluid px-4 content-wrapper">
-            <div class="d-flex justify-content-end mb-4">
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                
+                <img src="/assets/img/games/logo-wuthering-waves.jpg" alt="Logo" class="game-logo-small">
+
                 <button class="btn btn-favorite text-white border-danger">
                     <i class="bi bi-star me-1"></i> Favorit
                 </button>
             </div>
 
-            <div class="mt-5 text-start"> <div class="row">
+            <div class="mt-5 text-center"> 
+                <div class="row justify-content-center">
                     <div class="col-lg-8">
-                        <img src="/assets/img/games/logo-wuthering-waves.jpg" alt="{{ game.title }} Logo" class="game-logo-img">
-
                         <h1 class="fw-bold mb-4 text-white">Tentang Game</h1>
                         
                         <div class="text-white-50">
@@ -117,6 +121,7 @@
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
