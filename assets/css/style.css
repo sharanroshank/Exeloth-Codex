@@ -944,3 +944,58 @@ select option {
         /* Opsional: tambah overlay */
     }
 }
+
+/* Style untuk Kartu Game */
+.game-card {
+    position: relative;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+    background-color: #212529; /* Dark bg */
+    height: 100%;
+}
+
+.game-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+}
+
+.game-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    opacity: 0.7;
+    transition: opacity 0.3s;
+}
+
+.game-card:hover img {
+    opacity: 1;
+}
+
+.game-card-body {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+    color: white;
+}
+
+.badge-status {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    z-index: 2;
+}
+
+/* Warna badge sesuai status */
+.bg-new { background-color: #28a745; color: white; }      /* Hijau */
+.bg-ongoing { background-color: #17a2b8; color: white; }  /* Biru Muda */
+.bg-coming { background-color: #ffc107; color: black; }   /* Kuning */
+.bg-ended { background-color: #dc3545; color: white; }    /* Merah */
