@@ -1,3 +1,4 @@
+/* ==================== 1. VARIABEL & RESET DASAR ==================== */
 :root {
     --primary-color: #6f42c1;
     --secondary-color: #0dcaf0;
@@ -14,11 +15,25 @@ body {
     font-family: 'Inter', sans-serif;
     background-color: var(--darker-color);
     color: var(--light-color);
-    padding-top: 76px;
+    padding-top: 76px; /* Memberi ruang untuk Navbar Fixed */
 }
 
+/* ==================== 2. NAVBAR & HEADER ==================== */
 .navbar-brand {
     font-size: 1.5rem;
+    letter-spacing: 1px;
+}
+
+.bg-darker {
+    background-color: var(--darker-color) !important;
+}
+
+/* Jumbotron / Hero Section */
+.hero-section {
+    background-color: #2c3035; 
+    min-height: 80vh; 
+    padding-top: 80px;
+    padding-bottom: 80px;
 }
 
 .jumbotron-section {
@@ -28,28 +43,69 @@ body {
     align-items: center;
 }
 
-.bg-darker {
-    background-color: var(--darker-color) !important;
-}
-
+/* ==================== 3. KARTU & KOMPONEN UMUM ==================== */
 .card {
     border: none;
     transition: transform 0.3s;
+    background-color: var(--dark-color); /* Memastikan card gelap */
+    color: var(--light-color);
 }
 
 .card:hover {
     transform: translateY(-5px);
 }
 
+.card h1, .card h2, .card h3, .card h4, .card h5, .card h6, .card-header {
+    color: #ffffff !important;
+}
+
+.card p, .card li {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Game Card Style (Grid di Daftar Games) */
 .game-card {
+    position: relative;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+    background-color: #212529;
     height: 100%;
+}
+
+.game-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
 }
 
 .game-card img {
     height: 200px;
     object-fit: cover;
+    opacity: 0.7;
+    transition: opacity 0.3s;
+    width: 100%;
 }
 
+.game-card:hover img {
+    opacity: 1;
+}
+
+/* Hover Scale Effect */
+.hover-scale {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: inline-block;
+}
+
+.hover-scale:hover {
+    transform: scale(1.05);
+}
+
+.btn.hover-scale:hover {
+    box-shadow: 0 10px 20px -10px rgba(13, 202, 240, 0.5);
+}
+
+/* Badge & Section Labels */
 .badge-section {
     background-color: rgba(255, 255, 255, 0.1);
     border-radius: 20px;
@@ -59,6 +115,24 @@ body {
     display: inline-block;
 }
 
+.badge-status {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    z-index: 2;
+}
+
+/* Status Colors */
+.bg-new { background-color: #28a745; color: white; }
+.bg-ongoing { background-color: #17a2b8; color: white; }
+.bg-coming { background-color: #ffc107; color: black; }
+.bg-ended { background-color: #dc3545; color: white; }
+
+/* Story Chapters */
 .story-section {
     margin-bottom: 3rem;
 }
@@ -76,10 +150,49 @@ body {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
-.modal-content {
-    border-radius: 12px;
+/* ==================== 4. FORM & INPUTS ==================== */
+.form-control, .form-select {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
+.form-control:focus, .form-select:focus {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(111, 66, 193, 0.25);
+}
+
+.form-control::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.form-label {
+    color: var(--light-color);
+    font-weight: 500;
+}
+
+.form-text {
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.form-check-input {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+select option {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+}
+
+/* ==================== 5. BUTTONS & ALERTS ==================== */
 .btn-primary {
     background-color: var(--primary-color);
     border-color: var(--primary-color);
@@ -90,21 +203,24 @@ body {
     border-color: #5a32a3;
 }
 
-/* ==================== ADMIN PANEL STYLES ==================== */
-
-/* Spinner */
-.spinner-border-sm {
-    width: 1rem;
-    height: 1rem;
+/* Alert Variants */
+.alert {
+    border: none;
+    border-radius: 8px;
 }
+.alert-info { background-color: rgba(13, 202, 240, 0.15); color: var(--info-color); border-left: 4px solid var(--info-color); }
+.alert-warning { background-color: rgba(255, 193, 7, 0.15); color: var(--warning-color); border-left: 4px solid var(--warning-color); }
+.alert-danger { background-color: rgba(220, 53, 69, 0.15); color: var(--danger-color); border-left: 4px solid var(--danger-color); }
+.alert-success { background-color: rgba(25, 135, 84, 0.15); color: var(--success-color); border-left: 4px solid var(--success-color); }
 
-/* Guide Section */
+/* ==================== 6. ADMIN PANEL SPECIFIC ==================== */
+.spinner-border-sm { width: 1rem; height: 1rem; }
+
 .guide-section {
     border-left: 4px solid var(--info-color);
     background: rgba(13, 202, 240, 0.1);
 }
 
-/* Upload Styles */
 .upload-preview {
     max-width: 300px;
     max-height: 200px;
@@ -129,17 +245,6 @@ body {
     border-color: #5a32a3;
 }
 
-.drag-drop-area.dragover {
-    background: rgba(111, 66, 193, 0.2);
-    border-color: #4a2a8a;
-}
-
-/* Admin Management Section */
-.admin-management-section {
-    border-left: 4px solid var(--warning-color);
-    background: rgba(255, 193, 7, 0.05);
-}
-
 .admin-list {
     max-height: 400px;
     overflow-y: auto;
@@ -158,649 +263,86 @@ body {
     transition: background-color 0.2s ease;
 }
 
-.admin-item:last-child {
-    border-bottom: none;
-}
-
 .admin-item:hover {
     background-color: rgba(255, 255, 255, 0.05);
 }
 
-.admin-item .admin-info {
-    flex: 1;
-}
+/* Scrollbar Admin List */
+.admin-list::-webkit-scrollbar { width: 6px; }
+.admin-list::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); border-radius: 3px; }
+.admin-list::-webkit-scrollbar-thumb { background: var(--primary-color); border-radius: 3px; }
 
-.admin-item .admin-name {
-    font-weight: 600;
-    color: var(--light-color);
-    margin-bottom: 0.25rem;
-    display: flex;
-    align-items: center;
-}
-
-.admin-item .admin-email {
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 0.875rem;
-    margin-bottom: 0.25rem;
-}
-
-.admin-item .admin-meta {
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 0.75rem;
-}
-
-.admin-item .admin-actions {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.badge-role {
-    font-size: 0.7rem;
-    padding: 0.25rem 0.5rem;
-    margin-left: 0.5rem;
-    font-weight: 500;
-}
-
-/* Scrollbar styling untuk admin list */
-.admin-list::-webkit-scrollbar {
-    width: 6px;
-}
-
-.admin-list::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 3px;
-}
-
-.admin-list::-webkit-scrollbar-thumb {
-    background: var(--primary-color);
-    border-radius: 3px;
-}
-
-.admin-list::-webkit-scrollbar-thumb:hover {
-    background: #5a32a3;
-}
-
-/* Form styling improvements */
-.admin-management-section .form-label {
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-}
-
-.admin-management-section .form-control {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-.admin-management-section .form-control:focus {
-    background: rgba(255, 255, 255, 0.12);
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.2rem rgba(111, 66, 193, 0.25);
-}
-
-/* Button Styles */
-.btn-outline-success {
-    color: var(--success-color);
-    border-color: var(--success-color);
-}
-
-.btn-outline-success:hover {
-    background-color: var(--success-color);
-    border-color: var(--success-color);
-    color: var(--dark-color);
-}
-
-.btn-outline-danger {
-    color: var(--danger-color);
-    border-color: var(--danger-color);
-}
-
-.btn-outline-danger:hover {
-    background-color: var(--danger-color);
-    border-color: var(--danger-color);
-    color: var(--light-color);
-}
-
-.btn-outline-danger:disabled {
-    color: rgba(220, 53, 69, 0.5);
-    border-color: rgba(220, 53, 69, 0.3);
-    background-color: transparent;
-    cursor: not-allowed;
-}
-
-.btn-outline-secondary {
-    color: rgba(255, 255, 255, 0.7);
-    border-color: rgba(255, 255, 255, 0.3);
-}
-
-.btn-outline-secondary:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.5);
-    color: var(--light-color);
-}
-
-/* Alert Styles */
-.alert {
-    border: none;
-    border-radius: 8px;
-}
-
-.alert-info {
-    background-color: rgba(13, 202, 240, 0.15);
-    color: var(--info-color);
-    border-left: 4px solid var(--info-color);
-}
-
-.alert-warning {
-    background-color: rgba(255, 193, 7, 0.15);
-    color: var(--warning-color);
-    border-left: 4px solid var(--warning-color);
-}
-
-.alert-danger {
-    background-color: rgba(220, 53, 69, 0.15);
-    color: var(--danger-color);
-    border-left: 4px solid var(--danger-color);
-}
-
-.alert-success {
-    background-color: rgba(25, 135, 84, 0.15);
-    color: var(--success-color);
-    border-left: 4px solid var(--success-color);
-}
-
-/* Badge Styles */
-.badge {
-    font-size: 0.7em;
-    font-weight: 500;
-}
-
-.badge.bg-warning {
-    background-color: var(--warning-color) !important;
-    color: #000;
-}
-
-.badge.bg-primary {
-    background-color: var(--primary-color) !important;
-}
-
-/* Icon Styles */
-.bi {
-    vertical-align: -0.125em;
-}
-
-/* Loading States */
-.btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-/* Modal Backdrop */
-.modal-backdrop {
-    background-color: rgba(0, 0, 0, 0.8);
-}
-
-.modal-backdrop.show {
-    opacity: 0.8;
-}
-
-/* Text Colors */
-.text-muted {
-    color: rgba(255, 255, 255, 0.6) !important;
-}
-
-.text-success {
-    color: var(--success-color) !important;
-}
-
-.text-danger {
-    color: var(--danger-color) !important;
-}
-
-.text-warning {
-    color: var(--warning-color) !important;
-}
-
-.text-info {
-    color: var(--info-color) !important;
-}
-
-/* Focus States */
-.btn:focus,
-.form-control:focus,
-.form-check-input:focus {
-    box-shadow: 0 0 0 0.2rem rgba(111, 66, 193, 0.25);
-}
-
-/* Selection */
-::selection {
-    background-color: rgba(111, 66, 193, 0.3);
-    color: var(--light-color);
-}
-
-::-moz-selection {
-    background-color: rgba(111, 66, 193, 0.3);
-    color: var(--light-color);
-}
-
-/* ==================== NOTIFICATION STYLES ==================== */
+/* ==================== 7. NOTIFICATION SYSTEM ==================== */
 .notification {
     backdrop-filter: blur(10px);
     background-color: rgba(33, 37, 41, 0.95) !important;
     border-left: 4px solid;
+    color: #ffffff !important;
+    font-weight: 500;
 }
 
-.notification.alert-success {
-    border-left-color: var(--success-color);
-    background-color: rgba(25, 135, 84, 0.95) !important;
-}
+.notification i { color: #ffffff !important; }
 
-.notification.alert-danger {
-    border-left-color: var(--danger-color);
-    background-color: rgba(220, 53, 69, 0.95) !important;
-}
+.notification.alert-success { border-left-color: var(--success-color); background-color: rgba(25, 135, 84, 0.95) !important; }
+.notification.alert-danger { border-left-color: var(--danger-color); background-color: rgba(220, 53, 69, 0.95) !important; }
+.notification.alert-warning { border-left-color: var(--warning-color); background-color: rgba(255, 193, 7, 0.95) !important; }
+.notification.alert-info { border-left-color: var(--info-color); background-color: rgba(13, 202, 240, 0.95) !important; }
 
-.notification.alert-warning {
-    border-left-color: var(--warning-color);
-    background-color: rgba(255, 193, 7, 0.95) !important;
-}
-
-.notification.alert-info {
-    border-left-color: var(--info-color);
-    background-color: rgba(13, 202, 240, 0.95) !important;
-}
-
-/* WhatsApp-like close button */
 .notification .btn-close {
-    filter: invert(1);
-    opacity: 0.8;
+    filter: invert(1) !important;
+    opacity: 0.9 !important;
 }
 
-.notification .btn-close:hover {
-    opacity: 1;
-}
+#notification-container { pointer-events: none; }
+#notification-container .notification { pointer-events: all; }
 
-/* Smooth transitions for notifications */
-#notification-container {
+/* ==================== 8. GAME OVERVIEW PAGE (game.html) ==================== */
+
+/* Wrapper untuk Background Fixed */
+.bg-custom-fixed {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    opacity: 0.15;
+    -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+    mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
     pointer-events: none;
 }
 
-#notification-container .notification {
-    pointer-events: all;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .display-4 {
-        font-size: 2rem;
-    }
-    
-    .jumbotron-section {
-        text-align: center;
-    }
-    
-    .drag-drop-area {
-        padding: 1.5rem;
-    }
-    
-    .admin-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-        padding: 1rem !important;
-    }
-    
-    .admin-item .admin-actions {
-        align-self: flex-end;
-        width: 100%;
-        justify-content: flex-end;
-    }
-    
-    .admin-management-section .row {
-        gap: 1rem;
-    }
-    
-    .admin-management-section .col-md-2 {
-        margin-top: 0.5rem;
-    }
-    
-    .card-body {
-        padding: 1rem;
-    }
-    
-    .btn {
-        font-size: 0.9rem;
-    }
-}
-
-@media (max-width: 576px) {
-    body {
-        padding-top: 70px;
-    }
-    
-    .navbar-brand {
-        font-size: 1.3rem;
-    }
-    
-    .drag-drop-area {
-        padding: 1rem;
-    }
-    
-    .upload-preview {
-        max-width: 250px;
-        max-height: 150px;
-    }
-    
-    .admin-list {
-        max-height: 300px;
-    }
-    
-    /* Responsive notifications */
-    #notification-container {
-        padding: 1rem !important;
-        left: 0;
-        right: 0;
-    }
-    
-    #notification-container .notification {
-        min-width: auto;
-        max-width: 100%;
-        margin-left: auto;
-        margin-right: auto;
-    }
-}
-
-/* Print Styles */
-@media print {
-    .navbar,
-    .btn,
-    .drag-drop-area,
-    .admin-management {
-        display: none !important;
-    }
-    
-    body {
-        background: white !important;
-        color: black !important;
-        padding-top: 0 !important;
-    }
-    
-    .card {
-        background: white !important;
-        color: black !important;
-        border: 1px solid #ddd !important;
-    }
-}
-
-/* High contrast mode support */
-@media (prefers-contrast: high) {
-    :root {
-        --primary-color: #5a32a3;
-        --secondary-color: #0aa8c5;
-        --dark-color: #000000;
-        --darker-color: #111111;
-        --light-color: #ffffff;
-    }
-    
-    .card {
-        border: 1px solid var(--light-color);
-    }
-}
-
-/* Reduced motion support */
-@media (prefers-reduced-motion: reduce) {
-    .card,
-    .admin-item,
-    .chapter-item,
-    .btn {
-        transition: none;
-    }
-    
-    .spinner-border {
-        animation-duration: 1.5s;
-    }
-    
-    .notification {
-        transition: none;
-    }
-}
-
-/* assets/css/style.css - Tambahan di bagian bawah */
-
-/* ==================== NEW HOMEPAGE STYLES ==================== */
-
-/* Navbar adjustment */
-.navbar-brand {
-    letter-spacing: 1px;
-}
-
-/* Hero Section (Jumbotron Baru) */
-.hero-section {
-    /* Warna background hero section sedikit lebih terang dari navbar */
-    background-color: #2c3035; 
-    min-height: 80vh; /* Tinggi minimal agar terlihat penuh */
-    padding-top: 80px;
-    padding-bottom: 80px;
-}
-
-/* Latar belakang bagian Codex (sama gelapnya dengan navbar/footer) */
-.bg-darker {
-    background-color: var(--darker-color) !important;
-}
-
-/* --- Efek Responsif (Hover Scale) --- */
-/* Kelas utilitas untuk efek membesar saat kursor diarahkan */
-.hover-scale {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    display: inline-block; /* Penting agar transform berfungsi pada link */
-}
-
-.hover-scale:hover {
-    transform: scale(1.05); /* Membesar 5% */
-}
-
-/* Khusus untuk tombol biru agar shadow lebih terasa */
-.btn.hover-scale:hover {
-    box-shadow: 0 10px 20px -10px rgba(13, 202, 240, 0.5);
-}
-
-
-/* --- Game Card dengan Text Overlay --- */
-.card-game-link {
-    text-decoration: none;
-    display: block;
-}
-
-.card-game-overlay-container {
-    /* Pastikan container relatif agar teks absolute bisa di tengah */
-    position: relative; 
-    height: 250px;
-    transition: all 0.3s ease;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.card-game-overlay-container img {
-    /* Transisi untuk efek brightness */
-    transition: filter 0.3s ease;
-}
-
-/* Saat card di-hover, gambar menjadi sedikit lebih terang */
-.card-game-link:hover .card-game-overlay-container img {
-    filter: brightness(0.8) !important; /* Override style inline */
-}
-
-.card-overlay-text {
-    /* Memberikan bayangan pada teks agar lebih mudah dibaca di atas gambar */
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-    z-index: 10;
-}
-
-.card-overlay-text h3 {
-    font-size: 1.75rem;
-}
-
-/* Mengubah warna teks input menjadi putih dan background menjadi gelap transparan */
-.form-control, 
-.form-select {
-    background-color: rgba(255, 255, 255, 0.08) !important; /* Latar gelap transparan */
-    color: #ffffff !important; /* Teks Putih */
-    border: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-/* Mengatur tampilan saat input diklik (Focus) */
-.form-control:focus, 
-.form-select:focus {
-    background-color: rgba(255, 255, 255, 0.15) !important;
-    color: #ffffff !important; /* Pastikan teks tetap putih saat mengetik */
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.25rem rgba(111, 66, 193, 0.25);
-}
-
-/* Mengubah warna teks Label (Judul di atas input) menjadi putih */
-.form-label {
-    color: var(--light-color);
-    font-weight: 500;
-}
-
-/* Mengubah warna teks Placeholder (Teks bayangan petunjuk) */
-.form-control::placeholder {
-    color: rgba(255, 255, 255, 0.5); /* Putih agak pudar */
-}
-
-/* Memperbaiki warna teks petunjuk kecil di bawah input */
-.form-text {
-    color: rgba(255, 255, 255, 0.5) !important;
-}
-
-/* Memastikan Checkbox terlihat jelas */
-.form-check-input {
-    background-color: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.3);
-}
-
-.form-check-input:checked {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-}
-
-.form-check-label {
-    color: var(--light-color);
-}
-
-/* 1. Memaksa warna dasar teks di dalam semua Card menjadi terang */
-.card {
-    color: var(--light-color) !important;
-}
-
-/* 2. Memastikan semua Heading (Judul Besar/Kecil) berwarna Putih Mutlak */
-.card h1, .card h2, .card h3, .card h4, .card h5, .card h6, .card-header {
-    color: #ffffff !important;
-}
-
-/* 3. Memastikan List (Daftar angka/poin) di Quick Guide terlihat jelas */
-.card ol, .card ul, .card li {
-    color: rgba(255, 255, 255, 0.9) !important;
-}
-
-/* 4. Memastikan teks paragraf deskripsi terlihat jelas */
-.card p {
-    color: rgba(255, 255, 255, 0.8) !important;
-}
-
-/* 5. Memperbaiki teks di dalam Alert (Kotak Info Biru di Quick Guide) */
-.alert-info {
-    color: #0dcaf0 !important; /* Warna Cyan terang agar kontras */
-    background-color: rgba(13, 202, 240, 0.1) !important;
-    border-color: rgba(13, 202, 240, 0.2);
-}
-
-.alert-info strong {
-    color: #0dcaf0 !important; /* MENGIKUTI WARNA BIRU/CYAN PARENT-NYA */
-}
-
-/* Menghapus garis border default Bootstrap di bawah tab */
-.nav-tabs {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-/* Style tombol tab saat TIDAK aktif */
-.nav-tabs .nav-link {
-    color: rgba(255, 255, 255, 0.6); /* Warna teks abu-abu */
-    background: transparent;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-/* Efek hover pada tombol tab */
-.nav-tabs .nav-link:hover {
-    color: #fff;
-    border: none;
-    background: rgba(255, 255, 255, 0.05);
-}
-
-/* Style tombol tab saat AKTIF (Diklik) */
-.nav-tabs .nav-link.active {
-    color: #fff !important;
-    background-color: transparent !important;
-    border: none !important;
-    border-bottom: 3px solid var(--primary-color) !important; /* Garis ungu di bawah */
-}
-
-/* Memaksa opsi di dalam dropdown berwarna hitam di atas latar putih */
-select option {
-    background-color: #ffffff !important; /* Latar Putih */
-    color: #000000 !important; /* Teks Hitam */
-}
-
-/* Memaksa semua teks di dalam pop-up notifikasi berwarna putih */
-.notification {
-    color: #ffffff !important; /* Warna hitam soft (Dark Gray) agar enak dibaca */
-    font-weight: 500; /* Sedikit ditebalkan agar makin jelas */
-}
-
-/* Memperbaiki warna Ikon di dalam notifikasi agar ikut putih */
-.notification i {
-    color: #ffffff !important;
-}
-
-/* Memperbaiki tombol silang (Close X) agar berwarna hitam */
-/* Sebelumnya ada filter invert yang membuatnya putih, kita matikan filter itu */
-.notification .btn-close {
-    filter: invert(1) !important; /* Mengubah ikon hitam default menjadi putih */
-    opacity: 0.9 !important;       /* Sedikit transparansi agar terlihat elegan */
-}
-
-.notification .btn-close:hover {
-    opacity: 1 !important;
-}
-
-/* Wrapper untuk membungkus seluruh halaman game */
+/* Container Dashboard */
 .dashboard-wrapper {
     display: flex;
     width: 100%;
     min-height: 100vh;
-    background-color: #34353a; /* Warna background utama gelap */
+    background-color: transparent !important;
+    position: relative;
+    z-index: 1;
     overflow-x: hidden;
 }
 
-/* --- SIDEBAR --- */
+/* Sidebar Styling */
 #sidebar {
     min-width: 260px;
     max-width: 260px;
-    min-height: 100vh;
-    background-color: #25262b; /* Warna sidebar lebih gelap */
+    /* PENTING: Sidebar ditaruh di bawah Navbar Global */
+    min-height: calc(100vh - 76px); 
+    background-color: #25262b;
     color: #fff;
     transition: all 0.3s;
     display: flex;
     flex-direction: column;
-    position: fixed; /* Supaya sidebar diam saat discroll */
-    z-index: 1000;
+    position: fixed;
+    z-index: 900;
     left: 0;
-    top: 0;
+    top: 76px; /* Turun 76px dari atas */
 }
 
-/* Saat sidebar ditutup (active class ditambahkan via JS) */
 #sidebar.active {
     margin-left: -260px;
 }
@@ -820,33 +362,9 @@ select option {
     text-transform: uppercase;
 }
 
-/* Tombol Close (X) di Sidebar */
-#dismiss {
-    width: 35px;
-    height: 35px;
-    line-height: 35px;
-    text-align: center;
-    background: rgba(255,255,255,0.1);
-    border-radius: 50%;
-    cursor: pointer;
-    transition: 0.3s;
-
-    /* Menempelkan diri ke sisi Kanan container flex */
-    align-self: flex-end; 
-    
-    /* Memberi jarak agar tidak terlalu mepet */
-    margin-top: 15px;
-    margin-right: 20px;
-    margin-bottom: 10px;
-}
-#dismiss:hover {
-    background: var(--primary-color);
-}
-
-/* List Menu Sidebar */
 .sidebar-menu {
     padding: 20px 0;
-    flex-grow: 1; /* Mengisi ruang kosong */
+    flex-grow: 1;
 }
 
 .sidebar-menu li a {
@@ -861,141 +379,142 @@ select option {
     gap: 15px;
 }
 
-.sidebar-menu li a:hover, 
-.sidebar-menu li a.active {
+.sidebar-menu li a:hover, .sidebar-menu li a.active {
     color: #fff;
     background: rgba(255,255,255,0.05);
     border-left: 4px solid var(--primary-color);
 }
 
-/* Footer Sidebar (Tombol Kembali) */
 .sidebar-footer {
     padding: 20px;
     border-top: 1px solid rgba(255,255,255,0.1);
 }
 
-/* --- CONTENT AREA --- */
+/* Tombol Dismiss Sidebar */
+#dismiss {
+    width: 35px;
+    height: 35px;
+    line-height: 35px;
+    text-align: center;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: 0.3s;
+    align-self: flex-end; 
+    margin-top: 15px;
+    margin-right: 20px;
+    margin-bottom: 10px;
+}
+#dismiss:hover { background: var(--primary-color); }
+
+/* Content Area */
 #content {
     width: 100%;
     padding: 20px;
     min-height: 100vh;
     transition: all 0.3s;
-    margin-left: 260px; /* Memberi ruang untuk sidebar */
+    margin-left: 260px;
 }
 
-/* Saat sidebar ditutup, konten meluas */
 #sidebar.active + #content {
     margin-left: 0;
 }
 
-/* Top Navbar di dalam Content */
+/* Top Bar (Menu Hamburger di dalam konten) */
 .top-bar {
+    background-color: rgba(37, 38, 43, 0.9);
+    backdrop-filter: blur(5px);
+    padding: 15px 30px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 40px;
+    margin-bottom: 30px;
+    position: sticky;
+    /* PENTING: Topbar juga ditaruh di bawah Navbar Global */
+    top: 76px; 
+    z-index: 800;
 }
 
-/* Tombol Garis 3 (Hamburger) */
 #sidebarCollapse {
     background: transparent;
     border: none;
     color: #fff;
     font-size: 1.5rem;
     cursor: pointer;
-    /* Hanya muncul jika sidebar tertutup, kita atur via JS/CSS logic */
-    display: none; 
-}
-#sidebar.active + #content #sidebarCollapse {
-    display: inline-block; /* Munculkan saat sidebar aktif (hidden) */
+    display: none;
 }
 
-/* Tombol Favorit */
+#sidebar.active + #content #sidebarCollapse {
+    display: inline-block;
+}
+
 .btn-favorite {
-    background-color: #ff6b6b;
-    color: white;
-    border: none;
+    transition: all 0.3s ease;
+    border: 1px solid #ff6b6b;
+    background: transparent;
+    color: #ff6b6b;
     border-radius: 20px;
     padding: 5px 20px;
     font-weight: 600;
 }
-.btn-favorite:hover {
-    background-color: #fa5252;
+
+.btn-favorite.active {
+    background-color: #ff6b6b;
     color: white;
+    box-shadow: 0 0 15px rgba(255, 107, 107, 0.4);
 }
 
-/* Responsive: Di layar HP, sidebar otomatis sembunyi */
+/* ==================== 9. RESPONSIVE UTILITIES ==================== */
 @media (max-width: 768px) {
-    #sidebar {
-        margin-left: -260px;
+    #sidebar { margin-left: -260px; }
+    #sidebar.active { margin-left: 0; }
+    #content { margin-left: 0; }
+    #sidebarCollapse { display: inline-block; }
+    #sidebar.active + #content { margin-left: 0; }
+    
+    .overlay-sidebar { top: 76px; }
+    
+    .admin-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
     }
-    #sidebar.active {
-        margin-left: 0;
-    }
-    #content {
-        margin-left: 0;
-    }
-    #sidebarCollapse {
-        display: inline-block;
-    }
-    /* Saat sidebar muncul di HP, content digeser atau ditimpa */
-    #sidebar.active + #content {
-        margin-left: 0; 
-        /* Opsional: tambah overlay */
+    .admin-item .admin-actions {
+        width: 100%;
+        justify-content: flex-end;
     }
 }
 
-/* Style untuk Kartu Game */
-.game-card {
-    position: relative;
-    border-radius: 15px;
-    overflow: hidden;
-    transition: transform 0.3s ease;
-    cursor: pointer;
-    background-color: #212529; /* Dark bg */
-    height: 100%;
+/* ==================== 10. CARD OVERLAY STYLES ==================== */
+.card-game-link {
+    text-decoration: none;
+    display: block;
 }
 
-.game-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+.card-game-overlay-container {
+    position: relative; 
+    height: 250px;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.game-card img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-    opacity: 0.7;
-    transition: opacity 0.3s;
+.card-game-overlay-container img {
+    transition: filter 0.3s ease;
 }
 
-.game-card:hover img {
-    opacity: 1;
+.card-game-link:hover .card-game-overlay-container img {
+    filter: brightness(0.8) !important;
 }
 
-.game-card-body {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    padding: 15px;
-    background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
-    color: white;
+.card-overlay-text {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    z-index: 10;
 }
 
-.badge-status {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    padding: 5px 10px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: bold;
-    z-index: 2;
-}
+.card-overlay-text h3 { font-size: 1.75rem; }
 
-/* Warna badge sesuai status */
-.bg-new { background-color: #28a745; color: white; }      /* Hijau */
-.bg-ongoing { background-color: #17a2b8; color: white; }  /* Biru Muda */
-.bg-coming { background-color: #ffc107; color: black; }   /* Kuning */
-.bg-ended { background-color: #dc3545; color: white; }    /* Merah */
+/* Modal Backdrop */
+.modal-backdrop { background-color: rgba(0, 0, 0, 0.8); }
+.modal-backdrop.show { opacity: 0.8; }
+.modal-content { border-radius: 12px; }
