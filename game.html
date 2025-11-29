@@ -83,6 +83,30 @@
         .user-profile img:hover {
             border-color: var(--primary-color);
         }
+
+        /* TAMBAHAN BARU: Style untuk Background Image */
+        .bg-custom-fixed {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0; /* Di belakang konten */
+            background: url('assets/img/games/background-wuthering-waves.jpg') no-repeat center center;
+            background-size: cover;
+            opacity: 0.15; /* Opasitas sangat rendah */
+            /* Efek Fade Out di bawah */
+            -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+            mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+            pointer-events: none;
+        }
+
+        /* Override agar dashboard transparan (supaya gambar background terlihat) */
+        .dashboard-wrapper {
+            background-color: transparent !important;
+            position: relative;
+            z-index: 1; /* Konten di depan background */
+        }
     </style>
 </head>
 <body>
@@ -155,10 +179,12 @@
             </div>
 
             <div class="container-fluid px-4 pb-5">
-                <div class="d-flex justify-content-end mb-4">
-                    <button class="btn btn-favorite rounded-pill px-4" id="favorite-btn" onclick="toggleFavorite()">
-                        <i class="bi bi-star me-2" id="favorite-icon"></i> <span id="favorite-text">Favorit</span>
-                    </button>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <img src="assets/img/games/logo-wuthering-waves.jpg" alt="Wuthering Waves Logo" style="height: 60px; width: auto; object-fit: contain;">
+
+                        <button class="btn btn-favorite rounded-pill px-4" id="favorite-btn" onclick="toggleFavorite()">
+                            <i class="bi bi-star me-2" id="favorite-icon"></i> <span id="favorite-text">Favorit</span>
+                        </button>
                 </div>
 
                 <div class="text-center mt-3">
