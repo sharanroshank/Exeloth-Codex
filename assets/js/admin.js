@@ -40,7 +40,6 @@ function initAdminPanel() {
 
 // Show admin panel (hanya untuk admin page)
 function showAdminPanel(user) {
-    // Langsung show admin panel tanpa login screen
     const adminSection = document.getElementById('admin-panel-section');
     if (adminSection) {
         adminSection.classList.remove('d-none');
@@ -49,6 +48,7 @@ function showAdminPanel(user) {
     // Load data
     loadGameSlugs();
     loadAdminList();
+    loadSections(); // <--- TAMBAHKAN INI (Load Sections saat panel dibuka)
     updateUserInfo(user);
     
     console.log('✅ Admin panel shown for:', user.email);
@@ -190,11 +190,9 @@ async function handleGameSubmit(e) {
     }
     
     // Get included sections
-    const includes = [];
-    if (document.getElementById('main-story-check').checked) includes.push('main_story');
-    if (document.getElementById('character-story-check').checked) includes.push('character_story');
-    if (document.getElementById('side-story-check').checked) includes.push('side_story');
-    if (document.getElementById('event-story-check').checked) includes.push('event_story');
+    // UPDATE: Checkbox manual dihapus karena sekarang kita menggunakan Section Management dinamis.
+    // Kita biarkan array ini kosong agar fungsi saveGameToFirestore tetap berjalan lancar.
+    const includes = []; 
     
     // Validate form
     if (!title || !slug || !description) {
@@ -240,7 +238,6 @@ async function handleGameSubmit(e) {
     try {
         // Show loading state
         const submitBtn = document.getElementById('game-submit-btn');
-        const originalText = submitBtn.innerHTML;
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Uploading Image...';
 
@@ -604,3 +601,145 @@ document.addEventListener('DOMContentLoaded', function() {
 window.addAdmin = addAdmin;
 window.removeAdmin = removeAdmin;
 window.clearFileUpload = clearFileUpload;
+
+// 1. Tambah Section Baru
+async function addSection() {
+    const input = document.getElementById('new-section-name');
+    const name = input.value.trim();
+    
+    if (!name) {
+        showNotification('❌ Nama section tidak boleh kosong', 'error');
+        return;
+    }
+
+    // Generate value/ID (contoh: "Side Story" -> "side_story")
+    const value = name.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+
+    try {
+        // Simpan ke Firebase collection 'sections'
+        await db.collection('sections').doc(value).set({
+            name: name,
+            value: value, // ID teknis untuk codingan
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        showNotification('✅ Section berhasil ditambahkan!', 'success');
+        input.value = ''; // Reset input
+        loadSections(); // Refresh list & dropdown
+        
+    } catch (error) {
+        console.error("Error adding section:", error);
+        showNotification('❌ Gagal menambah section: ' + error.message, 'error');
+    }
+}
+
+// 2. Load Section (Tampilkan di List & Dropdown Chapter)
+function loadSections() {
+    console.log("Loading sections...");
+    
+    db.collection('sections').orderBy('createdAt', 'asc').get()
+        .then((querySnapshot) => {
+            const listContainer = document.getElementById('section-list-container');
+            const dropdown = document.getElementById('chapter-section');
+            
+            // Reset UI
+            if (listContainer) listContainer.innerHTML = '';
+            if (dropdown) {
+                dropdown.innerHTML = '<option value="" disabled selected>Select a section</option>';
+            }
+
+            // Jika kosong, buat default section
+            if (querySnapshot.empty) {
+                // Opsional: Jika database kosong, kita bisa auto-create section dasar
+                createDefaultSections();
+                return;
+            }
+
+            querySnapshot.forEach((doc) => {
+                const section = doc.data();
+                
+                // A. Tampilkan di List (Untuk Edit/Hapus) - KASUS 8
+                if (listContainer) {
+                    const item = document.createElement('div');
+                    item.className = 'list-group-item bg-transparent text-white d-flex justify-content-between align-items-center border-bottom border-secondary';
+                    item.innerHTML = `
+                        <div>
+                            <span class="fw-bold">${section.name}</span>
+                            <small class="text-muted ms-2">(${section.value})</small>
+                        </div>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-warning" onclick="editSection('${section.value}', '${section.name}')">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-outline-danger" onclick="deleteSection('${section.value}')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                    listContainer.appendChild(item);
+                }
+
+                // B. Masukkan ke Dropdown Chapter - KASUS 7
+                if (dropdown) {
+                    const option = document.createElement('option');
+                    option.value = section.value;
+                    option.textContent = section.name;
+                    dropdown.appendChild(option);
+                }
+            });
+        })
+        .catch((error) => {
+            console.error("Error loading sections:", error);
+        });
+}
+
+// 3. Edit Section
+async function editSection(id, oldName) {
+    // Tampilkan prompt sederhana untuk edit nama
+    const newName = prompt("Edit Nama Section:", oldName);
+    
+    if (newName && newName !== oldName) {
+        try {
+            await db.collection('sections').doc(id).update({
+                name: newName
+            });
+            showNotification('✅ Nama section diupdate!', 'success');
+            loadSections();
+        } catch (error) {
+            showNotification('❌ Gagal update: ' + error.message, 'error');
+        }
+    }
+}
+
+// 4. Hapus Section
+async function deleteSection(id) {
+    if (confirm('Yakin ingin menghapus section ini? Hati-hati jika sudah ada chapter yang menggunakan section ini.')) {
+        try {
+            await db.collection('sections').doc(id).delete();
+            showNotification('✅ Section dihapus.', 'success');
+            loadSections();
+        } catch (error) {
+            showNotification('❌ Gagal hapus: ' + error.message, 'error');
+        }
+    }
+}
+
+// Helper: Buat default section jika database kosong pertama kali
+function createDefaultSections() {
+    const defaults = ["Main Story", "Character Story", "Side Story", "Event Story"];
+    defaults.forEach(name => {
+        const value = name.toLowerCase().replace(/\s+/g, '_');
+        db.collection('sections').doc(value).set({
+            name: name,
+            value: value,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+    });
+    setTimeout(loadSections, 1000); // Reload setelah membuat
+}
+
+// Export fungsi agar bisa dipanggil HTML
+window.addSection = addSection;
+window.editSection = editSection;
+window.deleteSection = deleteSection;
+window.loadSections = loadSections;
