@@ -3,97 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Profile - Exeloth Codex</title>
+    <title>Game Overview - Exeloth Codex</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
+
+    <style>
+        /* Sembunyikan navbar bawaan jika terbawa dari CSS global */
+        .navbar.fixed-top { display: none !important; }
+        body { padding-top: 0 !important; background-color: #34353a; }
+    </style>
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="index.html">Exeloth Codex</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.html">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#upcoming">Upcoming Games</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="https://ko-fi.com" target="_blank">
-                            <i class="bi bi-cup-hot-fill me-1"></i> Ko-fi
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin.html">Admin</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
 
-    <!-- Game Profile Section -->
-    <section class="py-5 mt-5">
-        <div class="container">
-            <div id="game-profile-container">
-                <!-- Game profile will be loaded here dynamically -->
+    <div class="dashboard-wrapper">
+        
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-brand">EXELOTH CODEX</div>
+                <div id="dismiss">
+                    <i class="bi bi-x-lg"></i>
+                </div>
             </div>
-        </div>
-    </section>
 
-    <!-- Story Sections -->
-    <section class="py-5 bg-dark">
-        <div class="container">
-            <div id="story-sections-container">
-                <!-- Story sections will be loaded here dynamically -->
+            <ul class="list-unstyled sidebar-menu">
+                <li>
+                    <a href="#" class="active">
+                        <i class="bi bi-info-circle"></i> Overview
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class="bi bi-book"></i> Cerita Utama
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class="bi bi-people"></i> Cerita Karakter
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class="bi bi-calendar-event"></i> Cerita Event
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class="bi bi-archive"></i> Arsip Lore
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <a href="index.html" class="text-decoration-none text-light d-flex align-items-center gap-2">
+                    <i class="bi bi-arrow-left"></i> Kembali
+                </a>
             </div>
-        </div>
-    </section>
+        </nav>
 
-    <!-- Footer -->
-    <footer class="bg-darker py-4">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <h5>Games</h5>
-                    <div class="row" id="footer-games-list">
-                        <!-- Games list will be populated here -->
+        <div id="content">
+            <div class="top-bar">
+                <div class="d-flex align-items-center gap-3">
+                    <button type="button" id="sidebarCollapse">
+                        <i class="bi bi-list"></i>
+                    </button>
+                </div>
+
+                <div class="d-flex align-items-center gap-4">
+                    <a href="https://saweria.co" target="_blank" class="text-white text-decoration-none fw-bold">Saweria</a>
+                    <div class="user-profile">
+                        <img src="https://ui-avatars.com/api/?name=User&background=ff6b6b&color=fff" class="rounded-circle" width="40" height="40" alt="Profile">
                     </div>
                 </div>
-                <div class="col-md-6 text-md-end">
-                    <p class="mb-0 text-muted">© Exeloth Codex — community guides for gacha fans</p>
-                </div>
             </div>
-        </div>
-    </footer>
 
-    <!-- Chapter Modal -->
-    <div class="modal fade" id="chapterModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content bg-dark">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="chapterModalTitle">Chapter Title</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            <div class="container-fluid px-4">
+                <div class="d-flex justify-content-end mb-4">
+                    <button class="btn btn-favorite">
+                        <i class="bi bi-star me-1"></i> Favorit
+                    </button>
                 </div>
-                <div class="modal-body" id="chapterModalContent">
-                    <!-- Chapter content will be loaded here -->
+
+                <div class="text-center mt-5">
+                    <h1 class="fw-bold mb-4">Tentang Game</h1>
+                    
+                    <div class="row justify-content-center">
+                        <div class="col-lg-8 text-start text-white-50">
+                            <p class="lead">
+                                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+                                Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
+                                Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
+                                Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
-    <script src="assets/js/firebase-config.js"></script>
-    <script src="assets/js/app.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const dismissBtn = document.getElementById('dismiss');
+            const collapseBtn = document.getElementById('sidebarCollapse');
+
+            // Tutup Sidebar (Klik X)
+            dismissBtn.addEventListener('click', function() {
+                sidebar.classList.add('active'); 
+            });
+
+            // Buka Sidebar (Klik Garis 3)
+            collapseBtn.addEventListener('click', function() {
+                sidebar.classList.remove('active');
+            });
+        });
+    </script>
 </body>
 </html>
