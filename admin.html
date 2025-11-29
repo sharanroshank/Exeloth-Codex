@@ -13,9 +13,27 @@
     <style>
         /* --- Styles Khusus Admin Dashboard --- */
         
-        /* Reset & Base */
-        body { padding-top: 0 !important; background-color: #34353a; }
-        .navbar.fixed-top { display: none !important; } /* Sembunyikan navbar global lama */
+        /* 1. Reset & Base Layout */
+        /* Body diberi padding agar tidak tertutup Navbar Global */
+        body { 
+            padding-top: 76px !important; 
+            background-color: #34353a; 
+        }
+        
+        /* 2. Sidebar Positioning */
+        /* Sidebar harus turun 76px (tinggi navbar global) */
+        #sidebar {
+            top: 76px !important;
+            height: calc(100vh - 76px) !important;
+            z-index: 900; /* Di bawah Navbar Global (1030) */
+        }
+
+        /* 3. Top Bar Admin Positioning */
+        /* Header admin (Search/Logout) juga harus turun */
+        .top-bar {
+            top: 76px !important;
+            z-index: 800;
+        }
         
         /* Animasi Transisi Halaman */
         .admin-section-content { display: none; animation: fadeIn 0.3s; }
@@ -70,6 +88,10 @@
 </head>
 <body>
     
+    <div id="navbar-placeholder"></div>
+    <script src="assets/js/navbar.js"></script>
+    <script>renderNavbar();</script>
+
     <div id="notification-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
 
     <div class="dashboard-wrapper">

@@ -11,45 +11,9 @@
 </head>
 <body>
     
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-        <div class="container">
-            <a class="navbar-brand fw-bold text-uppercase" href="index.html">Exeloth Codex</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto gap-lg-3">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="index.html">
-                            <i class="bi bi-house-door-fill me-1"></i> Home
-                        </a>
-                    </li>
-                    
-                    <li class="nav-item">
-                        <a class="nav-link" href="games.html">
-                            <i class="bi bi-controller me-1"></i> Daftar Games
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="https://saweria.co" target="_blank">
-                            <i class="bi bi-gift-fill me-1"></i> Saweria
-                        </a>
-                    </li>
-                    <li class="nav-item" id="login-nav-item">
-                        <a class="nav-link" href="#" id="login-link" onclick="showGoogleSignIn()">
-                            <i class="bi bi-person-fill me-1"></i> Login
-                        </a>
-                    </li>
-                    <li class="nav-item d-none" id="admin-nav-item">
-                        <a class="nav-link" href="admin.html">
-                            <i class="bi bi-speedometer2 me-1"></i> Admin Panel
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <div id="navbar-placeholder"></div>
+    <script src="assets/js/navbar.js"></script>
+    <script>renderNavbar();</script>
 
     <div id="notification-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
 
@@ -79,7 +43,6 @@
                 <div class="col-md-6 col-lg-4 mb-4">
                     <a href="game.html?slug=wuthering-waves" class="card-game-link hover-scale">
                         <div class="card-game-overlay-container rounded-4 overflow-hidden position-relative shadow-lg">
-                            
                             <div class="position-absolute top-0 end-0 m-3 d-flex align-items-center gap-2" style="z-index: 10;">
                                 <span class="badge bg-success rounded-pill px-3 py-2 shadow-sm border border-light border-opacity-25">
                                     New Release
@@ -89,14 +52,11 @@
                                     <i class="bi bi-calendar-event me-1"></i> 2024-05-22
                                 </div>
                             </div>
-
                             <img src="assets/img/games/wuthering-waves.jpg" class="w-100 h-100 object-fit-cover" alt="Wuthering Waves" style="height: 250px; filter: brightness(0.6);">
-                            
                             <div class="card-overlay-text position-absolute top-50 start-50 translate-middle text-center w-100 px-3">
                                 <h3 class="text-white fw-bold fst-italic mb-1">Wuthering Waves</h3>
                                 <p class="text-light small mb-0 d-none d-md-block">Open-world action RPG</p>
                             </div>
-
                         </div>
                     </a>
                 </div>
@@ -112,7 +72,6 @@
                 </h2>
                 <p class="text-muted">Nantikan cerita dari game-game berikut ini</p>
             </div>
-
             <div class="row justify-content-center" id="coming-soon-container">
                 <div class="text-center text-muted">Loading coming soon...</div>
             </div>

@@ -11,189 +11,40 @@
     <link rel="stylesheet" href="assets/css/style.css">
 
     <style>
-        /* --- CSS KHUSUS HALAMAN GAME DASHBOARD --- */
-
-        /* 1. Global Layout Fixes */
-        body { 
-            padding-top: 76px !important; 
-            background-color: #34353a; 
-        }
-
-        /* 2. Sidebar Positioning */
-        #sidebar {
-            top: 76px !important; 
-            height: calc(100vh - 76px) !important;
-            z-index: 900; 
-        }
-        
-        .overlay-sidebar {
-            top: 76px;
-        }
-
-        /* 3. Style Sidebar Dismiss Button (Posisi Kanan) */
-        #dismiss {
-            width: 35px;
-            height: 35px;
-            line-height: 35px;
-            text-align: center;
-            background: rgba(255,255,255,0.1);
-            border-radius: 50%;
-            cursor: pointer;
-            transition: 0.3s;
-            align-self: flex-end; 
-            margin-top: 15px;
-            margin-right: 20px;
-            margin-bottom: 10px;
-        }
-
-        #dismiss:hover {
-            background: var(--primary-color);
-        }
-
-        /* 4. Top Bar Styling (Menu Hamburger) */
-        .top-bar {
-            background-color: rgba(37, 38, 43, 0.9);
-            backdrop-filter: blur(5px);
-            padding: 15px 30px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            position: sticky;
-            top: 76px; 
-            z-index: 800;
-        }
-
-        /* Fix Tombol Garis 3 di Mobile */
-        @media (max-width: 768px) {
-            #sidebarCollapse {
-                display: block !important;
-                font-size: 1.5rem;
-                background: none;
-                border: none;
-                color: white;
-            }
-        }
-
-        /* Style Tombol Favorit Toggle */
-        .btn-favorite {
-            transition: all 0.3s ease;
-            border: 1px solid #ff6b6b;
-            background: transparent;
-            color: #ff6b6b;
-        }
-        
-        .btn-favorite.active {
-            background-color: #ff6b6b;
-            color: white;
-            box-shadow: 0 0 15px rgba(255, 107, 107, 0.4);
-        }
-
-        /* 5. Background Image Fixed */
-        .bg-custom-fixed {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: -1;
-            background: url('assets/img/games/background-wuthering-waves.jpg') no-repeat center center;
-            background-size: cover;
-            opacity: 0.15;
-            -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
-            mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
-            pointer-events: none;
-        }
-
-        .dashboard-wrapper {
-            background-color: transparent !important;
-            position: relative;
-            z-index: 1; 
-        }
+        body { padding-top: 76px !important; background-color: #34353a; }
+        #sidebar { top: 76px !important; height: calc(100vh - 76px) !important; z-index: 900; }
+        .overlay-sidebar { top: 76px; }
+        #dismiss { width: 35px; height: 35px; line-height: 35px; text-align: center; background: rgba(255,255,255,0.1); border-radius: 50%; cursor: pointer; transition: 0.3s; align-self: flex-end; margin-top: 15px; margin-right: 20px; margin-bottom: 10px; }
+        #dismiss:hover { background: var(--primary-color); }
+        .top-bar { background-color: rgba(37, 38, 43, 0.9); backdrop-filter: blur(5px); padding: 15px 30px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; position: sticky; top: 76px; z-index: 800; }
+        @media (max-width: 768px) { #sidebarCollapse { display: block !important; font-size: 1.5rem; background: none; border: none; color: white; } }
+        .btn-favorite { transition: all 0.3s ease; border: 1px solid #ff6b6b; background: transparent; color: #ff6b6b; }
+        .btn-favorite.active { background-color: #ff6b6b; color: white; box-shadow: 0 0 15px rgba(255, 107, 107, 0.4); }
+        .bg-custom-fixed { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; background: url('assets/img/games/background-wuthering-waves.jpg') no-repeat center center; background-size: cover; opacity: 0.15; -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%); mask-image: linear-gradient(to bottom, black 60%, transparent 100%); pointer-events: none; }
+        .dashboard-wrapper { background-color: transparent !important; position: relative; z-index: 1; }
     </style>
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-        <div class="container">
-            <a class="navbar-brand fw-bold text-uppercase" href="index.html">Exeloth Codex</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto gap-lg-3">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.html">
-                            <i class="bi bi-house-door-fill me-1"></i> Home
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="games.html">
-                            <i class="bi bi-controller me-1"></i> Daftar Games
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="https://saweria.co" target="_blank">
-                            <i class="bi bi-gift-fill me-1"></i> Saweria
-                        </a>
-                    </li>
-                    <li class="nav-item" id="login-nav-item">
-                        <a class="nav-link" href="#" id="login-link" onclick="showGoogleSignIn()">
-                            <i class="bi bi-person-fill me-1"></i> Login
-                        </a>
-                    </li>
-                    <li class="nav-item d-none" id="admin-nav-item">
-                        <a class="nav-link" href="admin.html">
-                            <i class="bi bi-speedometer2 me-1"></i> Admin Panel
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <div id="navbar-placeholder"></div>
+    <script src="assets/js/navbar.js"></script>
+    <script>renderNavbar();</script>
 
     <div class="bg-custom-fixed"></div>
 
     <div class="dashboard-wrapper">
-        
         <nav id="sidebar">
             <div class="sidebar-header">
                 <div class="sidebar-brand">DAFTAR ISI</div>
             </div>
-
-            <div id="dismiss">
-                <i class="bi bi-x-lg"></i>
-            </div>
-
+            <div id="dismiss"><i class="bi bi-x-lg"></i></div>
             <ul class="list-unstyled sidebar-menu">
-                <li>
-                    <a href="#" class="active">
-                        <i class="bi bi-info-circle"></i> Overview
-                    </a>
-                </li>
-                <li>
-                    <a href="#">
-                        <i class="bi bi-book"></i> Cerita Utama
-                    </a>
-                </li>
-                <li>
-                    <a href="#">
-                        <i class="bi bi-people"></i> Cerita Karakter
-                    </a>
-                </li>
-                <li>
-                    <a href="#">
-                        <i class="bi bi-calendar-event"></i> Cerita Event
-                    </a>
-                </li>
-                <li>
-                    <a href="#">
-                        <i class="bi bi-archive"></i> Arsip Lore
-                    </a>
-                </li>
+                <li><a href="#" class="active"><i class="bi bi-info-circle"></i> Overview</a></li>
+                <li><a href="#"><i class="bi bi-book"></i> Cerita Utama</a></li>
+                <li><a href="#"><i class="bi bi-people"></i> Cerita Karakter</a></li>
+                <li><a href="#"><i class="bi bi-calendar-event"></i> Cerita Event</a></li>
+                <li><a href="#"><i class="bi bi-archive"></i> Arsip Lore</a></li>
             </ul>
-
             <div class="sidebar-footer">
                 <a href="games.html" class="text-decoration-none text-light d-flex align-items-center gap-2">
                     <i class="bi bi-arrow-left"></i> Kembali ke Daftar
@@ -202,7 +53,6 @@
         </nav>
 
         <div id="content" style="padding: 0;">
-            
             <div class="top-bar">
                 <div class="d-flex align-items-center gap-3">
                     <button type="button" id="sidebarCollapse">
@@ -214,7 +64,6 @@
             <div class="container-fluid px-4 pb-5">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <img src="assets/img/games/logo-wuthering-waves.jpg" alt="Game Logo" style="height: 60px; width: auto; object-fit: contain;">
-
                     <button class="btn btn-favorite rounded-pill px-4" id="favorite-btn" onclick="toggleFavorite()">
                         <i class="bi bi-star me-2" id="favorite-icon"></i> <span id="favorite-text">Favorit</span>
                     </button>
@@ -222,15 +71,9 @@
 
                 <div class="text-center mt-3">
                     <h1 class="fw-bold mb-4 text-white">Tentang Game</h1>
-                    
                     <div class="row justify-content-center">
                         <div class="col-lg-8 text-start text-white-50">
-                            <p class="lead">
-                                Wuthering Waves adalah game aksi dunia terbuka yang kaya akan cerita dengan tingkat kebebasan tinggi. 
-                                Anda terbangun dari tidur lelap sebagai Rover, disambut oleh dunia baru yang luas penuh dengan pemandangan baru dan teknologi baru.
-                                <br><br>
-                                Terhubung dengan Resonator lain untuk melawan Lament dan mengungkap misteri masa lalu Anda serta dunia ini.
-                            </p>
+                            <p class="lead">Wuthering Waves adalah game aksi dunia terbuka yang kaya akan cerita dengan tingkat kebebasan tinggi. Anda terbangun dari tidur lelap sebagai Rover, disambut oleh dunia baru yang luas penuh dengan pemandangan baru dan teknologi baru.<br><br>Terhubung dengan Resonator lain untuk melawan Lament dan mengungkap misteri masa lalu Anda serta dunia ini.</p>
                             <div id="game-profile-container"></div>
                             <div id="story-sections-container" class="mt-5"></div>
                         </div>
@@ -249,8 +92,7 @@
                     <h5 class="modal-title" id="chapterModalTitle">Chapter Title</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body" id="chapterModalContent">
-                    </div>
+                <div class="modal-body" id="chapterModalContent"></div>
             </div>
         </div>
     </div>
@@ -264,7 +106,6 @@
     <script src="assets/js/app.js"></script>
     
     <script>
-        // TOGGLE FAVORITE
         let isFavorite = false;
         function toggleFavorite() {
             const btn = document.getElementById('favorite-btn');
@@ -285,17 +126,11 @@
             const sidebar = document.getElementById('sidebar');
             const dismissBtn = document.getElementById('dismiss');
             const collapseBtn = document.getElementById('sidebarCollapse');
-            
-            // Overlay untuk mobile
             const overlay = document.createElement('div');
             overlay.className = 'overlay-sidebar';
-            overlay.style.cssText = `
-                display: none; position: fixed; top: 76px; left: 0; width: 100vw; height: 100vh;
-                background: rgba(0,0,0,0.5); z-index: 899; transition: opacity 0.3s;
-            `;
+            overlay.style.cssText = `display: none; position: fixed; top: 76px; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 899; transition: opacity 0.3s;`;
             document.querySelector('.dashboard-wrapper').appendChild(overlay);
 
-            // Logic Sidebar
             dismissBtn.addEventListener('click', function() {
                 sidebar.classList.add('active'); 
                 if (window.innerWidth <= 768) {
