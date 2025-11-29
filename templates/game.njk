@@ -2,16 +2,57 @@
 
 {% block title %}{{ game.title }} - Exeloth Codex{% endblock %}
 
-{# Kita sembunyikan navbar & footer bawaan base.njk karena kita punya layout sendiri #}
+{# Style khusus untuk halaman game dashboard #}
 {% block head %}
 <style>
-    body { padding-top: 0 !important; background-color: #34353a; }
-    .navbar.fixed-top, footer.bg-darker { display: none !important; }
+    body { 
+        padding-top: 0 !important;
+        background-color: #34353a; 
+    }
+    .navbar.fixed-top, footer.bg-darker { 
+        display: none !important;
+    }
+
+    /* --- UPDATE KASUS 1: Background & Logo --- */
+    
+    /* 1. Container untuk Background Image */
+    .game-bg-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 85vh; /* Tinggi gambar tidak sampai full ke bawah agar fade out natural */
+        background-image: url('/assets/img/games/background-wuthering-waves.jpg'); /* Pastikan nama file sesuai */
+        background-size: cover;
+        background-position: center top;
+        opacity: 0.15; /* Opasitas sangat rendah sesuai request */
+        z-index: 0; /* Di belakang konten */
+        
+        /* Efek Fade Out di bagian bawah gambar */
+        -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+        mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+        pointer-events: none; /* Agar klik tembus ke belakang */
+    }
+
+    /* 2. Memastikan Konten berada di atas Background */
+    .content-wrapper {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Style Logo */
+    .game-logo-img {
+        max-width: 250px; /* Ukuran logo */
+        width: 100%;
+        height: auto;
+        display: block;
+        margin-bottom: 1rem;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="dashboard-wrapper">
+<div class="dashboard-wrapper position-relative">
     
     <nav id="sidebar">
         <div class="sidebar-header">
@@ -22,31 +63,11 @@
         </div>
 
         <ul class="list-unstyled sidebar-menu">
-            <li>
-                <a href="#" class="active">
-                    <i class="bi bi-info-circle"></i> Overview
-                </a>
-            </li>
-            <li>
-                <a href="#">
-                    <i class="bi bi-book"></i> Cerita Utama
-                </a>
-            </li>
-            <li>
-                <a href="#">
-                    <i class="bi bi-people"></i> Cerita Karakter
-                </a>
-            </li>
-            <li>
-                <a href="#">
-                    <i class="bi bi-calendar-event"></i> Cerita Event
-                </a>
-            </li>
-            <li>
-                <a href="#">
-                    <i class="bi bi-archive"></i> Arsip Lore
-                </a>
-            </li>
+            <li><a href="#" class="active"><i class="bi bi-info-circle"></i> Overview</a></li>
+            <li><a href="#"><i class="bi bi-book"></i> Cerita Utama</a></li>
+            <li><a href="#"><i class="bi bi-people"></i> Cerita Karakter</a></li>
+            <li><a href="#"><i class="bi bi-calendar-event"></i> Cerita Event</a></li>
+            <li><a href="#"><i class="bi bi-archive"></i> Arsip Lore</a></li>
         </ul>
 
         <div class="sidebar-footer">
@@ -56,14 +77,15 @@
         </div>
     </nav>
 
-    <div id="content">
-        <div class="top-bar">
-            <div class="d-flex align-items-center gap-3">
+    <div id="content" class="position-relative">
+        
+        <div class="game-bg-overlay"></div>
+
+        <div class="top-bar position-relative z-1"> <div class="d-flex align-items-center gap-3">
                 <button type="button" id="sidebarCollapse">
                     <i class="bi bi-list"></i>
                 </button>
             </div>
-
             <div class="d-flex align-items-center gap-4">
                 <a href="https://saweria.co" target="_blank" class="text-white text-decoration-none fw-bold">Saweria</a>
                 <div class="user-profile">
@@ -72,25 +94,26 @@
             </div>
         </div>
 
-        <div class="container-fluid px-4">
+        <div class="container-fluid px-4 content-wrapper">
             <div class="d-flex justify-content-end mb-4">
-                <button class="btn btn-favorite">
+                <button class="btn btn-favorite text-white border-danger">
                     <i class="bi bi-star me-1"></i> Favorit
                 </button>
             </div>
 
-            <div class="text-center mt-5">
-                <h1 class="fw-bold mb-4">Tentang Game</h1>
-                
-                <div class="row justify-content-center">
-                    <div class="col-lg-8 text-start text-white-50">
-                        <p id="game-description-placeholder">
-                            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-                            Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
-                            Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
-                            Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                        </p>
-                        <div id="game-profile-container" style="display:none;"></div> 
+            <div class="mt-5 text-start"> <div class="row">
+                    <div class="col-lg-8">
+                        <img src="/assets/img/games/logo-wuthering-waves.jpg" alt="{{ game.title }} Logo" class="game-logo-img">
+
+                        <h1 class="fw-bold mb-4 text-white">Tentang Game</h1>
+                        
+                        <div class="text-white-50">
+                            <p id="game-description-placeholder" class="lead">
+                                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+                                Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                            </p>
+                            <div id="game-profile-container" style="display:none;"></div> 
+                        </div>
                     </div>
                 </div>
             </div>
@@ -105,15 +128,13 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Tombol Toggle Sidebar
     const sidebar = document.getElementById('sidebar');
-    const dismissBtn = document.getElementById('dismiss');     // Tombol X
-    const collapseBtn = document.getElementById('sidebarCollapse'); // Tombol Garis 3
+    const dismissBtn = document.getElementById('dismiss');
+    const collapseBtn = document.getElementById('sidebarCollapse');
 
-    // Fungsi Tutup Sidebar (Klik X)
     dismissBtn.addEventListener('click', function() {
-        sidebar.classList.add('active'); // Class 'active' di CSS kita buat menyembunyikan sidebar (margin negative)
+        sidebar.classList.add('active');
     });
 
-    // Fungsi Buka Sidebar (Klik Garis 3)
     collapseBtn.addEventListener('click', function() {
         sidebar.classList.remove('active');
     });
