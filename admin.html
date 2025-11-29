@@ -592,36 +592,57 @@
             setupDragDrop();
         });
 
-        // --- FUNGSI NAVIGASI TABS ---
-        function switchTab(tabName, element) {
-            // Update Active State Menu
-            document.querySelectorAll('.nav-link-custom').forEach(el => el.classList.remove('active'));
-            element.classList.add('active');
+        // --- FUNGSI SWITCH TAB (DIPERBAIKI) ---
+        function switchTab(tabId, element) {
+            // Mencegah link lompat ke atas (href="#")
+            if (event) event.preventDefault();
 
-            // Sembunyikan Semua Section
-            document.querySelectorAll('.admin-section-content').forEach(el => el.classList.remove('active'));
+            // 1. Sembunyikan SEMUA konten
+            // Kita targetkan class lama (.admin-section-content) DAN class baru (.main-content-section)
+            const allSections = document.querySelectorAll('.admin-section-content, .main-content-section');
+            allSections.forEach(el => {
+                el.style.display = 'none';
+                el.classList.remove('active'); // Hapus class active animasi lama
+            });
 
-            // Tampilkan Section Terpilih & Update Judul
-            const pageTitle = document.getElementById('page-title');
-            
-            if (tabName === 'content') {
-                document.getElementById('content-section').classList.add('active');
-                pageTitle.textContent = 'Manajemen Konten';
-            } else if (tabName === 'admin-settings') {
-                document.getElementById('admin-settings-section').classList.add('active');
-                pageTitle.textContent = 'Pengaturan Admin';
-            } else if (tabName === 'profile-settings') {
-                document.getElementById('profile-settings-section').classList.add('active');
-                pageTitle.textContent = 'Profil Saya';
+            // Pastikan game-list juga tersembunyi jika tidak punya class di atas
+            const gameListEl = document.getElementById('game-list');
+            if (gameListEl) gameListEl.style.display = 'none';
+
+            // 2. LOGIKA PENCARIAN ID TARGET
+            // Coba cari ID persis (contoh: 'game-list')
+            let targetEl = document.getElementById(tabId);
+
+            // Jika tidak ketemu, coba cari dengan akhiran "-section" (contoh: 'content' -> 'content-section')
+            if (!targetEl) {
+                targetEl = document.getElementById(tabId + '-section');
             }
 
-            // Auto-close sidebar di mobile
+            // 3. Tampilkan Target
+            if (targetEl) {
+                targetEl.style.display = 'block';
+                targetEl.classList.add('active'); // Trigger animasi CSS fadeIn
+            } else {
+                console.error("Target Element tidak ditemukan untuk:", tabId);
+            }
+
+            // 4. Update status Active di Sidebar
+            document.querySelectorAll('.nav-link-custom').forEach(el => el.classList.remove('active'));
+            if (element) element.classList.add('active');
+
+            // 5. Render ulang khusus jika masuk tab Game List
+            if (tabId === 'game-list') {
+                renderGames();
+            }
+            
+            // 6. Tutup Sidebar otomatis di Mobile (Kode tambahan agar rapi)
             if (window.innerWidth <= 768) {
-                document.getElementById('sidebar').classList.add('active');
-                document.querySelector('div[style*="z-index: 998"]').style.display = 'none';
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.querySelector('div[style*="z-index: 998"]'); // Mencari overlay yg dibuat script
+                if (sidebar) sidebar.classList.add('active'); // Class active di sidebar ini artinya hidden
+                if (overlay) overlay.style.display = 'none';
             }
         }
-
         // --- FUNGSI MANAJEMEN PROFIL ---
         
         // Load data user ke form
