@@ -830,6 +830,11 @@ select option {
     border-radius: 50%;
     cursor: pointer;
     transition: 0.3s;
+
+    position: absolute; /* Melepaskan elemen dari urutan normal */
+    top: 20px;          /* Jarak dari atas (sesuaikan agar sejajar teks) */
+    right: 20px;        /* Jarak dari kanan (Memindahkannya ke kanan) */
+    z-index: 1001;      /* Memastikan tombol selalu di atas */
 }
 #dismiss:hover {
     background: var(--primary-color);

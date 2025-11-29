@@ -690,6 +690,10 @@ function loadSections() {
         })
         .catch((error) => {
             console.error("Error loading sections:", error);
+            const listContainer = document.getElementById('section-list-container');
+            if (listContainer) {
+                listContainer.innerHTML = `<div class="text-danger p-3">Error: ${error.message}. Cek Console (F12).</div>`;
+            }
         });
 }
 
