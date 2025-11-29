@@ -184,16 +184,28 @@ function loadComingSoonFrontend() {
             snapshot.forEach((doc) => {
                 const data = doc.data();
                 
-                // Gunakan style card yang sama dengan Codex, tapi hilangkan link <a>
+                // Format Tanggal (Jika ada)
+                const dateText = data.releaseDate ? data.releaseDate : 'TBA';
+
                 const col = document.createElement('div');
                 col.className = 'col-md-6 col-lg-4 mb-4';
                 col.innerHTML = `
                     <div class="card-game-overlay-container rounded-4 overflow-hidden position-relative shadow-lg" style="cursor: default;">
+                        
+                        <div class="position-absolute top-0 end-0 m-3 d-flex align-items-center gap-2" style="z-index: 10;">
+                            <span class="badge bg-warning text-dark rounded-pill px-3 py-2 shadow-sm border border-light border-opacity-25">
+                                Coming Soon
+                            </span>
+                            <div class="px-3 py-1 rounded-pill text-white shadow-sm" 
+                                 style="background: rgba(0,0,0,0.6); font-size: 0.8rem; border: 1px solid rgba(255,255,255,0.2);">
+                                <i class="bi bi-calendar-event me-1"></i> ${dateText}
+                            </div>
+                        </div>
+
                         <img src="${data.thumbnailURL}" class="w-100 h-100 object-fit-cover" alt="${data.title}" style="height: 250px; filter: brightness(0.6);">
                         
                         <div class="card-overlay-text position-absolute top-50 start-50 translate-middle text-center w-100 px-3">
                             <h3 class="text-white fw-bold fst-italic mb-1">${data.title}</h3>
-                            <span class="badge bg-warning text-dark mt-2">Coming Soon</span>
                         </div>
                     </div>
                 `;
