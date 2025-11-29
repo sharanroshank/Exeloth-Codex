@@ -161,6 +161,38 @@
         </div>
     </div>
 
+
+    <div class="card bg-dark mb-4">
+        <div class="card-header">
+            <h3><i class="bi bi-hourglass-split me-2"></i>Coming Soon Management</h3>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-5">
+                    <label class="form-label">Game Title</label>
+                    <input type="text" class="form-control" id="upcoming-title" placeholder="Nama Game Coming Soon">
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label">Thumbnail Image</label>
+                    <input type="file" class="form-control" id="upcoming-thumbnail" accept="image/*">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button class="btn btn-primary w-100" id="btn-add-upcoming" onclick="addUpcomingGame()">
+                        <i class="bi bi-cloud-upload me-1"></i> Upload
+                    </button>
+                </div>
+            </div>
+
+            <hr class="border-secondary my-4">
+
+            <h6 class="text-muted mb-3">Daftar Coming Soon:</h6>
+            <div id="upcoming-list-container" class="row">
+                <div class="text-center text-muted col-12">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+
     <div class="card bg-dark mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h3><i class="bi bi-list-stars me-2"></i>Section Management</h3>
@@ -207,42 +239,7 @@
                             </select>
                         </div>
                     </div>
-                </div>
-
-
-
-                <div class="card bg-dark mb-4">
-        <div class="card-header">
-            <h3><i class="bi bi-hourglass-split me-2"></i>Coming Soon Management</h3>
-        </div>
-        <div class="card-body">
-            <div class="row mb-4">
-                <div class="col-md-5">
-                    <label class="form-label">Game Title</label>
-                    <input type="text" class="form-control" id="upcoming-title" placeholder="Nama Game Coming Soon">
-                </div>
-                <div class="col-md-5">
-                    <label class="form-label">Thumbnail Image</label>
-                    <input type="file" class="form-control" id="upcoming-thumbnail" accept="image/*">
-                </div>
-                <div class="col-md-2 d-flex align-items-end">
-                    <button class="btn btn-primary w-100" id="btn-add-upcoming" onclick="addUpcomingGame()">
-                        <i class="bi bi-cloud-upload me-1"></i> Upload
-                    </button>
-                </div>
-            </div>
-
-            <hr class="border-secondary my-4">
-
-            <h6 class="text-muted mb-3">Daftar Coming Soon:</h6>
-            <div id="upcoming-list-container" class="row">
-                <div class="text-center text-muted col-12">Loading...</div>
-            </div>
-        </div>
-    </div>
-
-    
-                
+                </div>    
                 <div class="mb-3">
                     <label for="chapter-title" class="form-label">Chapter Title</label>
                     <input type="text" class="form-control" id="chapter-title" required>
