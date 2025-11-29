@@ -29,10 +29,31 @@ function initAuthSystem() {
     });
 }
 
-// Handle user signed in
+// Fungsi pembantu untuk menghapus user bandel secara paksa
+async function cleanupUnauthorizedUser(user, reason) {
+    console.log(`Cleaning up unauthorized user (${reason}):`, user.email);
+    
+    try {
+        // 1. Coba hapus akun dari Firebase Auth
+        await user.delete();
+        console.log('✅ User record deleted from Firebase Authentication.');
+        
+        showNotification('Access Denied: Account removed.', 'error');
+    } catch (error) {
+        console.error('⚠️ Failed to delete user record:', error);
+        // Jika gagal delete (misal perlu re-login), paksa Sign Out
+        await auth.signOut();
+        showNotification('Access Denied.', 'error');
+    }
+
+    // 2. Reset UI
+    updateNavbar(false);
+    resetNavbarLoginState();
+}
+
+// Handle user signed in (VERSI YANG SUDAH DIPERBAIKI)
 async function handleUserSignedIn(user) {
     if (isCheckingAdminAccess) {
-        console.log('Admin check already in progress...');
         return;
     }
     
@@ -41,90 +62,46 @@ async function handleUserSignedIn(user) {
     try {
         console.log('Checking admin access for:', user.email);
         
-        // Check if user is in admins collection
+        // Cek database admin
         const adminDoc = await db.collection('admins').doc(user.email).get();
         
         if (adminDoc.exists) {
-            // ✅ ADMIN ACCESS GRANTED (Biarkan bagian ini seperti semula)
+            // ✅ ADMIN RESMI - Izinkan masuk
             currentUser = user;
             console.log('Admin access granted:', user.email);
+            
             updateNavbar(true);
             
-            // HANYA REDIRECT KE ADMIN PANEL JIKA:
-            // 1. User baru saja login dari tombol Login di navbar (bukan page refresh)
-            // 2. Atau jika user mengakses admin.html secara langsung
+            // Logika Redirect (Sama seperti sebelumnya)
             const isFromLoginAction = sessionStorage.getItem('loginAction') === 'true';
-            // [FIX BUG 17] Cek lebih fleksibel untuk handle /admin maupun /admin.html
             const isOnAdminPage = window.location.pathname.includes('admin');
             
             if (isFromLoginAction && !isOnAdminPage) {
-                console.log('🔄 Redirecting to admin panel after login...');
-                showNotification('Login successful! Redirecting to admin panel...', 'success');
-                // Hapus flag setelah digunakan
+                showNotification('Login successful! Redirecting...', 'success');
                 sessionStorage.removeItem('loginAction');
-                setTimeout(() => {
-                    window.location.href = 'admin.html';
-                }, 1000);
+                setTimeout(() => { window.location.href = 'admin.html'; }, 1000);
             } else if (isOnAdminPage) {
-                // [FIX BUG 17 - RACE CONDITION]
-                // Masalah: Saat redirect pertama kali, auth-system.js mungkin jalan DULUAN
-                // sebelum admin.js siap. Akibatnya showAdminPanel gagal dipanggil.
-                // Solusi: Kita beri jeda/retry mekanism.
-                
-                console.log('⏳ Waiting for admin scripts to load...');
                 setTimeout(() => {
-                    // Cek apakah fungsi dari admin.js sudah tersedia
                     if (typeof showAdminPanel === 'function') {
                         showAdminPanel(user);
                     } else {
-                        console.log('Admin functions not ready, retrying...');
-                        // Coba sekali lagi setelah jeda tambahan
                         setTimeout(() => showAdminPanel(user), 500);
                     }
                 }, 500);
-                
-                // Show welcome notification hanya sekali
-                if (!sessionStorage.getItem('welcomeShown')) {
-                    showNotification('Welcome to Admin Panel, ' + (user.displayName || user.email), 'success');
-                    sessionStorage.setItem('welcomeShown', 'true');
-                }
             } else {
-                // Jika user login dari page lain (bukan dari tombol login), tetap di page tersebut
                 showNotification('Login successful!', 'success');
             }
             
         } else {
-            // ❌ NOT ADMIN (INI BAGIAN YANG DIUBAH)
-            console.log('Access denied - not in admin list:', user.email);
-            
-            // 1. Beritahu user
-            showNotification('Access Denied: You are not authorized. Account removed.', 'error');
-            
-            // 2. Reset tampilan UI
-            updateNavbar(false);
-            resetNavbarLoginState();
-            
-            // 3. HAPUS AKUN dari Firebase Auth agar tidak nyangkut di database
-            user.delete().then(() => {
-                console.log('Unauthorized user record deleted from Firebase.');
-            }).catch((error) => {
-                // Jika gagal hapus (jarang terjadi), lakukan sign out biasa sebagai cadangan
-                console.error('Error deleting user:', error);
-                auth.signOut();
-            });
+            // ❌ BUKAN ADMIN - Segera Hapus!
+            await cleanupUnauthorizedUser(user, 'Not in admin list');
         }
     } catch (error) {
+        // ❌ ERROR (Misal Permission Denied) - Anggap tidak berhak & Hapus!
         console.error('Error checking admin access:', error);
-        showNotification('Error checking access: ' + error.message, 'error');
         
-        // Update navbar
-        updateNavbar(false);
-        resetNavbarLoginState();
-        
-        // Auto sign out on error
-        setTimeout(() => {
-            auth.signOut();
-        }, 3000);
+        // PENTING: Jangan biarkan user masuk jika terjadi error saat pengecekan
+        await cleanupUnauthorizedUser(user, 'Error during check: ' + error.message);
     } finally {
         isCheckingAdminAccess = false;
     }
