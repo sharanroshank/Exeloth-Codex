@@ -199,9 +199,7 @@
         ];
 
         let publicCurrentPage = 1;
-        // Kita set 3 item per halaman agar tombol pagination muncul (karena total data cuma 6)
         const publicItemsPerPage = 3; 
-        
         let publicFilteredData = [...publicGamesData];
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -264,7 +262,7 @@
 
                 const slug = game.title.toLowerCase().replace(/[^a-z0-9]/g, '-');
 
-                // --- STRUKTUR HTML UPDATE ---
+                // --- HTML UPDATE ---
                 const html = `
                     <div class="col-md-6 col-lg-4 mb-4">
                         <a href="game.html?slug=${slug}" class="card-game-link hover-scale text-decoration-none">
@@ -280,19 +278,20 @@
                                 
                                 <div class="card-overlay-text position-absolute top-50 start-50 translate-middle text-center w-100 px-3">
                                     
-                                    <h3 class="text-white fw-bold fst-italic mb-2" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.9); letter-spacing: 1px;">
+                                    <h3 class="text-white fw-bold fst-italic mb-1" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.9); letter-spacing: 1px;">
                                         ${game.title}
                                     </h3>
+
+                                    <p class="text-light small mb-2 fw-light" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8); opacity: 0.9;">
+                                        ${game.desc}
+                                    </p>
                                     
-                                    <div class="mb-3">
+                                    <div>
                                         <span class="badge ${badgeClass} rounded-pill px-3 py-2 shadow-sm border border-light border-opacity-25">
                                             ${game.category}
                                         </span>
                                     </div>
 
-                                    <p class="text-light small mb-0 d-none d-md-block fw-light" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8); opacity: 0.9;">
-                                        ${game.desc}
-                                    </p>
                                 </div>
                             </div>
                         </a>
