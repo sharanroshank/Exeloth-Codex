@@ -774,3 +774,165 @@ select option {
 .notification .btn-close:hover {
     opacity: 1 !important;
 }
+
+/* Wrapper untuk membungkus seluruh halaman game */
+.dashboard-wrapper {
+    display: flex;
+    width: 100%;
+    min-height: 100vh;
+    background-color: #34353a; /* Warna background utama gelap */
+    overflow-x: hidden;
+}
+
+/* --- SIDEBAR --- */
+#sidebar {
+    min-width: 260px;
+    max-width: 260px;
+    min-height: 100vh;
+    background-color: #25262b; /* Warna sidebar lebih gelap */
+    color: #fff;
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+    position: fixed; /* Supaya sidebar diam saat discroll */
+    z-index: 1000;
+    left: 0;
+    top: 0;
+}
+
+/* Saat sidebar ditutup (active class ditambahkan via JS) */
+#sidebar.active {
+    margin-left: -260px;
+}
+
+.sidebar-header {
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.sidebar-brand {
+    font-weight: 800;
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* Tombol Close (X) di Sidebar */
+#dismiss {
+    width: 35px;
+    height: 35px;
+    line-height: 35px;
+    text-align: center;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: 0.3s;
+}
+#dismiss:hover {
+    background: var(--primary-color);
+}
+
+/* List Menu Sidebar */
+.sidebar-menu {
+    padding: 20px 0;
+    flex-grow: 1; /* Mengisi ruang kosong */
+}
+
+.sidebar-menu li a {
+    padding: 15px 25px;
+    font-size: 1.1em;
+    display: block;
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.sidebar-menu li a:hover, 
+.sidebar-menu li a.active {
+    color: #fff;
+    background: rgba(255,255,255,0.05);
+    border-left: 4px solid var(--primary-color);
+}
+
+/* Footer Sidebar (Tombol Kembali) */
+.sidebar-footer {
+    padding: 20px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+/* --- CONTENT AREA --- */
+#content {
+    width: 100%;
+    padding: 20px;
+    min-height: 100vh;
+    transition: all 0.3s;
+    margin-left: 260px; /* Memberi ruang untuk sidebar */
+}
+
+/* Saat sidebar ditutup, konten meluas */
+#sidebar.active + #content {
+    margin-left: 0;
+}
+
+/* Top Navbar di dalam Content */
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+/* Tombol Garis 3 (Hamburger) */
+#sidebarCollapse {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 1.5rem;
+    cursor: pointer;
+    /* Hanya muncul jika sidebar tertutup, kita atur via JS/CSS logic */
+    display: none; 
+}
+#sidebar.active + #content #sidebarCollapse {
+    display: inline-block; /* Munculkan saat sidebar aktif (hidden) */
+}
+
+/* Tombol Favorit */
+.btn-favorite {
+    background-color: #ff6b6b;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 5px 20px;
+    font-weight: 600;
+}
+.btn-favorite:hover {
+    background-color: #fa5252;
+    color: white;
+}
+
+/* Responsive: Di layar HP, sidebar otomatis sembunyi */
+@media (max-width: 768px) {
+    #sidebar {
+        margin-left: -260px;
+    }
+    #sidebar.active {
+        margin-left: 0;
+    }
+    #content {
+        margin-left: 0;
+    }
+    #sidebarCollapse {
+        display: inline-block;
+    }
+    /* Saat sidebar muncul di HP, content digeser atau ditimpa */
+    #sidebar.active + #content {
+        margin-left: 0; 
+        /* Opsional: tambah overlay */
+    }
+}

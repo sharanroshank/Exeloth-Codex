@@ -2,91 +2,121 @@
 
 {% block title %}{{ game.title }} - Exeloth Codex{% endblock %}
 
-{% block content %}
-<!-- Game Profile Section -->
-<section class="py-5 mt-5">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-4">
-                <img src="{{ game.thumbnailURL }}" class="img-fluid rounded" alt="{{ game.title }}">
-            </div>
-            <div class="col-md-8">
-                <h1 class="display-5 fw-bold">{{ game.title }}</h1>
-                <p class="lead">{{ game.description }}</p>
-                <div class="mb-4">
-                    <h5>Story Sections Included:</h5>
-                    {% if 'main_story' in game.includes %}
-                    <span class="badge-section">📘 Main Story</span>
-                    {% endif %}
-                    {% if 'character_story' in game.includes %}
-                    <span class="badge-section">👤 Character Story</span>
-                    {% endif %}
-                    {% if 'side_story' in game.includes %}
-                    <span class="badge-section">🌿 Side Story</span>
-                    {% endif %}
-                    {% if 'event_story' in game.includes %}
-                    <span class="badge-section">🎉 Event Story</span>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Story Sections -->
-<section class="py-5 bg-dark">
-    <div class="container">
-        {% if sections.main_story and sections.main_story.length > 0 %}
-        <div class="story-section">
-            <h3 class="mb-4">📘 Main Story</h3>
-            <div class="row">
-                {% for chapter in sections.main_story %}
-                <div class="col-md-6 col-lg-4 mb-3">
-                    <div class="chapter-item" data-bs-toggle="modal" data-bs-target="#chapterModal" 
-                         data-title="{{ chapter.title }}" data-content="{{ chapter.content }}">
-                        <h5>{{ chapter.title }}</h5>
-                        <p class="text-muted mb-0">Click to read</p>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-        {% endif %}
-    </div>
-</section>
+{# Kita sembunyikan navbar & footer bawaan base.njk karena kita punya layout sendiri #}
+{% block head %}
+<style>
+    body { padding-top: 0 !important; background-color: #34353a; }
+    .navbar.fixed-top, footer.bg-darker { display: none !important; }
+</style>
 {% endblock %}
 
-{% block scripts %}
-{{ super() }}
-<!-- Chapter Modal -->
-<div class="modal fade" id="chapterModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content bg-dark">
-            <div class="modal-header">
-                <h5 class="modal-title" id="chapterModalTitle">Chapter Title</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+{% block content %}
+<div class="dashboard-wrapper">
+    
+    <nav id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-brand">EXELOTH CODEX</div>
+            <div id="dismiss">
+                <i class="bi bi-x-lg"></i>
             </div>
-            <div class="modal-body" id="chapterModalContent">
-                <!-- Chapter content will be loaded here -->
+        </div>
+
+        <ul class="list-unstyled sidebar-menu">
+            <li>
+                <a href="#" class="active">
+                    <i class="bi bi-info-circle"></i> Overview
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="bi bi-book"></i> Cerita Utama
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="bi bi-people"></i> Cerita Karakter
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="bi bi-calendar-event"></i> Cerita Event
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <i class="bi bi-archive"></i> Arsip Lore
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <a href="/" class="text-decoration-none text-light d-flex align-items-center gap-2">
+                <i class="bi bi-arrow-left"></i> Kembali
+            </a>
+        </div>
+    </nav>
+
+    <div id="content">
+        <div class="top-bar">
+            <div class="d-flex align-items-center gap-3">
+                <button type="button" id="sidebarCollapse">
+                    <i class="bi bi-list"></i>
+                </button>
+            </div>
+
+            <div class="d-flex align-items-center gap-4">
+                <a href="https://saweria.co" target="_blank" class="text-white text-decoration-none fw-bold">Saweria</a>
+                <div class="user-profile">
+                    <img src="https://ui-avatars.com/api/?name=User&background=ff6b6b&color=fff" class="rounded-circle" width="40" height="40" alt="Profile">
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid px-4">
+            <div class="d-flex justify-content-end mb-4">
+                <button class="btn btn-favorite">
+                    <i class="bi bi-star me-1"></i> Favorit
+                </button>
+            </div>
+
+            <div class="text-center mt-5">
+                <h1 class="fw-bold mb-4">Tentang Game</h1>
+                
+                <div class="row justify-content-center">
+                    <div class="col-lg-8 text-start text-white-50">
+                        <p id="game-description-placeholder">
+                            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+                            Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
+                            Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
+                            Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                        </p>
+                        <div id="game-profile-container" style="display:none;"></div> 
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
 
+{% block scripts %}
+{{ super() }}
 <script>
-// Chapter modal functionality
 document.addEventListener('DOMContentLoaded', function() {
-    const chapterModal = document.getElementById('chapterModal');
-    if (chapterModal) {
-        chapterModal.addEventListener('show.bs.modal', function(event) {
-            const button = event.relatedTarget;
-            const title = button.getAttribute('data-title');
-            const content = button.getAttribute('data-content');
-            
-            document.getElementById('chapterModalTitle').textContent = title;
-            document.getElementById('chapterModalContent').innerHTML = content;
-        });
-    }
+    // Tombol Toggle Sidebar
+    const sidebar = document.getElementById('sidebar');
+    const dismissBtn = document.getElementById('dismiss');     // Tombol X
+    const collapseBtn = document.getElementById('sidebarCollapse'); // Tombol Garis 3
+
+    // Fungsi Tutup Sidebar (Klik X)
+    dismissBtn.addEventListener('click', function() {
+        sidebar.classList.add('active'); // Class 'active' di CSS kita buat menyembunyikan sidebar (margin negative)
+    });
+
+    // Fungsi Buka Sidebar (Klik Garis 3)
+    collapseBtn.addEventListener('click', function() {
+        sidebar.classList.remove('active');
+    });
 });
 </script>
 {% endblock %}
