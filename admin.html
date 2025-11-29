@@ -552,384 +552,193 @@
     <script src="assets/js/auth-system.js"></script>
     <script src="assets/js/admin.js"></script>
     
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // 1. SETUP SIDEBAR MOBILE
-            const sidebar = document.getElementById('sidebar');
-            const dismissBtn = document.getElementById('dismiss');
-            const collapseBtn = document.getElementById('sidebarCollapse');
-            const overlay = document.createElement('div');
-            
-            // Style Overlay
-            overlay.style.cssText = `display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 998; transition: opacity 0.3s; backdrop-filter: blur(2px);`;
-            document.body.appendChild(overlay);
+<script>
+    // --- VARIABEL DENGAN NAMA UNIK (Agar tidak bentrok dengan admin.js) ---
+    // Kita ubah nama variabelnya supaya aman
+    let gameCurrentPage = 1;
+    const gameItemsPerPage = 4; 
+    
+    // Data Dummy
+    const gamesData = [
+        { id: 1, title: "Arknights: Endfield", category: "Coming Soon", date: "2025-01-01", img: "https://via.placeholder.com/400x300?text=Arknights" },
+        { id: 2, title: "Wuthering Waves", category: "New Release", date: "2024-05-22", img: "https://via.placeholder.com/400x300?text=Wuthering+Waves" },
+        { id: 3, title: "Reverse: 1999", category: "Ongoing", date: "2023-10-26", img: "https://via.placeholder.com/400x300?text=Reverse+1999" },
+        { id: 4, title: "Genshin Impact", category: "Ongoing", date: "2020-09-28", img: "https://via.placeholder.com/400x300?text=Genshin" },
+        { id: 5, title: "Honkai Impact 3rd", category: "Ended", date: "2016-10-14", img: "https://via.placeholder.com/400x300?text=Honkai" },
+        { id: 6, title: "Zenless Zone Zero", category: "Coming Soon", date: "2024-07-04", img: "https://via.placeholder.com/400x300?text=ZZZ" },
+    ];
+    
+    // Variabel filter unik
+    let gameFilteredData = [...gamesData];
 
-            // Event Listeners Sidebar
-            dismissBtn.addEventListener('click', () => {
-                sidebar.classList.add('active'); // active = hidden (margin-left negative)
-                overlay.style.display = 'none';
-            });
+    // --- FUNGSI SWITCH TAB (PERBAIKAN) ---
+    function switchTab(tabId, element) {
+        // Mencegah link lompat
+        if (typeof event !== 'undefined') event.preventDefault();
 
-            collapseBtn.addEventListener('click', () => {
-                sidebar.classList.remove('active'); // show sidebar
-                if (window.innerWidth <= 768) overlay.style.display = 'block';
-            });
-
-            overlay.addEventListener('click', () => {
-                sidebar.classList.add('active');
-                overlay.style.display = 'none';
-            });
-
-            // 2. LOAD PROFILE DATA SAAT LOGIN
-            auth.onAuthStateChanged((user) => {
-                if(user) {
-                    loadProfileData(user);
-                    updateTopBarUser(user);
-                }
-            });
-
-            // 3. SETUP DRAG & DROP THUMBNAIL (Fitur Lama)
-            setupDragDrop();
+        // 1. Sembunyikan SEMUA konten (baik class lama maupun baru)
+        const allSections = document.querySelectorAll('.admin-section-content, .main-content-section');
+        allSections.forEach(el => {
+            el.style.display = 'none';
+            el.classList.remove('active'); 
         });
 
-        // --- FUNGSI SWITCH TAB (DIPERBAIKI) ---
-        function switchTab(tabId, element) {
-            // Mencegah link lompat ke atas (href="#")
-            if (event) event.preventDefault();
+        // Pastikan game-list tersembunyi manual jika class selector di atas meleset
+        const gameListDiv = document.getElementById('game-list');
+        if(gameListDiv) gameListDiv.style.display = 'none';
 
-            // 1. Sembunyikan SEMUA konten
-            // Kita targetkan class lama (.admin-section-content) DAN class baru (.main-content-section)
-            const allSections = document.querySelectorAll('.admin-section-content, .main-content-section');
-            allSections.forEach(el => {
-                el.style.display = 'none';
-                el.classList.remove('active'); // Hapus class active animasi lama
-            });
-
-            // Pastikan game-list juga tersembunyi jika tidak punya class di atas
-            const gameListEl = document.getElementById('game-list');
-            if (gameListEl) gameListEl.style.display = 'none';
-
-            // 2. LOGIKA PENCARIAN ID TARGET
-            // Coba cari ID persis (contoh: 'game-list')
-            let targetEl = document.getElementById(tabId);
-
-            // Jika tidak ketemu, coba cari dengan akhiran "-section" (contoh: 'content' -> 'content-section')
-            if (!targetEl) {
-                targetEl = document.getElementById(tabId + '-section');
-            }
-
-            // 3. Tampilkan Target
-            if (targetEl) {
-                targetEl.style.display = 'block';
-                targetEl.classList.add('active'); // Trigger animasi CSS fadeIn
-            } else {
-                console.error("Target Element tidak ditemukan untuk:", tabId);
-            }
-
-            // 4. Update status Active di Sidebar
-            document.querySelectorAll('.nav-link-custom').forEach(el => el.classList.remove('active'));
-            if (element) element.classList.add('active');
-
-            // 5. Render ulang khusus jika masuk tab Game List
-            if (tabId === 'game-list') {
-                renderGames();
-            }
-            
-            // 6. Tutup Sidebar otomatis di Mobile (Kode tambahan agar rapi)
-            if (window.innerWidth <= 768) {
-                const sidebar = document.getElementById('sidebar');
-                const overlay = document.querySelector('div[style*="z-index: 998"]'); // Mencari overlay yg dibuat script
-                if (sidebar) sidebar.classList.add('active'); // Class active di sidebar ini artinya hidden
-                if (overlay) overlay.style.display = 'none';
-            }
-        }
-        // --- FUNGSI MANAJEMEN PROFIL ---
-        
-        // Load data user ke form
-        function loadProfileData(userInput) {
-            const user = userInput || firebase.auth().currentUser;
-            if(!user) return;
-
-            document.getElementById('settings-email').value = user.email;
-            document.getElementById('settings-name').value = user.displayName || '';
-            
-            // Gunakan foto profil dari Firebase atau generate avatar default
-            const photoUrl = user.photoURL || `https://ui-avatars.com/api/?name=${user.email}&background=random`;
-            document.getElementById('settings-profile-img').src = photoUrl;
-            
-            // Generate username visual dari email
-            const defaultUsername = user.email.split('@')[0];
-            document.getElementById('settings-username').value = defaultUsername;
+        // 2. Cari Target ID
+        // Cek ID mentah (misal: 'game-list') ATAU ID dengan suffix (misal: 'content' -> 'content-section')
+        let targetEl = document.getElementById(tabId);
+        if (!targetEl) {
+            targetEl = document.getElementById(tabId + '-section');
         }
 
-        // Update info user di pojok kanan atas
-        function updateTopBarUser(user) {
-            const userInfoTop = document.getElementById('user-info-top');
-            if(userInfoTop) {
-                userInfoTop.innerHTML = `
-                    <div class="fw-bold text-white small">${user.displayName || 'Admin'}</div>
-                    <div class="text-white-50" style="font-size: 0.7rem;">${user.email}</div>
-                `;
-            }
+        // 3. Tampilkan Target
+        if (targetEl) {
+            targetEl.style.display = 'block';
+            targetEl.classList.add('active');
+        } else {
+            console.error("Tab target tidak ditemukan: " + tabId);
         }
 
-        // Preview gambar saat dipilih
-        function previewProfileImage(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('settings-profile-img').src = e.target.result;
-                }
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
+        // 4. Update status Active di Sidebar
+        document.querySelectorAll('.nav-link-custom').forEach(el => el.classList.remove('active'));
+        if (element) element.classList.add('active');
 
-        // Simpan perubahan profil
-        async function handleProfileUpdate(e) {
-            e.preventDefault();
-            const btn = e.target.querySelector('button[type="submit"]');
-            const originalText = btn.innerHTML;
-            
-            // Loading State
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
-
-            const newName = document.getElementById('settings-name').value;
-            const fileInput = document.getElementById('profile-upload');
-            const user = firebase.auth().currentUser;
-
-            try {
-                let newPhotoURL = user.photoURL;
-
-                // 1. Upload foto baru jika ada file yang dipilih
-                if (fileInput.files.length > 0) {
-                    const file = fileInput.files[0];
-                    // Simpan di folder profile-pictures/{UID}
-                    const storageRef = firebase.storage().ref(`profile-pictures/${user.uid}`);
-                    await storageRef.put(file);
-                    newPhotoURL = await storageRef.getDownloadURL();
-                }
-
-                // 2. Update Profil Firebase Auth
-                await user.updateProfile({
-                    displayName: newName,
-                    photoURL: newPhotoURL
-                });
-
-                // 3. Berhasil
-                showNotification('✅ Profil berhasil diperbarui!', 'success');
-                
-                // Refresh tampilan
-                updateTopBarUser(user);
-                loadProfileData(user);
-
-            } catch (error) {
-                console.error("Error updating profile:", error);
-                showNotification('❌ Gagal update: ' + error.message, 'error');
-            } finally {
-                // Reset Tombol
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-            }
-        }
-
-        // Helper: Drag & Drop Thumbnail Game
-        function setupDragDrop() {
-            const dragDropArea = document.getElementById('drag-drop-area');
-            const fileInput = document.getElementById('game-thumbnail');
-            
-            if (dragDropArea && fileInput) {
-                dragDropArea.addEventListener('click', () => fileInput.click());
-                fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
-                
-                dragDropArea.addEventListener('dragover', (e) => { 
-                    e.preventDefault(); 
-                    dragDropArea.classList.add('dragover'); 
-                });
-                
-                dragDropArea.addEventListener('dragleave', () => dragDropArea.classList.remove('dragover'));
-                
-                dragDropArea.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    dragDropArea.classList.remove('dragover');
-                    fileInput.files = e.dataTransfer.files;
-                    handleFiles(e.dataTransfer.files);
-                });
-            }
-        }
-
-        function handleFiles(files) {
-            const thumbnailPreview = document.getElementById('thumbnail-preview');
-            const uploadPlaceholder = document.getElementById('upload-placeholder');
-            const uploadPreview = document.getElementById('upload-preview');
-
-            if (files.length > 0 && files[0].type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    if (thumbnailPreview) thumbnailPreview.src = e.target.result;
-                    if (uploadPlaceholder) uploadPlaceholder.style.display = 'none';
-                    if (uploadPreview) uploadPreview.style.display = 'block';
-                };
-                reader.readAsDataURL(files[0]);
-            }
-        }
-
-        // --- DATA DUMMY (Contoh) ---
-        // Nanti ini bisa diambil dari Database / API
-        const gamesData = [
-            { id: 1, title: "Arknights: Endfield", category: "Coming Soon", date: "2025-01-01", img: "url_gambar_1.jpg" },
-            { id: 2, title: "Wuthering Waves", category: "New Release", date: "2024-05-22", img: "url_gambar_2.jpg" },
-            { id: 3, title: "Reverse: 1999", category: "Ongoing", date: "2023-10-26", img: "url_gambar_3.jpg" },
-            { id: 4, title: "Genshin Impact", category: "Ongoing", date: "2020-09-28", img: "url_gambar_4.jpg" },
-            { id: 5, title: "Honkai Impact 3rd", category: "Ended", date: "2016-10-14", img: "url_gambar_5.jpg" },
-            { id: 6, title: "Zenless Zone Zero", category: "Coming Soon", date: "2024-07-04", img: "url_gambar_6.jpg" },
-            // Tambahkan data dummy lebih banyak untuk tes pagination
-        ];
-
-        // --- KONFIGURASI PAGINATION ---
-        let currentPage = 1;
-        const itemsPerPage = 4; // Ubah angka ini untuk menentukan jumlah game per halaman
-        let filteredGames = [...gamesData];
-
-        // --- FUNGSI SWITCH TAB (Sidebar) ---
-        function switchTab(tabId, element) {
-            // 1. Sembunyikan semua section konten
-            document.querySelectorAll('.main-content-section').forEach(el => el.style.display = 'none'); // Pastikan div lain punya class ini atau hide manual
-            document.getElementById('game-list').style.display = 'none'; 
-            
-            // Jika ada ID khusus untuk konten lain, hide juga. 
-            // Contoh sederhana:
-            if(document.getElementById(tabId)) {
-                document.getElementById(tabId).style.display = 'block';
-            }
-
-            // 2. Update status Active di Sidebar
-            document.querySelectorAll('.nav-link-custom').forEach(el => el.classList.remove('active'));
-            element.classList.add('active');
-
-            // 3. Jika membuka tab game-list, render ulang
-            if(tabId === 'game-list') {
-                renderGames();
-            }
-        }
-
-        // --- FUNGSI FILTER & RENDER ---
-
-        // Event Listeners untuk Filter
-        document.getElementById('searchName').addEventListener('input', applyFilters);
-        document.getElementById('filterCategory').addEventListener('change', applyFilters);
-        document.getElementById('filterDate').addEventListener('change', applyFilters);
-
-        function applyFilters() {
-            const search = document.getElementById('searchName').value.toLowerCase();
-            const category = document.getElementById('filterCategory').value;
-            const date = document.getElementById('filterDate').value;
-
-            filteredGames = gamesData.filter(game => {
-                const matchName = game.title.toLowerCase().includes(search);
-                const matchCategory = category === 'all' || game.category === category;
-                const matchDate = !date || game.date === date; // Jika tanggal kosong, abaikan filter tanggal
-
-                return matchName && matchCategory && matchDate;
-            });
-
-            currentPage = 1; // Reset ke halaman 1 setiap filter berubah
+        // 5. Render ulang khusus jika masuk tab Game List
+        if (tabId === 'game-list') {
             renderGames();
         }
+        
+        // 6. Tutup Sidebar otomatis di Mobile
+        if (window.innerWidth <= 768) {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('div[style*="z-index: 998"]');
+            if (sidebar) sidebar.classList.add('active'); 
+            if (overlay) overlay.style.display = 'none';
+        }
+    }
 
-        function resetFilters() {
-            document.getElementById('searchName').value = '';
-            document.getElementById('filterCategory').value = 'all';
-            document.getElementById('filterDate').value = '';
-            applyFilters();
+    // --- FUNGSI FILTER & RENDER ---
+
+    // Event Listeners (Pastikan elemen ada sebelum addEventListener)
+    const searchInput = document.getElementById('searchName');
+    const filterCat = document.getElementById('filterCategory');
+    const filterDateInput = document.getElementById('filterDate');
+
+    if(searchInput) searchInput.addEventListener('input', applyFilters);
+    if(filterCat) filterCat.addEventListener('change', applyFilters);
+    if(filterDateInput) filterDateInput.addEventListener('change', applyFilters);
+
+    function applyFilters() {
+        const search = searchInput.value.toLowerCase();
+        const category = filterCat.value;
+        const date = filterDateInput.value;
+
+        gameFilteredData = gamesData.filter(game => {
+            const matchName = game.title.toLowerCase().includes(search);
+            const matchCategory = category === 'all' || game.category === category;
+            const matchDate = !date || game.date === date; 
+
+            return matchName && matchCategory && matchDate;
+        });
+
+        gameCurrentPage = 1; // Reset halaman ke 1
+        renderGames();
+    }
+
+    function resetFilters() {
+        if(searchInput) searchInput.value = '';
+        if(filterCat) filterCat.value = 'all';
+        if(filterDateInput) filterDateInput.value = '';
+        applyFilters();
+    }
+
+    // Fungsi Utama Render Game Card
+    function renderGames() {
+        const container = document.getElementById('gamesContainer');
+        if(!container) return; // Stop jika container tidak ketemu
+        
+        container.innerHTML = '';
+
+        // Logika Pagination Menggunakan Variabel Baru
+        const startIndex = (gameCurrentPage - 1) * gameItemsPerPage;
+        const endIndex = startIndex + gameItemsPerPage;
+        const gamesToShow = gameFilteredData.slice(startIndex, endIndex);
+
+        if (gamesToShow.length === 0) {
+            container.innerHTML = '<div class="col-12 text-center text-white mt-5"><h5>Tidak ada game ditemukan.</h5></div>';
+            renderPagination(0);
+            return;
         }
 
-        // Fungsi Utama Render Game Card
-        function renderGames() {
-            const container = document.getElementById('gamesContainer');
-            container.innerHTML = '';
+        gamesToShow.forEach(game => {
+            let badgeClass = 'bg-secondary';
+            if (game.category === 'New Release') badgeClass = 'bg-success'; // Ganti class bootstrap standar
+            if (game.category === 'Ongoing') badgeClass = 'bg-info';
+            if (game.category === 'Coming Soon') badgeClass = 'bg-warning text-dark';
+            if (game.category === 'Ended') badgeClass = 'bg-danger';
 
-            // Logika Pagination
-            const startIndex = (currentPage - 1) * itemsPerPage;
-            const endIndex = startIndex + itemsPerPage;
-            const gamesToShow = filteredGames.slice(startIndex, endIndex);
-
-            if (gamesToShow.length === 0) {
-                container.innerHTML = '<div class="col-12 text-center text-white mt-5"><h5>Tidak ada game ditemukan.</h5></div>';
-                renderPagination(0);
-                return;
-            }
-
-            gamesToShow.forEach(game => {
-                // Tentukan warna badge berdasarkan kategori
-                let badgeClass = 'bg-secondary';
-                if (game.category === 'New Release') badgeClass = 'bg-new';
-                if (game.category === 'Ongoing') badgeClass = 'bg-ongoing';
-                if (game.category === 'Coming Soon') badgeClass = 'bg-coming';
-                if (game.category === 'Ended') badgeClass = 'bg-ended';
-
-                const cardHTML = `
-                    <div class="col-md-6 col-lg-3"> <div class="game-card">
-                            <span class="badge-status ${badgeClass}">${game.category}</span>
-                            <img src="https://via.placeholder.com/400x300?text=${game.title}" alt="${game.title}">
-                            <div class="game-card-body">
-                                <h5 class="card-title fw-bold">${game.title}</h5>
-                                <p class="card-text small mb-0"><i class="bi bi-calendar-event"></i> ${game.date}</p>
-                            </div>
+            const cardHTML = `
+                <div class="col-md-6 col-lg-3">
+                    <div class="game-card" style="position: relative; border-radius: 15px; overflow: hidden; background-color: #212529; height: 100%;">
+                        <span class="badge rounded-pill ${badgeClass}" style="position: absolute; top: 10px; right: 10px; z-index: 2;">${game.category}</span>
+                        <img src="${game.img}" alt="${game.title}" style="width: 100%; height: 200px; object-fit: cover; opacity: 0.8;">
+                        <div class="p-3" style="position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);">
+                            <h5 class="fw-bold text-white mb-1">${game.title}</h5>
+                            <small class="text-white-50"><i class="bi bi-calendar-event"></i> ${game.date}</small>
                         </div>
                     </div>
-                `;
-                container.innerHTML += cardHTML;
-            });
-
-            renderPagination(Math.ceil(filteredGames.length / itemsPerPage));
-        }
-
-        // Fungsi Render Tombol Pagination
-        function renderPagination(totalPages) {
-            const paginationContainer = document.getElementById('paginationContainer');
-            paginationContainer.innerHTML = '';
-
-            if (totalPages <= 1) return;
-
-            // Tombol Previous
-            const prevDisabled = currentPage === 1 ? 'disabled' : '';
-            paginationContainer.innerHTML += `
-                <li class="page-item ${prevDisabled}">
-                    <a class="page-link bg-dark text-white border-secondary" href="#" onclick="changePage(${currentPage - 1})">Previous</a>
-                </li>
+                </div>
             `;
-
-            // Angka Halaman
-            for (let i = 1; i <= totalPages; i++) {
-                const activeClass = i === currentPage ? 'active' : '';
-                // Note: Bootstrap active biasanya warna biru, bisa di override CSS jika mau warna lain
-                paginationContainer.innerHTML += `
-                    <li class="page-item ${activeClass}">
-                        <a class="page-link bg-dark text-white border-secondary" href="#" onclick="changePage(${i})">${i}</a>
-                    </li>
-                `;
-            }
-
-            // Tombol Next
-            const nextDisabled = currentPage === totalPages ? 'disabled' : '';
-            paginationContainer.innerHTML += `
-                <li class="page-item ${nextDisabled}">
-                    <a class="page-link bg-dark text-white border-secondary" href="#" onclick="changePage(${currentPage + 1})">Next</a>
-                </li>
-            `;
-        }
-
-        function changePage(page) {
-            currentPage = page;
-            renderGames();
-        }
-
-        // Inisialisasi awal
-        document.addEventListener('DOMContentLoaded', () => {
-            // Jalankan render pertama kali (opsional, tergantung tab mana yang aktif duluan)
-            // applyFilters(); 
+            container.innerHTML += cardHTML;
         });
-    </script>
+
+        renderPagination(Math.ceil(gameFilteredData.length / gameItemsPerPage));
+    }
+
+    // Fungsi Render Tombol Pagination
+    function renderPagination(totalPages) {
+        const paginationContainer = document.getElementById('paginationContainer');
+        if(!paginationContainer) return;
+        
+        paginationContainer.innerHTML = '';
+
+        if (totalPages <= 1) return;
+
+        // Tombol Previous
+        const prevDisabled = gameCurrentPage === 1 ? 'disabled' : '';
+        paginationContainer.innerHTML += `
+            <li class="page-item ${prevDisabled}">
+                <a class="page-link bg-dark text-white border-secondary" href="#" onclick="changeGamePage(${gameCurrentPage - 1})">Previous</a>
+            </li>
+        `;
+
+        // Angka Halaman
+        for (let i = 1; i <= totalPages; i++) {
+            const activeClass = i === gameCurrentPage ? 'active' : '';
+            paginationContainer.innerHTML += `
+                <li class="page-item ${activeClass}">
+                    <a class="page-link bg-dark text-white border-secondary" href="#" onclick="changeGamePage(${i})">${i}</a>
+                </li>
+            `;
+        }
+
+        // Tombol Next
+        const nextDisabled = gameCurrentPage === totalPages ? 'disabled' : '';
+        paginationContainer.innerHTML += `
+            <li class="page-item ${nextDisabled}">
+                <a class="page-link bg-dark text-white border-secondary" href="#" onclick="changeGamePage(${gameCurrentPage + 1})">Next</a>
+            </li>
+        `;
+    }
+
+    // Ganti nama fungsi agar tidak bentrok
+    function changeGamePage(page) {
+        gameCurrentPage = page;
+        renderGames();
+    }
+</script>
 </body>
 </html>
