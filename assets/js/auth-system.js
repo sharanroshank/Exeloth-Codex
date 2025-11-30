@@ -83,6 +83,15 @@ if (adminDoc.exists) {
             }
             // ---------------------------
             
+            // --- UPDATE FOTO NAVBAR (KODE LAMA BOLEH DIHAPUS) ---
+            // const navImg = document.getElementById('nav-profile-img'); ... (HAPUS ATAU ABAIKAN)
+            
+            // --- TAMBAHKAN BARIS INI (PENTING!) ---
+            if (window.updateNavbarProfile) {
+                window.updateNavbarProfile(user); // <--- INI KUNCINYA
+            }
+            // ---------------------------------------
+            
             updateNavbar(true);
             
             const isFromLoginAction = sessionStorage.getItem('loginAction') === 'true';

@@ -106,3 +106,48 @@ window.toggleAddAccount = function(e) {
     const popup = document.getElementById('add-account-popup');
     if (popup) popup.classList.toggle('d-none');
 }
+
+/**
+ * Fungsi untuk update tampilan Navbar berdasarkan data Firestore
+ * Dipanggil oleh auth-system.js saat login berhasil
+ */
+window.updateNavbarProfile = async function(user) {
+    if (!user) return;
+
+    // Ambil elemen DOM di Navbar
+    const navImgBtn = document.getElementById('nav-profile-img-btn');      // Foto bulat kecil (tombol dropdown)
+    const navImgInside = document.getElementById('nav-profile-img-inside');// Foto besar di dalam dropdown
+    const navUsername = document.getElementById('nav-gh-username');        // Username (baris atas)
+    const navFullname = document.getElementById('nav-gh-fullname');        // Nama Lengkap (baris bawah)
+
+    // Data Default (Dari Google Auth)
+    let displayName = user.displayName || 'User';
+    let email = user.email;
+    let photoURL = user.photoURL || `https://ui-avatars.com/api/?name=${displayName}`;
+    let username = email.split('@')[0]; // Default username dari email
+
+    try {
+        // Cek apakah data custom tersimpan di Firestore?
+        if (typeof db !== 'undefined') {
+            const doc = await db.collection('users').doc(email).get();
+            
+            if (doc.exists) {
+                const data = doc.data();
+                // Jika ada data di database, TIMPA data default
+                if (data.displayName) displayName = data.displayName;
+                if (data.username) username = data.username;
+                if (data.photoURL) photoURL = data.photoURL;
+            }
+        }
+    } catch (error) {
+        console.error("Gagal sync navbar:", error);
+    }
+
+    // Update Tampilan Navbar
+    if (navImgBtn) navImgBtn.src = photoURL;
+    if (navImgInside) navImgInside.src = photoURL;
+    
+    // Format GitHub Style: Username di atas (Bold), Nama Asli di bawah (Kecil)
+    if (navUsername) navUsername.textContent = username; 
+    if (navFullname) navFullname.textContent = displayName;
+}
