@@ -541,13 +541,32 @@ window.startEmailVerification = function() {
 }
 
 function generateAndSendOTP() {
-    // Buat kode acak 6 digit
+    const emailTarget = document.getElementById('settings-email').value;
+    const nameTarget = document.getElementById('settings-name').value || 'User';
+
+    // 1. Generate Kode
     generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
     
-    // SIMULASI PENGIRIMAN EMAIL (Cek Console Browser)
-    console.log(`%c[EMAIL SYSTEM] Kode Verifikasi Anda: ${generatedOTP}`, 'color: #0d6efd; font-size: 16px; font-weight: bold;');
-    
-    showNotification('Kode verifikasi telah dikirim (Cek Console)', 'info');
+    // 2. Siapkan parameter untuk EmailJS (sesuai nama variabel di Template EmailJS tadi)
+    const templateParams = {
+        to_email: emailTarget,   // Email tujuan (diambil dari input form)
+        to_name: nameTarget,     // Nama user
+        otp_code: generatedOTP   // Kode angkanya
+    };
+
+    // 3. Kirim Email
+    // GANTI 'YOUR_SERVICE_ID' dan 'YOUR_TEMPLATE_ID' dengan ID dari EmailJS kamu
+    emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams)
+        .then(function(response) {
+            console.log('SUCCESS!', response.status, response.text);
+            showNotification(`Kode terkirim ke ${emailTarget}`, 'success');
+        }, function(error) {
+            console.log('FAILED...', error);
+            showNotification('Gagal mengirim email: ' + JSON.stringify(error), 'error');
+        });
+
+    // Tetap log ke console untuk jaga-jaga saat testing
+    console.log(`[DEBUG] OTP: ${generatedOTP}`); 
 }
 
 function startTimer(duration) {

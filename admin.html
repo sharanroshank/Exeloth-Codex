@@ -307,19 +307,19 @@
                                     <div class="form-text text-muted" id="email-status-text">Status: Belum Terverifikasi</div>
                                 </div>
 
-                                <div id="verification-panel" class="alert alert-dark border-secondary mb-4 d-none">
+                                <div id="verification-panel" class="alert mb-4 d-none" style="background-color: #2b3035; border: 1px solid #495057; color: #fff;">
+    
                                     <h6 class="text-warning mb-2"><i class="bi bi-envelope-paper me-2"></i>Masukkan Kode Verifikasi</h6>
-                                    <p class="small text-muted mb-2">Kode telah dikirim ke email Anda (Cek Console F12 untuk simulasi).</p>
+                                    <p class="small text-muted mb-2">Kode telah dikirim ke email Anda.</p>
                                     
                                     <div class="d-flex gap-2 mb-2">
                                         <input type="text" class="form-control form-control-sm w-auto text-center fw-bold text-white letter-spacing-2" 
-                                            id="input-otp" placeholder="XXXXXX" maxlength="6" style="letter-spacing: 3px;">
+                                            id="input-otp" placeholder="XXXXXX" maxlength="6" style="letter-spacing: 3px; background-color: #1a1d20; border-color: #495057;">
                                         <button class="btn btn-sm btn-success" type="button" onclick="confirmCode()">Cek Kode</button>
                                     </div>
 
                                     <div class="d-flex align-items-center justify-content-between">
                                         <span id="otp-message" class="small fw-bold"></span>
-                                        
                                         <div class="small">
                                             <span id="timer-countdown" class="text-info"></span>
                                             <a href="#" id="link-resend" class="text-warning text-decoration-none d-none" onclick="resendCode(event)">
@@ -364,6 +364,23 @@
         </div>
     </div>
 
+    <script src="assets/js/env-config.js"></script> 
+
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+    <script>
+    (function(){
+        // Pastikan config sudah termuat
+        if (window.ENV_CONFIG && window.ENV_CONFIG.EMAILJS_PUBLIC_KEY) {
+            emailjs.init(window.ENV_CONFIG.EMAILJS_PUBLIC_KEY);
+            console.log("EmailJS Initialized Securely");
+        } else {
+            console.error("EmailJS Public Key not found in ENV_CONFIG");
+        }
+    })();
+    </script>
+
+    <script src="assets/js/admin.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -373,7 +390,6 @@
     <script src="https://unpkg.com/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/auth-system.js"></script>
     
-    <script src="assets/js/admin.js"></script>
     <script src="assets/js/admin-ui.js"></script>
 </body>
 </html>
