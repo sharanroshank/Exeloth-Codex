@@ -692,9 +692,9 @@ window.addSection = addSection;
 window.deleteSection = deleteSection;
 window.addAdmin = addAdmin;
 
-// --- FITUR PROFILE & UPLOAD (UPDATED) ---
+// --- FITUR PROFILE & UPLOAD (FINAL FIX) ---
 
-// 1. Fungsi Preview Image (Dipanggil saat user pilih file)
+// 1. Fungsi Preview Image
 window.previewImage = function(input) {
     if (input.files && input.files[0]) {
         const reader = new FileReader();
@@ -705,7 +705,7 @@ window.previewImage = function(input) {
     }
 }
 
-// 2. Helper Upload ke Firebase Storage
+// 2. Helper Upload
 async function uploadProfileImage(file) {
     if (!file) return null;
     const fileName = `profile-images/${currentUser.uid}-${Date.now()}.jpg`;
@@ -714,7 +714,7 @@ async function uploadProfileImage(file) {
     return await storageRef.getDownloadURL();
 }
 
-// 3. Simpan Profil (Termasuk Upload Foto)
+// 3. Simpan Profil
 async function saveProfileChanges() {
     const btn = document.querySelector('#profile-form button[type="submit"]');
     const originalText = btn.innerHTML;
@@ -740,13 +740,11 @@ async function saveProfileChanges() {
     try {
         let photoURL = document.getElementById('settings-profile-img').src;
 
-        // Cek jika ada file baru yang dipilih untuk diupload
         if (fileInput.files && fileInput.files[0]) {
             showNotification('Mengupload foto...', 'info');
             photoURL = await uploadProfileImage(fileInput.files[0]);
         }
 
-        // Simpan ke Firestore
         await db.collection('users').doc(email).set({
             displayName: name,
             username: username,
@@ -755,15 +753,14 @@ async function saveProfileChanges() {
             lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
 
-        // Update Auth Profile (Nama & Foto)
         await auth.currentUser.updateProfile({ 
             displayName: name,
             photoURL: photoURL
         });
 
-        // Update Navbar (Biar langsung berubah)
-        const navImg = document.getElementById('nav-profile-img-btn'); // Foto kecil di navbar
-        const navImgInside = document.getElementById('nav-profile-img-inside'); // Foto di dropdown
+        // Update Navbar
+        const navImg = document.getElementById('nav-profile-img-btn');
+        const navImgInside = document.getElementById('nav-profile-img-inside');
         const navName = document.getElementById('nav-gh-username'); 
         
         if (navImg) navImg.src = photoURL;
@@ -781,7 +778,7 @@ async function saveProfileChanges() {
     }
 }
 
-// 4. Update User Info (Saat Load Halaman)
+// 4. Update User Info (PERBAIKAN STATUS EMAIL DI SINI)
 async function updateUserInfo(user) {
     if (!user) return;
 
@@ -791,7 +788,6 @@ async function updateUserInfo(user) {
     const imgProfile = document.getElementById('settings-profile-img');
     const statusContainer = document.getElementById('email-status-container');
     const btnVerify = document.getElementById('btn-verify-email');
-    const badgeGoogle = document.getElementById('provider-badge-google');
     const passStatusText = document.getElementById('password-status-text');
     const btnPass = document.getElementById('btn-change-password');
 
@@ -799,29 +795,26 @@ async function updateUserInfo(user) {
     if(emailInput) emailInput.value = user.email;
     updateGoogleUI(user);
 
-    // Cek Provider Login
+    // Cek Provider
     const isGoogle = user.providerData.some(p => p.providerId === 'google.com');
     const isPassword = user.providerData.some(p => p.providerId === 'password');
-
-    if (isGoogle) badgeGoogle.style.display = 'block';
     
-    // Status Password (TEXT COLOR FIXED)
+    // Status Password
     if (isPassword) {
         passStatusText.textContent = "Password aktif.";
-        passStatusText.className = "text-success small"; // Warna Hijau Terang
+        passStatusText.className = "text-success small"; 
         btnPass.textContent = "Ubah Password";
         btnPass.className = "btn btn-sm btn-outline-light";
     } else {
         passStatusText.textContent = "Login via Google (Tanpa Password).";
-        passStatusText.className = "text-white-50 small"; // Warna Putih Redup
+        passStatusText.className = "text-white-50 small";
         btnPass.textContent = "Buat Password";
         btnPass.className = "btn btn-sm btn-primary";
     }
 
     try {
-        // Cek Firestore
         const userDoc = await db.collection('users').doc(user.email).get();
-        let isVerified = user.emailVerified; 
+        let isVerified = user.emailVerified; // Ambil dari Auth asli dulu
 
         if (userDoc.exists) {
             const data = userDoc.data();
@@ -829,27 +822,249 @@ async function updateUserInfo(user) {
             usernameInput.value = data.username || user.email.split('@')[0];
             imgProfile.src = data.photoURL || user.photoURL;
             
-            if (data.emailVerified) isVerified = true;
+            // Prioritaskan status dari Firestore jika ada
+            if (data.emailVerified === true) isVerified = true;
         } else {
-            // User Baru (Ambil dari Google)
             nameInput.value = user.displayName || '';
-            // Bikin username dari email (sebelum @)
             usernameInput.value = user.email.split('@')[0]; 
-            // Ambil foto Google
             imgProfile.src = user.photoURL || `https://ui-avatars.com/api/?name=${user.email}`;
         }
 
-        // Status Verifikasi (TEXT COLOR FIXED)
+        // --- LOGIKA TAMPILAN VERIFIKASI ---
         if (isVerified) {
-            statusContainer.innerHTML = '<i class="bi bi-check-circle-fill text-success"></i> <span class="text-success fw-bold">Email Terverifikasi</span>';
-            btnVerify.style.display = 'none';
+            // Jika Terverifikasi: Tampilkan Centang Hijau, Sembunyikan Tombol
+            statusContainer.innerHTML = '<i class="bi bi-check-circle-fill text-success"></i> <span class="text-success fw-bold">Terverifikasi</span>';
+            btnVerify.classList.add('d-none');
         } else {
-            // Text Warning (Kuning) agar terlihat di background hitam
-            statusContainer.innerHTML = '<i class="bi bi-exclamation-triangle-fill text-warning"></i> <span class="text-warning fw-bold">Email belum terverifikasi</span>';
-            btnVerify.style.display = 'block';
+            // Jika Belum: Tampilkan Warning Kuning, Tampilkan Tombol
+            statusContainer.innerHTML = '<i class="bi bi-exclamation-triangle-fill text-warning"></i> <span class="text-warning fw-bold">Belum Terverifikasi</span>';
+            btnVerify.classList.remove('d-none');
         }
 
     } catch (error) {
         console.error("Error loading profile:", error);
     }
+}
+
+// --- LOGIKA PROFILE & KEAMANAN (Unified) ---
+
+let pendingAction = null; 
+let pendingData = null;   
+let generatedOTP = null;
+let otpTimer = null;
+const RESEND_DELAY = 60;
+
+function openChangeModal(type) {
+    const modal = new bootstrap.Modal(document.getElementById('securityModal'));
+    const title = document.getElementById('securityModalTitle');
+    const step1 = document.getElementById('step-input-data');
+    const step2 = document.getElementById('step-verify-otp');
+    
+    step1.classList.remove('d-none');
+    step2.classList.add('d-none');
+    document.getElementById('input-group-email').classList.add('d-none');
+    document.getElementById('input-group-password').classList.add('d-none');
+    document.getElementById('new-email-input').value = '';
+    document.getElementById('new-pass-input').value = '';
+    document.getElementById('confirm-pass-input').value = '';
+    
+    if (type === 'email') {
+        title.innerHTML = '<i class="bi bi-envelope-arrow-up"></i> Ganti Email';
+        document.getElementById('input-group-email').classList.remove('d-none');
+        pendingAction = 'change_email';
+    } else if (type === 'password') {
+        title.innerHTML = '<i class="bi bi-key"></i> Setup / Ubah Password';
+        document.getElementById('input-group-password').classList.remove('d-none');
+        pendingAction = 'change_password';
+    }
+
+    modal.show();
+}
+
+function initiateAction(type) {
+    if (type === 'verify_email') {
+        pendingAction = 'verify_email';
+        pendingData = auth.currentUser.email;
+        sendOtpAndShowModal(auth.currentUser.email);
+    }
+}
+
+function requestOtpForAction() {
+    const emailErr = document.getElementById('email-error');
+    const passErr = document.getElementById('pass-error');
+    emailErr.textContent = '';
+    passErr.textContent = '';
+
+    let targetEmail = auth.currentUser.email; 
+
+    if (pendingAction === 'change_email') {
+        const newEmail = document.getElementById('new-email-input').value;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(newEmail)) {
+            emailErr.textContent = "Format email tidak valid.";
+            return;
+        }
+        if (newEmail === auth.currentUser.email) {
+            emailErr.textContent = "Email baru tidak boleh sama dengan email saat ini.";
+            return;
+        }
+        pendingData = newEmail;
+        targetEmail = newEmail; 
+    } 
+    else if (pendingAction === 'change_password') {
+        const p1 = document.getElementById('new-pass-input').value;
+        const p2 = document.getElementById('confirm-pass-input').value;
+        
+        if (p1.length < 6) {
+            passErr.textContent = "Password minimal 6 karakter.";
+            return;
+        }
+        if (p1 !== p2) {
+            passErr.textContent = "Konfirmasi password tidak cocok.";
+            return;
+        }
+        pendingData = p1;
+    }
+
+    document.getElementById('step-input-data').classList.add('d-none');
+    document.getElementById('step-verify-otp').classList.remove('d-none');
+    
+    sendOtpAndShowModal(targetEmail);
+}
+
+function sendOtpAndShowModal(emailDest) {
+    const modalEl = document.getElementById('securityModal');
+    if (!modalEl.classList.contains('show')) {
+        const modal = new bootstrap.Modal(modalEl);
+        modal.show();
+        document.getElementById('step-input-data').classList.add('d-none');
+        document.getElementById('step-verify-otp').classList.remove('d-none');
+    }
+
+    document.getElementById('otp-target-email').textContent = emailDest;
+    document.getElementById('modal-otp-input').value = '';
+    document.getElementById('modal-otp-input').focus();
+    
+    generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    if (window.emailjs && window.ENV_CONFIG) {
+        const params = {
+            to_email: emailDest,
+            to_name: auth.currentUser.displayName || 'User',
+            otp_code: generatedOTP
+        };
+        // ID EmailJS Anda (Tetap gunakan yang sudah benar)
+        const SID = 'service_1jjn6mq'; 
+        const TID = 'template_4a1wgog'; 
+        
+        emailjs.send(SID, TID, params)
+            .then(() => showNotification(`Kode terkirim ke ${emailDest}`, 'success'))
+            .catch(err => console.error(err));
+    } else {
+        console.log(`[SIMULASI] OTP untuk ${emailDest}: ${generatedOTP}`);
+        showNotification('Mode Simulasi: Cek Console', 'info');
+    }
+
+    startOtpTimer();
+}
+
+// 5. VERIFIKASI OTP & EKSEKUSI FINAL (PERBAIKAN CHANGE EMAIL)
+async function verifyOtpAndCommit() {
+    const inputOtp = document.getElementById('modal-otp-input').value;
+    const msg = document.getElementById('otp-status-msg');
+
+    if (inputOtp !== generatedOTP) {
+        msg.innerHTML = '<span class="text-danger"><i class="bi bi-x-circle"></i> Kode Salah</span>';
+        return;
+    }
+
+    msg.innerHTML = '<span class="text-success"><i class="bi bi-check-circle"></i> Terverifikasi</span>';
+    const modal = bootstrap.Modal.getInstance(document.getElementById('securityModal'));
+    
+    try {
+        if (pendingAction === 'verify_email') {
+            await db.collection('users').doc(auth.currentUser.email).update({
+                emailVerified: true
+            });
+            showNotification('✅ Email berhasil diverifikasi!', 'success');
+            
+        } else if (pendingAction === 'change_email') {
+            
+            // --- LOGIKA GANTI EMAIL (CRITICAL FIX) ---
+            try {
+                // 1. Update Auth Email
+                await auth.currentUser.updateEmail(pendingData);
+                
+                // 2. Jika sukses, pindahkan data di Firestore ke email baru
+                const oldEmail = auth.currentUser.email; 
+                // Note: currentUser.email mungkin sudah berubah di memori, jadi kita pakai ID lama dari doc jika perlu, 
+                // tapi di sini kita asumsikan flow normal.
+                
+                // Buat dokumen baru dengan ID email baru
+                await db.collection('users').doc(pendingData).set({
+                    displayName: document.getElementById('settings-name').value,
+                    username: document.getElementById('settings-username').value,
+                    email: pendingData,
+                    photoURL: document.getElementById('settings-profile-img').src,
+                    emailVerified: true, // Email baru otomatis verified karena lewat OTP
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                showNotification('✅ Email berhasil diubah! Mohon login ulang.', 'success');
+                setTimeout(() => location.reload(), 2000);
+
+            } catch (emailError) {
+                // PENANGANAN ERROR JIKA PERLU LOGIN ULANG
+                if (emailError.code === 'auth/requires-recent-login') {
+                    alert('Keamanan: Untuk mengganti email, Anda harus Login ulang terlebih dahulu. Silakan Logout dan Login kembali, lalu coba lagi.');
+                    await auth.signOut();
+                    location.reload();
+                } else {
+                    throw emailError;
+                }
+            }
+
+        } else if (pendingAction === 'change_password') {
+            try {
+                await auth.currentUser.updatePassword(pendingData);
+                showNotification('✅ Password berhasil diubah!', 'success');
+            } catch (passError) {
+                if (passError.code === 'auth/requires-recent-login') {
+                    alert('Keamanan: Untuk mengganti password, mohon Login ulang terlebih dahulu.');
+                    await auth.signOut();
+                    location.reload();
+                } else {
+                    throw passError;
+                }
+            }
+        }
+
+        modal.hide();
+        // Refresh halaman admin agar data baru terload sempurna
+        if (pendingAction !== 'change_email') {
+            updateUserInfo(auth.currentUser);
+        }
+
+    } catch (error) {
+        console.error(error);
+        showNotification('Gagal: ' + error.message, 'error');
+        modal.hide();
+    }
+}
+
+function startOtpTimer() {
+    let timeLeft = RESEND_DELAY;
+    const timerDisplay = document.getElementById('modal-timer');
+    if (otpTimer) clearInterval(otpTimer);
+    
+    timerDisplay.textContent = `Resend in ${timeLeft}s`;
+    
+    otpTimer = setInterval(() => {
+        timeLeft--;
+        timerDisplay.textContent = `Resend in ${timeLeft}s`;
+        if (timeLeft <= 0) {
+            clearInterval(otpTimer);
+            timerDisplay.innerHTML = '<a href="#" class="text-warning" onclick="requestOtpForAction()">Kirim Ulang</a>';
+        }
+    }, 1000);
 }
