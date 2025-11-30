@@ -39,12 +39,75 @@ function initAdminPanel() {
     console.log('✅ Admin panel initialization complete');
 }
 
+// --- GOOGLE CONNECTION LOGIC ---
+
+function updateGoogleUI(user) {
+    const nameEl = document.getElementById('g-conn-name');
+    const emailEl = document.getElementById('g-conn-email');
+    const statusText = document.getElementById('g-conn-text');
+    const statusIcon = document.getElementById('g-conn-icon');
+    const statusBadge = document.getElementById('g-conn-status-badge');
+    const hoverText = document.getElementById('g-hover-text');
+
+    if (user) {
+        // STATE: TERHUBUNG
+        nameEl.textContent = user.displayName || 'Google User';
+        nameEl.className = 'mb-0 text-white fw-bold';
+        
+        emailEl.textContent = user.email;
+        emailEl.style.display = 'block';
+
+        statusText.textContent = 'Terhubung';
+        statusBadge.className = 'd-flex align-items-center gap-2 text-success fw-bold'; // Hijau
+        
+        statusIcon.className = 'bi bi-link-45deg fs-5'; // Icon Rantai Nyambung
+        
+        if(hoverText) hoverText.textContent = "Putuskan Sambungan";
+    } else {
+        // STATE: TIDAK TERHUBUNG / TERPUTUS
+        nameEl.textContent = 'Tidak terhubung dengan Google';
+        nameEl.className = 'mb-0 text-secondary fw-bold';
+        
+        emailEl.style.display = 'none'; // Sembunyikan email
+
+        statusText.textContent = 'Terputus';
+        statusBadge.className = 'd-flex align-items-center gap-2 text-secondary fw-bold'; // Abu-abu
+        
+        statusIcon.className = 'bi bi-slash-circle fs-5'; // Icon Rantai Putus / Slash
+        
+        if(hoverText) hoverText.textContent = "Hubungkan Akun";
+    }
+}
+
+// Fungsi yang dipanggil saat kartu diklik
+async function handleGoogleConnection() {
+    if (currentUser) {
+        // Jika sedang login -> Logout (Putuskan)
+        if (confirm('Putuskan sambungan dari akun Google ini? Anda akan logout.')) {
+            await auth.signOut();
+            // UI akan otomatis update lewat auth state listener, atau redirect ke home
+            updateGoogleUI(null); 
+            showNotification('Sambungan Google diputuskan.', 'info');
+        }
+    } else {
+        // Jika tidak login -> Login (Hubungkan)
+        showNotification('Mengalihkan ke Google Sign-In...', 'info');
+        // Panggil fungsi login dari auth-system.js
+        if (typeof showGoogleSignIn === 'function') {
+            showGoogleSignIn();
+        } else {
+            console.error('Fungsi login tidak ditemukan');
+        }
+    }
+}
+
 // Show admin panel (Dipanggil dari auth-system.js)
 function showAdminPanel(user) {
     const adminSection = document.getElementById('admin-panel-section');
     if (adminSection) adminSection.classList.remove('d-none');
     
     // Load Data
+    updateGoogleUI(user);
     updateUserInfo(user);
     loadAdminList();
     loadSections(); 

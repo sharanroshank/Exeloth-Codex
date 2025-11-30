@@ -329,11 +329,28 @@
                                     </div>
                                 </div>
 
-                                <div class="alert alert-info mb-4 d-flex align-items-center">
-                                    <i class="bi bi-google me-3 fs-4"></i>
-                                    <div>
-                                        <strong>Terhubung dengan Google</strong>
-                                        <div class="small">Akun ini menggunakan login Google untuk keamanan.</div>
+                                <div id="google-connect-card" class="google-card d-flex align-items-center p-3 mb-4 rounded cursor-pointer position-relative" onclick="handleGoogleConnection()">
+                                    
+                                    <div class="bg-white rounded-circle p-2 d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
+                                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" width="24" height="24">
+                                    </div>
+
+                                    <div class="flex-grow-1 user-select-none">
+                                        <h6 class="mb-0 text-white fw-bold" id="g-conn-name">Loading...</h6>
+                                        <small class="text-secondary" id="g-conn-email">Menghubungkan...</small>
+                                    </div>
+
+                                    <div class="text-end user-select-none">
+                                        <div id="g-conn-status-badge" class="d-flex align-items-center gap-2 text-success fw-bold" style="font-size: 0.9rem;">
+                                            <span id="g-conn-text">Terhubung</span>
+                                            <div class="bg-dark rounded-circle border border-secondary d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                                <i class="bi bi-link-45deg fs-5" id="g-conn-icon"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="card-overlay-hover">
+                                        <span id="g-hover-text">Klik untuk Putuskan</span>
                                     </div>
                                 </div>
 
