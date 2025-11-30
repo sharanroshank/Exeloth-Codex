@@ -21,8 +21,6 @@
             z-index: 900;
         }
 
-        .top-bar { top: 76px !important; z-index: 800; }
-        
         /* Animasi Transisi Halaman */
         .admin-section-content { display: none; animation: fadeIn 0.3s; }
         .admin-section-content.active { display: block; }
@@ -120,24 +118,6 @@
 
         <div id="content" style="padding: 0;">
             
-            <div class="top-bar sticky-top">
-                <div class="d-flex align-items-center gap-3">
-                    <button type="button" id="sidebarCollapse">
-                        <i class="bi bi-list"></i>
-                    </button>
-                    <h5 class="mb-0 text-white fw-bold" id="page-title">Manajemen Konten</h5>
-                </div>
-
-                <div class="d-flex align-items-center gap-3">
-                    <div id="user-info-top" class="text-end d-none d-md-block lh-1">
-                        </div>
-                    
-                    <button class="btn btn-outline-danger btn-sm rounded-pill px-3" onclick="signOut()">
-                        <i class="bi bi-power me-1"></i> Sign Out
-                    </button>
-                </div>
-            </div>
-
             <div class="container-fluid px-4 pb-5 pt-3" id="admin-panel-section">
                 
                 <div id="content-section" class="admin-section-content active">
@@ -513,9 +493,6 @@
     <script src="assets/js/admin.js"></script>
     
     <script>
-        // --- FUNGSI SWITCH TAB UI ---
-        // Fungsi ini hanya mengatur perpindahan tampilan antar section (Content, Settings, Profile)
-        // Data di dalamnya dikelola oleh admin.js
         function switchTab(tabId, element) {
             if (typeof event !== 'undefined') event.preventDefault();
 
@@ -550,7 +527,7 @@
             // 5. Tutup Sidebar otomatis di Mobile
             if (window.innerWidth <= 768) {
                 const sidebar = document.getElementById('sidebar');
-                const overlay = document.querySelector('.overlay-sidebar'); // Pastikan class overlay sesuai
+                const overlay = document.querySelector('.overlay-sidebar'); 
                 if (sidebar) sidebar.classList.add('active'); // active di sini artinya hidden (margin negative)
                 if (overlay) overlay.style.display = 'none';
             }
@@ -560,9 +537,8 @@
         document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.getElementById('sidebar');
             const dismissBtn = document.getElementById('dismiss');
-            const collapseBtn = document.getElementById('sidebarCollapse');
+            // Tombol hamburger dihapus, tapi logika dismiss masih berguna jika sidebar terbuka
             
-            // Create Overlay
             const overlay = document.createElement('div');
             overlay.className = 'overlay-sidebar';
             overlay.style.cssText = `display: none; position: fixed; top: 76px; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 899; transition: opacity 0.3s;`;
@@ -572,17 +548,6 @@
                 dismissBtn.addEventListener('click', function() {
                     sidebar.classList.add('active'); 
                     overlay.style.display = 'none';
-                });
-            }
-
-            if(collapseBtn) {
-                collapseBtn.addEventListener('click', function() {
-                    sidebar.classList.toggle('active');
-                    if (!sidebar.classList.contains('active')) { // Jika sidebar muncul
-                        overlay.style.display = 'block';
-                    } else {
-                        overlay.style.display = 'none';
-                    }
                 });
             }
             
