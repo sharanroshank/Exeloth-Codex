@@ -53,17 +53,17 @@ function renderNavbar() {
                             </li>
                             
                             <li>
-                                <a class="dropdown-item" href="admin.html">
+                                <a class="dropdown-item" href="#" onclick="openAdminSection('section-profile')">
                                     <i class="bi bi-person me-2"></i> Your Profile
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" href="admin.html" onclick="switchTab('content')">
+                                <a class="dropdown-item" href="#" onclick="openAdminSection('section-content')">
                                     <i class="bi bi-journal-richtext me-2"></i> Manajemen Konten
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" href="admin.html" onclick="switchTab('admin-settings')">
+                                <a class="dropdown-item" href="#" onclick="openAdminSection('section-admin')">
                                     <i class="bi bi-gear me-2"></i> Pengaturan Admin
                                 </a>
                             </li>
@@ -88,7 +88,19 @@ function renderNavbar() {
     else if (path.includes('games.html')) document.getElementById('nav-games')?.classList.add('active');
 }
 
-// Fungsi kecil untuk toggle popup 'Add Account'
+// Fungsi Helper untuk Navigasi Admin
+window.openAdminSection = function(sectionId) {
+    // Jika user SUDAH di halaman admin, langsung ganti tab
+    if (window.location.pathname.includes('admin.html')) {
+        if (typeof switchSection === 'function') {
+            switchSection(sectionId, null); // Pass null karena diklik dari navbar, bukan sidebar
+        }
+    } else {
+        // Jika user DI LUAR admin (misal Home), redirect dengan parameter
+        window.location.href = `admin.html?section=${sectionId}`;
+    }
+}
+
 window.toggleAddAccount = function(e) {
     e.stopPropagation(); 
     const popup = document.getElementById('add-account-popup');
