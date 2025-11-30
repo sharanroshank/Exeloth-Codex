@@ -9,76 +9,12 @@
     <link rel="stylesheet" href="https://unpkg.com/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
-    
-    <style>
-        /* --- Styles Khusus Admin Dashboard --- */
-        body { padding-top: 76px !important; background-color: #34353a; }
-        
-        /* Sidebar Positioning */
-        #sidebar {
-            top: 76px !important;
-            height: calc(100vh - 76px) !important;
-            z-index: 900;
-        }
-
-        /* Animasi Transisi Halaman */
-        .admin-section-content { display: none; animation: fadeIn 0.3s; }
-        .admin-section-content.active { display: block; }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Profile Picture Settings */
-        .profile-pic-container {
-            position: relative;
-            width: 120px;
-            height: 120px;
-            margin: 0 auto;
-            background-color: #212529;
-        }
-        .profile-pic-overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.6);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        .profile-pic-container:hover .profile-pic-overlay { opacity: 1; }
-        
-        /* Sidebar Active State Customization */
-        .nav-link-custom {
-            color: rgba(255,255,255,0.7);
-            padding: 12px 20px;
-            display: block;
-            text-decoration: none;
-            border-left: 4px solid transparent;
-            transition: all 0.3s;
-        }
-        .nav-link-custom:hover {
-            background: rgba(255,255,255,0.05);
-            color: white;
-        }
-        .nav-link-custom.active {
-            background: rgba(255,255,255,0.1);
-            color: white;
-            border-left-color: var(--primary-color, #6f42c1);
-        }
-    </style>
 </head>
-<body>
+<body class="admin-page">
     
     <div id="navbar-placeholder"></div>
     <script src="assets/js/navbar.js"></script>
     <script>renderNavbar();</script>
-
-    <div id="notification-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
 
     <div class="dashboard-wrapper">
         
@@ -121,12 +57,28 @@
             <div class="container-fluid px-4 pb-5 pt-3" id="admin-panel-section">
                 
                 <div id="section-content" class="admin-tab-content fade-in active">
+                    
                     <div class="card bg-dark mb-4 guide-section border-start border-4 border-info">
                         <div class="card-header bg-transparent">
                             <h5 class="mb-0 text-info"><i class="bi bi-info-circle me-2"></i>Panduan Cepat</h5>
                         </div>
                         <div class="card-body">
-                            <p class="text-white mb-0">Gunakan bagian ini untuk menambah, mengedit, atau menghapus Game dan Chapter cerita.</p>
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <h6 class="text-white"><i class="bi bi-1-circle me-2"></i>Sistem Baru:</h6>
+                                    <ul class="text-muted small mb-0">
+                                        <li>Semua game (Rilis/Coming Soon) dikelola di satu tempat.</li>
+                                        <li>Gunakan <strong>"Daftar Game"</strong> di bawah untuk Edit/Hapus.</li>
+                                        <li>Centang <strong>"Mode Coming Soon"</strong> di form untuk game yang belum rilis.</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-white"><i class="bi bi-2-circle me-2"></i>Upload Gambar:</h6>
+                                    <p class="text-muted small mb-0">
+                                        Sekarang mendukung upload <strong>Thumbnail</strong>, <strong>Logo</strong>, dan <strong>Background</strong> sekaligus.
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -143,8 +95,17 @@
                                 <div class="col-md-3">
                                     <select id="filter-status" class="form-select">
                                         <option value="all">Semua Status</option>
+                                        <option value="new_release">New Release</option>
                                         <option value="ongoing">Ongoing</option>
+                                        <option value="ended">Ended</option>
                                         <option value="coming_soon">Coming Soon</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <select id="sort-game" class="form-select">
+                                        <option value="newest">Terbaru (Upload)</option>
+                                        <option value="oldest">Terlama</option>
+                                        <option value="name_asc">Nama (A-Z)</option>
                                     </select>
                                 </div>
                             </div>
@@ -155,11 +116,12 @@
                                             <th style="width: 60px;">Img</th>
                                             <th>Judul Game</th>
                                             <th>Status</th>
+                                            <th>Info Tanggal</th>
                                             <th class="text-end">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody id="game-table-body">
-                                        <tr><td colspan="4" class="text-center text-muted">Loading data...</td></tr>
+                                        <tr><td colspan="5" class="text-center text-muted">Loading data...</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -215,21 +177,33 @@
                                     <div class="col-md-4">
                                         <label class="form-label">Thumbnail</label>
                                         <input type="file" class="form-control form-control-sm" id="game-thumbnail" accept="image/*">
-                                        <img id="preview-thumbnail" src="" class="mt-2 w-100 rounded" style="display:none; max-height:100px; object-fit:cover;">
+                                        <div class="border border-secondary rounded p-2 text-center bg-darker mt-2" style="height: 100px; display: flex; align-items: center; justify-content: center;">
+                                            <img id="preview-thumbnail" src="" style="max-height: 100%; max-width: 100%; display: none;">
+                                            <span class="text-muted small" id="txt-thumbnail">No image</span>
+                                        </div>
                                     </div>
                                     <div class="col-md-4">
                                         <label class="form-label">Logo</label>
                                         <input type="file" class="form-control form-control-sm" id="game-logo" accept="image/*">
-                                        <img id="preview-logo" src="" class="mt-2 w-100 rounded" style="display:none; max-height:100px; object-fit:contain;">
+                                        <div class="border border-secondary rounded p-2 text-center bg-darker mt-2" style="height: 100px; display: flex; align-items: center; justify-content: center;">
+                                            <img id="preview-logo" src="" style="max-height: 100%; max-width: 100%; display: none;">
+                                            <span class="text-muted small" id="txt-logo">No image</span>
+                                        </div>
                                     </div>
                                     <div class="col-md-4">
                                         <label class="form-label">Background</label>
                                         <input type="file" class="form-control form-control-sm" id="game-bg" accept="image/*">
-                                        <img id="preview-bg" src="" class="mt-2 w-100 rounded" style="display:none; max-height:100px; object-fit:cover;">
+                                        <div class="border border-secondary rounded p-2 text-center bg-darker mt-2" style="height: 100px; display: flex; align-items: center; justify-content: center;">
+                                            <img id="preview-bg" src="" style="max-height: 100%; max-width: 100%; display: none;">
+                                            <span class="text-muted small" id="txt-bg">No image</span>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <button type="submit" class="btn btn-primary w-100" id="game-submit-btn"><i class="bi bi-save me-1"></i> Simpan Game</button>
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary" id="game-submit-btn"><i class="bi bi-save me-1"></i> Simpan Game</button>
+                                    <button type="button" class="btn btn-outline-secondary d-none" id="cancel-edit-btn" onclick="resetForm()">Batal Edit</button>
+                                </div>
                             </form>
                         </div>
                     </div>
@@ -237,26 +211,34 @@
                     <div class="row g-4">
                         <div class="col-lg-6">
                             <div class="card bg-dark h-100 border-secondary">
-                                <div class="card-header border-secondary"><h5 class="mb-0 text-white">Sections</h5></div>
+                                <div class="card-header border-secondary"><h5 class="mb-0 text-white"><i class="bi bi-list-stars me-2"></i>Sections</h5></div>
                                 <div class="card-body">
                                     <div class="input-group mb-3">
                                         <input type="text" class="form-control" id="new-section-name" placeholder="Nama Section">
                                         <button class="btn btn-success" onclick="addSection()"><i class="bi bi-plus-lg"></i></button>
                                     </div>
-                                    <div id="section-list-container" class="list-group list-group-flush rounded bg-darker border border-secondary overflow-auto" style="max-height: 200px;"></div>
+                                    <div id="section-list-container" class="list-group list-group-flush rounded bg-darker border border-secondary overflow-auto" style="max-height: 200px;">
+                                        <div class="text-center p-3 text-muted">Loading sections...</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-lg-6">
                             <div class="card bg-dark h-100 border-secondary">
-                                <div class="card-header border-secondary"><h5 class="mb-0 text-white">Tambah Chapter</h5></div>
+                                <div class="card-header border-secondary"><h5 class="mb-0 text-white"><i class="bi bi-journal-text me-2"></i>Tambah Chapter</h5></div>
                                 <div class="card-body">
                                     <form id="chapter-form">
-                                        <select class="form-control mb-2" id="chapter-game-slug" required><option value="">Pilih Game</option></select>
-                                        <select class="form-control mb-2" id="chapter-section" required><option value="">Pilih Section</option></select>
+                                        <div class="mb-2">
+                                            <select class="form-control" id="chapter-game-slug" required><option value="">Pilih Game</option></select>
+                                        </div>
+                                        <div class="mb-2">
+                                            <select class="form-control" id="chapter-section" required><option value="">Pilih Section</option></select>
+                                        </div>
                                         <input type="text" class="form-control mb-2" id="chapter-title" placeholder="Judul Chapter" required>
-                                        <textarea class="form-control mb-3" id="chapter-content" rows="2" placeholder="Isi cerita..." required></textarea>
-                                        <button type="submit" class="btn btn-primary w-100" id="chapter-submit-btn">Add Chapter</button>
+                                        <textarea class="form-control mb-3" id="chapter-content" rows="3" placeholder="Isi cerita..." required></textarea>
+                                        <div class="d-grid">
+                                            <button type="submit" class="btn btn-primary" id="chapter-submit-btn"><i class="bi bi-plus-circle me-1"></i> Add Chapter</button>
+                                        </div>
                                     </form>
                                 </div>
                             </div>
@@ -304,13 +286,15 @@
                                     <form id="profile-form" onsubmit="event.preventDefault(); showNotification('Fitur simpan profil belum terhubung ke database.', 'info');">
                                         <div class="text-center mb-5">
                                             <div class="position-relative d-inline-block">
-                                                <img id="settings-profile-img" src="https://ui-avatars.com/api/?name=Admin" class="rounded-circle border border-2 border-primary shadow" style="width: 120px; height: 120px; object-fit: cover;">
+                                                <div class="rounded-circle overflow-hidden border border-2 border-primary shadow" style="width: 120px; height: 120px;">
+                                                    <img id="settings-profile-img" src="https://ui-avatars.com/api/?name=Admin" class="w-100 h-100 object-fit-cover">
+                                                </div>
                                             </div>
                                             <div class="mt-3">
-                                                <label class="btn btn-sm btn-outline-light">
-                                                    <i class="bi bi-camera me-1"></i> Ganti Foto (Disabled)
-                                                    <input type="file" class="d-none" disabled>
+                                                <label class="btn btn-sm btn-outline-light disabled">
+                                                    <i class="bi bi-camera me-1"></i> Ganti Foto
                                                 </label>
+                                                <p class="text-muted small mt-1">Foto diambil dari akun Google</p>
                                             </div>
                                         </div>
 
@@ -326,7 +310,7 @@
                                         </div>
 
                                         <div class="alert alert-info">
-                                            <i class="bi bi-info-circle me-2"></i> Akun Anda terhubung melalui Google Sign-In. Foto dan email dikelola oleh Google.
+                                            <i class="bi bi-info-circle me-2"></i> Akun Anda terhubung melalui Google Sign-In.
                                         </div>
 
                                         <div class="d-flex justify-content-end gap-2 pt-2 border-top border-secondary">
@@ -352,72 +336,8 @@
     <script src="assets/js/firebase-config.js"></script>
     <script src="https://unpkg.com/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/auth-system.js"></script>
-    <script src="assets/js/admin.js"></script>
     
-    <script>
-        // Fungsi untuk Berpindah Bagian/Section
-        function switchSection(sectionId, elementLink) {
-            // 1. Sembunyikan SEMUA bagian konten
-            const allSections = document.querySelectorAll('.admin-tab-content');
-            allSections.forEach(section => {
-                section.classList.remove('active');
-                section.style.display = 'none'; // Paksa display none via JS agar aman
-            });
-
-            // 2. Tampilkan bagian yang dipilih
-            const targetSection = document.getElementById(sectionId);
-            if (targetSection) {
-                targetSection.classList.add('active');
-                targetSection.style.display = 'block';
-            } else {
-                console.error("Section tidak ditemukan:", sectionId);
-            }
-
-            // 3. Update status 'Active' pada Sidebar Link
-            if (elementLink) {
-                const allLinks = document.querySelectorAll('.nav-link-custom');
-                allLinks.forEach(link => link.classList.remove('active'));
-                elementLink.classList.add('active');
-            }
-
-            // 4. (Opsional) Tutup sidebar otomatis jika di layar HP
-            if (window.innerWidth <= 768) {
-                const sidebar = document.getElementById('sidebar');
-                if (sidebar) sidebar.classList.add('active'); // active di CSS ini artinya hidden (margin negative)
-                
-                // Sembunyikan overlay hitam jika ada
-                const overlay = document.querySelector('.overlay-sidebar');
-                if (overlay) overlay.style.display = 'none';
-            }
-        }
-
-        // Inisialisasi Mobile Sidebar Toggle (Agar tombol X dan background gelap bekerja)
-        document.addEventListener('DOMContentLoaded', function() {
-            const sidebar = document.getElementById('sidebar');
-            const dismissBtn = document.getElementById('dismiss');
-            const overlay = document.querySelector('.overlay-sidebar') || document.createElement('div');
-            
-            if (!document.querySelector('.overlay-sidebar')) {
-                overlay.className = 'overlay-sidebar';
-                // Style overlay agar menutupi layar
-                overlay.style.cssText = `display: none; position: fixed; top: 76px; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 899;`;
-                document.querySelector('.dashboard-wrapper').appendChild(overlay);
-            }
-
-            // Event Tutup Sidebar (Klik X)
-            if(dismissBtn) {
-                dismissBtn.addEventListener('click', function() {
-                    sidebar.classList.add('active'); // Sembunyikan sidebar
-                    overlay.style.display = 'none';
-                });
-            }
-            
-            // Event Tutup Sidebar (Klik area hitam)
-            overlay.addEventListener('click', function() {
-                sidebar.classList.add('active');
-                overlay.style.display = 'none';
-            });
-        });
-    </script>
+    <script src="assets/js/admin.js"></script>
+    <script src="assets/js/admin-ui.js"></script>
 </body>
 </html>

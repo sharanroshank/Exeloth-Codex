@@ -623,6 +623,45 @@ select option {
     gap: 8px;
 }
 
+/* ==================== 11. ADMIN DASHBOARD SPECIFIC ==================== */
+
+/* Khusus body admin agar background beda dengan home dan padding atas benar */
+body.admin-page {
+    padding-top: 76px !important;
+    background-color: #34353a;
+}
+
+/* Sidebar Positioning khusus Admin (hanya berlaku jika ada class admin-page di body) */
+body.admin-page #sidebar {
+    top: 76px !important;
+    height: calc(100vh - 76px) !important;
+    z-index: 900;
+}
+
+/* Profile Picture Settings */
+.profile-pic-container {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+    background-color: #212529;
+}
+
+.profile-pic-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.profile-pic-container:hover .profile-pic-overlay { opacity: 1; }
+
 /* Animasi sederhana saat ganti tab */
 .fade-in {
     animation: fadeIn 0.3s ease-in-out;
@@ -662,4 +701,29 @@ select option {
     background: rgba(255,255,255,0.1);
     color: white;
     border-left-color: var(--primary-color);
+}
+
+/* assets/css/games.css */
+
+.filter-box {
+    background-color: #212529;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+.pagination .page-link {
+    background-color: #212529;
+    border-color: #495057;
+    color: #fff;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.pagination .page-item.disabled .page-link {
+    background-color: #1a1d20;
+    color: #6c757d;
 }
