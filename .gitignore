@@ -5,6 +5,7 @@
 .env.local
 .env.production
 .env.development
+assets/js/env-config.js
 
 # Firebase service account keys (jika ada)
 firebase-service-account.json

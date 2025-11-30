@@ -545,30 +545,40 @@ function generateAndSendOTP() {
     const emailTarget = document.getElementById('settings-email').value;
     const nameTarget = document.getElementById('settings-name').value || 'User';
 
+    // Generate angka acak
     generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
     
-    // Konfigurasi EmailJS (Pastikan ENV_CONFIG sudah ada di window)
+    // Konfigurasi EmailJS
+    // Pastikan ENV_CONFIG sudah ada di window (dari inject-env.js atau file lokal)
     if (window.emailjs && window.ENV_CONFIG && window.ENV_CONFIG.EMAILJS_PUBLIC_KEY) {
+        
         const templateParams = {
             to_email: emailTarget,
             to_name: nameTarget,
             otp_code: generatedOTP
         };
-        // GANTI 'service_id' dan 'template_id' jika belum diset di sini
-        // Sebaiknya gunakan hardcoded string untuk service & template id karena tidak rahasia
-        // Contoh: emailjs.send('service_xyz', 'template_abc', templateParams)
+
+        // GANTI 'service_id' dan 'template_id' sesuai akun EmailJS Anda
+        // String ini tidak rahasia, jadi aman ditulis langsung di sini
+        const SERVICE_ID = 'service_ehkmiwa'; // Contoh, ganti dengan milikmu
+        const TEMPLATE_ID = 'template_4a1wgog'; // Contoh, ganti dengan milikmu
         
-        // UNTUK SEMENTARA KITA GUNAKAN LOG CONSOLE JIKA SERVICE ID BELUM DIISI
-        console.log(`[EMAILJS] Sending OTP ${generatedOTP} to ${emailTarget}`);
+        console.log(`[EMAILJS] Sending verification to ${emailTarget}...`);
         
-        /* // UNCOMMENT INI JIKA SUDAH PUNYA SERVICE ID
-        emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams)
-            .then(() => showNotification(`Kode terkirim ke ${emailTarget}`, 'success'))
-            .catch((err) => showNotification('Gagal kirim email: ' + JSON.stringify(err), 'error'));
-        */
+        emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams)
+            .then(() => {
+                showNotification(`Kode terkirim ke ${emailTarget}`, 'success');
+                console.log('[EMAILJS] Email sent successfully.');
+            })
+            .catch((err) => {
+                showNotification('Gagal kirim email. Cek koneksi.', 'error');
+                console.error('[EMAILJS] Failed:', err);
+            });
+
     } else {
-        console.log(`[SIMULASI] OTP: ${generatedOTP}`); 
-        showNotification('Mode Simulasi: Cek Console untuk Kode OTP', 'info');
+        // Fallback jika Key tidak ditemukan (Misal lupa set Env Var)
+        showNotification('Error: EmailJS Key tidak ditemukan.', 'error');
+        console.error('[SYSTEM] EMAILJS_PUBLIC_KEY is missing in ENV_CONFIG.');
     }
 }
 
