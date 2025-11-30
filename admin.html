@@ -12,28 +12,16 @@
     
     <style>
         /* --- Styles Khusus Admin Dashboard --- */
+        body { padding-top: 76px !important; background-color: #34353a; }
         
-        /* 1. Reset & Base Layout */
-        /* Body diberi padding agar tidak tertutup Navbar Global */
-        body { 
-            padding-top: 76px !important; 
-            background-color: #34353a; 
-        }
-        
-        /* 2. Sidebar Positioning */
-        /* Sidebar harus turun 76px (tinggi navbar global) */
+        /* Sidebar Positioning */
         #sidebar {
             top: 76px !important;
             height: calc(100vh - 76px) !important;
-            z-index: 900; /* Di bawah Navbar Global (1030) */
+            z-index: 900;
         }
 
-        /* 3. Top Bar Admin Positioning */
-        /* Header admin (Search/Logout) juga harus turun */
-        .top-bar {
-            top: 76px !important;
-            z-index: 800;
-        }
+        .top-bar { top: 76px !important; z-index: 800; }
         
         /* Animasi Transisi Halaman */
         .admin-section-content { display: none; animation: fadeIn 0.3s; }
@@ -411,50 +399,6 @@
                     </div>
                 </div>
 
-                <div id="game-list" class="main-content-section" style="display: none;">
-                    <h3 class="mb-4">Daftar Games</h3>
-
-                    <div class="card bg-dark text-white mb-4 p-3 border-secondary">
-                        <div class="row g-3">
-                            <div class="col-md-4">
-                                <label class="form-label">Cari Nama Game</label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-secondary border-secondary text-white"><i class="bi bi-search"></i></span>
-                                    <input type="text" id="searchName" class="form-control bg-dark text-white border-secondary" placeholder="Contoh: Wuthering Waves...">
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-3">
-                                <label class="form-label">Kategori Status</label>
-                                <select id="filterCategory" class="form-select bg-dark text-white border-secondary">
-                                    <option value="all">Semua Kategori</option>
-                                    <option value="New Release">New Release</option>
-                                    <option value="Ongoing">Ongoing</option>
-                                    <option value="Coming Soon">Coming Soon</option>
-                                    <option value="Ended">Ended</option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-3">
-                                <label class="form-label">Tanggal Rilis</label>
-                                <input type="date" id="filterDate" class="form-control bg-dark text-white border-secondary">
-                            </div>
-
-                            <div class="col-md-2 d-flex align-items-end">
-                                <button onclick="resetFilters()" class="btn btn-outline-light w-100">Reset</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row g-4" id="gamesContainer">
-                        </div>
-
-                    <nav class="mt-4">
-                        <ul class="pagination justify-content-center" id="paginationContainer">
-                            </ul>
-                    </nav>
-                </div>
-
                 <div id="admin-settings-section" class="admin-section-content">
                     <div class="card bg-dark mb-4 border-warning border-start border-4">
                         <div class="card-header bg-transparent">
@@ -568,193 +512,85 @@
     <script src="assets/js/auth-system.js"></script>
     <script src="assets/js/admin.js"></script>
     
-<script>
-    // --- VARIABEL DENGAN NAMA UNIK (Agar tidak bentrok dengan admin.js) ---
-    // Kita ubah nama variabelnya supaya aman
-    let gameCurrentPage = 1;
-    const gameItemsPerPage = 4; 
-    
-    // Data Dummy
-    const gamesData = [
-        { id: 1, title: "Arknights: Endfield", category: "Coming Soon", date: "2025-01-01", img: "https://via.placeholder.com/400x300?text=Arknights" },
-        { id: 2, title: "Wuthering Waves", category: "New Release", date: "2024-05-22", img: "https://via.placeholder.com/400x300?text=Wuthering+Waves" },
-        { id: 3, title: "Reverse: 1999", category: "Ongoing", date: "2023-10-26", img: "https://via.placeholder.com/400x300?text=Reverse+1999" },
-        { id: 4, title: "Genshin Impact", category: "Ongoing", date: "2020-09-28", img: "https://via.placeholder.com/400x300?text=Genshin" },
-        { id: 5, title: "Honkai Impact 3rd", category: "Ended", date: "2016-10-14", img: "https://via.placeholder.com/400x300?text=Honkai" },
-        { id: 6, title: "Zenless Zone Zero", category: "Coming Soon", date: "2024-07-04", img: "https://via.placeholder.com/400x300?text=ZZZ" },
-    ];
-    
-    // Variabel filter unik
-    let gameFilteredData = [...gamesData];
+    <script>
+        // --- FUNGSI SWITCH TAB UI ---
+        // Fungsi ini hanya mengatur perpindahan tampilan antar section (Content, Settings, Profile)
+        // Data di dalamnya dikelola oleh admin.js
+        function switchTab(tabId, element) {
+            if (typeof event !== 'undefined') event.preventDefault();
 
-    // --- FUNGSI SWITCH TAB (PERBAIKAN) ---
-    function switchTab(tabId, element) {
-        // Mencegah link lompat
-        if (typeof event !== 'undefined') event.preventDefault();
+            // 1. Sembunyikan SEMUA konten section
+            const allSections = document.querySelectorAll('.admin-section-content');
+            allSections.forEach(el => {
+                el.classList.remove('active'); 
+                el.style.display = 'none';
+            });
 
-        // 1. Sembunyikan SEMUA konten (baik class lama maupun baru)
-        const allSections = document.querySelectorAll('.admin-section-content, .main-content-section');
-        allSections.forEach(el => {
-            el.style.display = 'none';
-            el.classList.remove('active'); 
-        });
+            // 2. Cari Target ID
+            let targetEl = document.getElementById(tabId);
+            // Jika ID tidak ketemu langsung, coba tambahkan suffix '-section' (untuk kompatibilitas)
+            if (!targetEl) {
+                targetEl = document.getElementById(tabId + '-section');
+            }
+            // Khusus tab 'content' diarahkan ke 'content-section'
+            if (tabId === 'content') {
+                 targetEl = document.getElementById('content-section');
+            }
 
-        // Pastikan game-list tersembunyi manual jika class selector di atas meleset
-        const gameListDiv = document.getElementById('game-list');
-        if(gameListDiv) gameListDiv.style.display = 'none';
+            // 3. Tampilkan Target
+            if (targetEl) {
+                targetEl.style.display = 'block';
+                targetEl.classList.add('active');
+            } 
 
-        // 2. Cari Target ID
-        // Cek ID mentah (misal: 'game-list') ATAU ID dengan suffix (misal: 'content' -> 'content-section')
-        let targetEl = document.getElementById(tabId);
-        if (!targetEl) {
-            targetEl = document.getElementById(tabId + '-section');
-        }
+            // 4. Update status Active di Sidebar
+            document.querySelectorAll('.nav-link-custom').forEach(el => el.classList.remove('active'));
+            if (element) element.classList.add('active');
 
-        // 3. Tampilkan Target
-        if (targetEl) {
-            targetEl.style.display = 'block';
-            targetEl.classList.add('active');
-        } else {
-            console.error("Tab target tidak ditemukan: " + tabId);
-        }
-
-        // 4. Update status Active di Sidebar
-        document.querySelectorAll('.nav-link-custom').forEach(el => el.classList.remove('active'));
-        if (element) element.classList.add('active');
-
-        // 5. Render ulang khusus jika masuk tab Game List
-        if (tabId === 'game-list') {
-            renderGames();
+            // 5. Tutup Sidebar otomatis di Mobile
+            if (window.innerWidth <= 768) {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.querySelector('.overlay-sidebar'); // Pastikan class overlay sesuai
+                if (sidebar) sidebar.classList.add('active'); // active di sini artinya hidden (margin negative)
+                if (overlay) overlay.style.display = 'none';
+            }
         }
         
-        // 6. Tutup Sidebar otomatis di Mobile
-        if (window.innerWidth <= 768) {
+        // Inisialisasi Sidebar Mobile (Toggle)
+        document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.getElementById('sidebar');
-            const overlay = document.querySelector('div[style*="z-index: 998"]');
-            if (sidebar) sidebar.classList.add('active'); 
-            if (overlay) overlay.style.display = 'none';
-        }
-    }
+            const dismissBtn = document.getElementById('dismiss');
+            const collapseBtn = document.getElementById('sidebarCollapse');
+            
+            // Create Overlay
+            const overlay = document.createElement('div');
+            overlay.className = 'overlay-sidebar';
+            overlay.style.cssText = `display: none; position: fixed; top: 76px; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 899; transition: opacity 0.3s;`;
+            document.querySelector('.dashboard-wrapper').appendChild(overlay);
 
-    // --- FUNGSI FILTER & RENDER ---
+            if(dismissBtn) {
+                dismissBtn.addEventListener('click', function() {
+                    sidebar.classList.add('active'); 
+                    overlay.style.display = 'none';
+                });
+            }
 
-    // Event Listeners (Pastikan elemen ada sebelum addEventListener)
-    const searchInput = document.getElementById('searchName');
-    const filterCat = document.getElementById('filterCategory');
-    const filterDateInput = document.getElementById('filterDate');
-
-    if(searchInput) searchInput.addEventListener('input', applyFilters);
-    if(filterCat) filterCat.addEventListener('change', applyFilters);
-    if(filterDateInput) filterDateInput.addEventListener('change', applyFilters);
-
-    function applyFilters() {
-        const search = searchInput.value.toLowerCase();
-        const category = filterCat.value;
-        const date = filterDateInput.value;
-
-        gameFilteredData = gamesData.filter(game => {
-            const matchName = game.title.toLowerCase().includes(search);
-            const matchCategory = category === 'all' || game.category === category;
-            const matchDate = !date || game.date === date; 
-
-            return matchName && matchCategory && matchDate;
+            if(collapseBtn) {
+                collapseBtn.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                    if (!sidebar.classList.contains('active')) { // Jika sidebar muncul
+                        overlay.style.display = 'block';
+                    } else {
+                        overlay.style.display = 'none';
+                    }
+                });
+            }
+            
+            overlay.addEventListener('click', function() {
+                sidebar.classList.add('active');
+                overlay.style.display = 'none';
+            });
         });
-
-        gameCurrentPage = 1; // Reset halaman ke 1
-        renderGames();
-    }
-
-    function resetFilters() {
-        if(searchInput) searchInput.value = '';
-        if(filterCat) filterCat.value = 'all';
-        if(filterDateInput) filterDateInput.value = '';
-        applyFilters();
-    }
-
-    // Fungsi Utama Render Game Card
-    function renderGames() {
-        const container = document.getElementById('gamesContainer');
-        if(!container) return; // Stop jika container tidak ketemu
-        
-        container.innerHTML = '';
-
-        // Logika Pagination Menggunakan Variabel Baru
-        const startIndex = (gameCurrentPage - 1) * gameItemsPerPage;
-        const endIndex = startIndex + gameItemsPerPage;
-        const gamesToShow = gameFilteredData.slice(startIndex, endIndex);
-
-        if (gamesToShow.length === 0) {
-            container.innerHTML = '<div class="col-12 text-center text-white mt-5"><h5>Tidak ada game ditemukan.</h5></div>';
-            renderPagination(0);
-            return;
-        }
-
-        gamesToShow.forEach(game => {
-            let badgeClass = 'bg-secondary';
-            if (game.category === 'New Release') badgeClass = 'bg-success'; // Ganti class bootstrap standar
-            if (game.category === 'Ongoing') badgeClass = 'bg-info';
-            if (game.category === 'Coming Soon') badgeClass = 'bg-warning text-dark';
-            if (game.category === 'Ended') badgeClass = 'bg-danger';
-
-            const cardHTML = `
-                <div class="col-md-6 col-lg-3">
-                    <div class="game-card" style="position: relative; border-radius: 15px; overflow: hidden; background-color: #212529; height: 100%;">
-                        <span class="badge rounded-pill ${badgeClass}" style="position: absolute; top: 10px; right: 10px; z-index: 2;">${game.category}</span>
-                        <img src="${game.img}" alt="${game.title}" style="width: 100%; height: 200px; object-fit: cover; opacity: 0.8;">
-                        <div class="p-3" style="position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);">
-                            <h5 class="fw-bold text-white mb-1">${game.title}</h5>
-                            <small class="text-white-50"><i class="bi bi-calendar-event"></i> ${game.date}</small>
-                        </div>
-                    </div>
-                </div>
-            `;
-            container.innerHTML += cardHTML;
-        });
-
-        renderPagination(Math.ceil(gameFilteredData.length / gameItemsPerPage));
-    }
-
-    // Fungsi Render Tombol Pagination
-    function renderPagination(totalPages) {
-        const paginationContainer = document.getElementById('paginationContainer');
-        if(!paginationContainer) return;
-        
-        paginationContainer.innerHTML = '';
-
-        if (totalPages <= 1) return;
-
-        // Tombol Previous
-        const prevDisabled = gameCurrentPage === 1 ? 'disabled' : '';
-        paginationContainer.innerHTML += `
-            <li class="page-item ${prevDisabled}">
-                <a class="page-link bg-dark text-white border-secondary" href="#" onclick="changeGamePage(${gameCurrentPage - 1})">Previous</a>
-            </li>
-        `;
-
-        // Angka Halaman
-        for (let i = 1; i <= totalPages; i++) {
-            const activeClass = i === gameCurrentPage ? 'active' : '';
-            paginationContainer.innerHTML += `
-                <li class="page-item ${activeClass}">
-                    <a class="page-link bg-dark text-white border-secondary" href="#" onclick="changeGamePage(${i})">${i}</a>
-                </li>
-            `;
-        }
-
-        // Tombol Next
-        const nextDisabled = gameCurrentPage === totalPages ? 'disabled' : '';
-        paginationContainer.innerHTML += `
-            <li class="page-item ${nextDisabled}">
-                <a class="page-link bg-dark text-white border-secondary" href="#" onclick="changeGamePage(${gameCurrentPage + 1})">Next</a>
-            </li>
-        `;
-    }
-
-    // Ganti nama fungsi agar tidak bentrok
-    function changeGamePage(page) {
-        gameCurrentPage = page;
-        renderGames();
-    }
-</script>
+    </script>
 </body>
 </html>
