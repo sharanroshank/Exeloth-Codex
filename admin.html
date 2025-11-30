@@ -283,93 +283,65 @@
                         <div class="card-body p-4">
                             <form id="profile-form" onsubmit="event.preventDefault(); saveProfileChanges();">
                                 
-                                <div class="text-center mb-5">
+                                <div class="text-center mb-4">
                                     <div class="position-relative d-inline-block">
                                         <div class="rounded-circle overflow-hidden border border-2 border-primary shadow" style="width: 120px; height: 120px;">
-                                            <img id="settings-profile-img" src="https://ui-avatars.com/api/?name=Admin" class="w-100 h-100 object-fit-cover">
+                                            <img id="settings-profile-img" src="assets/img/default-avatar.png" class="w-100 h-100 object-fit-cover">
                                         </div>
-                                    </div>
-                                    <div class="mt-3">
-                                        <label class="btn btn-sm btn-outline-light disabled">
-                                            <i class="bi bi-camera me-1"></i> Ganti Foto
+                                        
+                                        <label class="btn btn-sm btn-dark position-absolute bottom-0 end-0 rounded-circle border border-secondary" 
+                                            style="width: 35px; height: 35px; padding: 0; display: flex; align-items: center; justify-content: center;"
+                                            title="Foto diambil dari Google/Database">
+                                            <i class="bi bi-camera-fill text-white small"></i>
                                         </label>
-                                    </div>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">Email</label>
-                                    <div class="input-group">
-                                        <input type="email" class="form-control bg-darker text-white-50" id="settings-email" readonly disabled>
-                                        <button class="btn btn-outline-warning" type="button" id="btn-start-verify" onclick="startEmailVerification()">
-                                            <i class="bi bi-patch-check"></i> Verifikasi
-                                        </button>
-                                    </div>
-                                    <div class="form-text text-muted" id="email-status-text">Status: Belum Terverifikasi</div>
-                                </div>
-
-                                <div id="verification-panel" class="alert mb-4 d-none" style="background-color: #2b3035; border: 1px solid #495057; color: #fff;">
-    
-                                    <h6 class="text-warning mb-2"><i class="bi bi-envelope-paper me-2"></i>Masukkan Kode Verifikasi</h6>
-                                    <p class="small text-muted mb-2">Kode telah dikirim ke email Anda.</p>
-                                    
-                                    <div class="d-flex gap-2 mb-2">
-                                        <input type="text" class="form-control form-control-sm w-auto text-center fw-bold text-white letter-spacing-2" 
-                                            id="input-otp" placeholder="XXXXXX" maxlength="6" style="letter-spacing: 3px; background-color: #1a1d20; border-color: #495057;">
-                                        <button class="btn btn-sm btn-success" type="button" onclick="confirmCode()">Cek Kode</button>
-                                    </div>
-
-                                    <div class="d-flex align-items-center justify-content-between">
-                                        <span id="otp-message" class="small fw-bold"></span>
-                                        <div class="small">
-                                            <span id="timer-countdown" class="text-info"></span>
-                                            <a href="#" id="link-resend" class="text-warning text-decoration-none d-none" onclick="resendCode(event)">
-                                                <i class="bi bi-arrow-clockwise"></i> Kirim Ulang Kode
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div id="google-connect-card" class="google-card d-flex align-items-center p-3 mb-4 rounded cursor-pointer position-relative" onclick="handleGoogleConnection()">
-                                    
-                                    <div class="bg-white rounded-circle p-2 d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
-                                        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google" width="24" height="24">
-                                    </div>
-
-                                    <div class="flex-grow-1 user-select-none">
-                                        <h6 class="mb-0 text-white fw-bold" id="g-conn-name">Loading...</h6>
-                                        <small class="text-secondary" id="g-conn-email">Menghubungkan...</small>
-                                    </div>
-
-                                    <div class="text-end user-select-none">
-                                        <div id="g-conn-status-badge" class="d-flex align-items-center gap-2 text-success fw-bold" style="font-size: 0.9rem;">
-                                            <span id="g-conn-text">Terhubung</span>
-                                            <div class="bg-dark rounded-circle border border-secondary d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
-                                                <i class="bi bi-link-45deg fs-5" id="g-conn-icon"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="card-overlay-hover">
-                                        <span id="g-hover-text">Klik untuk Putuskan</span>
                                     </div>
                                 </div>
 
                                 <div class="row g-3 mb-4">
                                     <div class="col-md-6">
-                                        <label class="form-label">Nama Lengkap</label>
+                                        <label class="form-label text-white-50 small">Nama Lengkap</label>
                                         <input type="text" class="form-control" id="settings-name" placeholder="Nama Lengkap">
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="form-label">Username</label>
+                                        <label class="form-label text-white-50 small">Username</label>
                                         <div class="input-group">
                                             <span class="input-group-text bg-dark border-secondary text-muted">@</span>
-                                            <input type="text" class="form-control" id="settings-username" placeholder="username_unik">
+                                            <input type="text" class="form-control" id="settings-username" placeholder="username">
                                         </div>
                                     </div>
                                 </div>
 
+                                <div class="mb-2">
+                                    <label class="form-label text-white-50 small">Akun Terhubung</label>
+                                    <div id="google-connect-card" class="google-card d-flex align-items-center p-3 mb-2 rounded cursor-pointer position-relative" onclick="handleGoogleConnection()">
+                                        
+                                        <div class="bg-white rounded-circle p-2 d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px; min-width: 48px;">
+                                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0OCA0OCI+PGRlZnM+PHN0eWxlPi5he2ZpbGw6I2ZmZjt9LmJ7ZmlsbDojZmNiYzA1O30uY3tmaWxsOiNlYTQzMzU7fS5ke2ZpbGw6IzM0Yzg1Mzt9LmV7ZmlsbDojNDI4NWY0O308L3N0eWxlPjwvZGVmcz48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwLjA2NSAwLjA2NSkiPjxwYXRoIGNsYXNzPSJhIiBkPSJNNDcuMDcyLDI0LjM3MkE0MS4xNTgsNDEuMTU4LDAsMCwwLDIzLjkzNS44MjIsNDEuODk0LDQxLjg5NCwwLDAsMCwuODIyLDIzLjkzNSw0MS44OTQsNDEuODk0LDAsMCwwLDIzLjkzNSw0Ny4wNzIsNDEuMTU4LDQxLjE1OCwwLDAsMCw0Ny4wNzIsMjMuOTcyWiIvPjxwYXRoIGNsYXNzPSJiIiBkPSJNMjMuOTM1LDExLjg4M2E2LjA4OCw2LjA4OCwwLDAsMSw0LjA4NCwxLjQ4TDMyLDkuNDY1QTEyLjIxNiwxMi4yMTYsMCwwLDAsMjMuOTM1LDUuNzUzLDEyLjA1MSwxMi4wNTEsMCwwLDAsMTIuNzY0LDEyLjQybDQuNjE1LDMuNTU1QTcuMTg4LDcuMTg4LDAsMCwxLDIzLjkzNSwxMS44ODNaIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwIDAuMzgpIi8+PHBhdGggY2xhc3M9ImMiIGQ9Ik0yMy45MzUsMzQuOTU1YTcuMTA4LDcuMTA4LDAsMCwxLTQuMTE3LTEuMzFsLTQuNjA1LDMuNThBMTIuMjE2LDEyLjIxNiwwLDAsMCwyMy45MzUsNDEuMDk1LDEyLjY5LDEyLjY5LDAsMCwwLDM2LjM3MywzMi4xNmwzaC01Ljg2bC0uMDI3LS4xMjZIMjMuOTM1di01LjlIMzYuNjEzQTExLjc2MiwxMS43NjIsMCwwLDEsMjMuOTM1LDM0Ljk1NVoiIHRyYW5zbGF0ZSgwIDEuMDY1KSIvPjxwYXRoIGNsYXNzPSJkIiBkPSJNOC4xNTksMjQuMTE2YTEyLjAxNiwxMi4wMTYsMCwwLDAsNC42LDExLjFsNC42MDUtMy41OGE3LjE1Myw3LjE1MywwLDAsMS0uMDYyLTcuMzk0bC00LjYxNS0zLjU1NUEtMTIuMjM0LDEyLjIzNCwwLDAsMCw4LjE1OSwyNC4xMTZaIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgyLjI4OCAwLjI1OCkiLz48cGF0aCBjbGFzcz0iZSIgZD0iTTM3LjM3OSwyMy44OTRhMTEuNTQ0LDExLjU0NCwwLDAsMC0uMjA2LTIuNDY1SDIzLjkzNXY1LjlNMzAuNSwyNy45MzlMMzYuMzEzLDMyLjIyQTEyLjYxMywxMi42MTMsMCwwLDAsMzcuMzc5LDIzLjg5NFoiIHRyYW5zbGF0ZSgwIDAuMTg4KSIvPjwvZz48L3N2Zz4=" alt="Google" width="32" height="32">
+                                        </div>
+
+                                        <div class="flex-grow-1 user-select-none overflow-hidden">
+                                            <h6 class="mb-0 text-white fw-bold" id="g-conn-name">Google Account</h6>
+                                            <small class="text-secondary text-truncate d-block" id="g-conn-email">Menghubungkan...</small>
+                                        </div>
+
+                                        <div class="text-end user-select-none ps-2">
+                                            <div id="g-conn-status-badge" class="d-flex align-items-center gap-2 text-success fw-bold" style="font-size: 0.9rem;">
+                                                <span id="g-conn-text" class="d-none d-sm-inline">Terhubung</span>
+                                                <div class="bg-dark rounded-circle border border-secondary d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                                    <i class="bi bi-link-45deg fs-5" id="g-conn-icon"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="card-overlay-hover rounded">
+                                            <span id="g-hover-text">Kelola Sambungan</span>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" id="settings-email">
+                                </div>
+
                                 <div class="d-flex justify-content-end gap-2 pt-3 border-top border-secondary">
-                                    <button type="submit" class="btn btn-primary px-4">
+                                    <button type="submit" class="btn btn-primary px-4 hover-scale">
                                         <i class="bi bi-save me-2"></i>Simpan Perubahan
                                     </button>
                                 </div>

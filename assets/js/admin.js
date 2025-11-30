@@ -560,10 +560,124 @@ async function addAdmin() {
 }
 
 // Update User Info
-function updateUserInfo(user) {
-    const emailInput = document.getElementById('settings-email');
-    if(emailInput) {
-        emailInput.value = user.email;
+// 1. Fungsi Update Tampilan & Load Data User (Versi Firestore)
+async function updateUserInfo(user) {
+    if (!user) return;
+
+    const nameInput = document.getElementById('settings-name');
+    const usernameInput = document.getElementById('settings-username');
+    const emailInput = document.getElementById('settings-email'); // Hidden input
+    const imgProfile = document.getElementById('settings-profile-img');
+
+    // Set data dasar Google ke UI Google Card
+    updateGoogleUI(user);
+    if(emailInput) emailInput.value = user.email;
+
+    try {
+        // Cek apakah data user sudah ada di Firestore?
+        const userDoc = await db.collection('users').doc(user.email).get();
+
+        if (userDoc.exists) {
+            // JIKA SUDAH ADA (User Lama): Pakai data dari Database
+            const data = userDoc.data();
+            nameInput.value = data.displayName || user.displayName;
+            usernameInput.value = data.username || user.email.split('@')[0]; 
+            
+            // Foto: Prioritaskan dari DB, jika tidak ada pakai dari Google
+            imgProfile.src = data.photoURL || user.photoURL;
+
+        } else {
+            // JIKA BELUM ADA (User Baru): Ambil dari Google
+            console.log("User baru, mengisi form dengan data Google...");
+            
+            nameInput.value = user.displayName || '';
+            
+            // Generate username otomatis dari email (sebelum @)
+            let generatedUsername = user.email.split('@')[0];
+            usernameInput.value = generatedUsername;
+
+            imgProfile.src = user.photoURL || 'https://ui-avatars.com/api/?name=' + (user.displayName || 'User');
+        }
+
+    } catch (error) {
+        console.error("Gagal mengambil data user:", error);
+        // Fallback ke data Google jika error
+        nameInput.value = user.displayName;
+        usernameInput.value = user.email.split('@')[0];
+        imgProfile.src = user.photoURL;
+    }
+}
+
+// 2. Fungsi Simpan Perubahan ke Firestore
+async function saveProfileChanges() {
+    const btn = document.querySelector('#profile-form button[type="submit"]');
+    const originalText = btn.innerHTML;
+    
+    // Ambil nilai input
+    const name = document.getElementById('settings-name').value;
+    const username = document.getElementById('settings-username').value;
+    const email = document.getElementById('settings-email').value; 
+    const currentPhoto = document.getElementById('settings-profile-img').src;
+
+    if (!email) return showNotification('Error: Email tidak teridentifikasi', 'error');
+
+    // UI Loading
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Menyimpan...';
+
+    try {
+        // Simpan ke Collection 'users'
+        await db.collection('users').doc(email).set({
+            displayName: name,
+            username: username,
+            photoURL: currentPhoto, 
+            email: email,
+            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true }); 
+
+        showNotification('✅ Profil berhasil disimpan!', 'success');
+
+        // Update juga nama di Navbar
+        const navName = document.getElementById('nav-gh-username'); 
+        const navFullname = document.getElementById('nav-gh-fullname'); 
+        if(navName) navName.textContent = username;
+        if(navFullname) navFullname.textContent = name;
+
+    } catch (error) {
+        console.error("Error saving profile:", error);
+        showNotification('❌ Gagal menyimpan: ' + error.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    }
+}
+
+// 3. Fungsi Tampilan Kartu Google
+function updateGoogleUI(user) {
+    const nameEl = document.getElementById('g-conn-name');
+    const emailEl = document.getElementById('g-conn-email');
+    const statusText = document.getElementById('g-conn-text');
+    const statusIcon = document.getElementById('g-conn-icon');
+    const statusBadge = document.getElementById('g-conn-status-badge');
+    const hoverText = document.getElementById('g-hover-text');
+
+    if (user) {
+        nameEl.textContent = user.displayName || 'Google User';
+        emailEl.textContent = user.email;
+        emailEl.style.display = 'block';
+
+        statusText.textContent = 'Terhubung';
+        statusBadge.className = 'd-flex align-items-center gap-2 text-success fw-bold'; 
+        statusIcon.className = 'bi bi-link-45deg fs-5'; 
+        if(hoverText) hoverText.textContent = "Putuskan Sambungan";
+    } else {
+        nameEl.textContent = 'Tidak terhubung';
+        emailEl.style.display = 'none';
+
+        statusText.textContent = 'Terputus';
+        statusBadge.className = 'd-flex align-items-center gap-2 text-secondary fw-bold';
+        statusIcon.className = 'bi bi-slash-circle fs-5';
+        if(hoverText) hoverText.textContent = "Hubungkan Akun";
     }
 }
 
@@ -614,21 +728,23 @@ function generateAndSendOTP() {
     // Konfigurasi EmailJS
     // Pastikan ENV_CONFIG sudah ada di window (dari inject-env.js atau file lokal)
     if (window.emailjs && window.ENV_CONFIG && window.ENV_CONFIG.EMAILJS_PUBLIC_KEY) {
-        
-        const templateParams = {
-            to_email: emailTarget,
-            to_name: nameTarget,
-            otp_code: generatedOTP
-        };
+            
+            const templateParams = {
+                to_email: emailTarget,
+                to_name: nameTarget,
+                otp_code: generatedOTP
+            };
 
-        // GANTI 'service_id' dan 'template_id' sesuai akun EmailJS Anda
-        // String ini tidak rahasia, jadi aman ditulis langsung di sini
-        const SERVICE_ID = 'service_ehkmiwa'; // Contoh, ganti dengan milikmu
-        const TEMPLATE_ID = 'template_4a1wgog'; // Contoh, ganti dengan milikmu
-        
-        console.log(`[EMAILJS] Sending verification to ${emailTarget}...`);
-        
-        emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams)
+            // ---------------------------------------------------------
+            // GANTI BAGIAN INI DENGAN ID DARI DASHBOARD EMAILJS KAMU
+            // ---------------------------------------------------------
+            const SERVICE_ID = 'service_1jjn6mq'; // Contoh: 'service_abc123'
+            const TEMPLATE_ID = 'template_4a1wgog'; // Contoh: 'template_xyz789'
+            // ---------------------------------------------------------
+            
+            console.log(`[EMAILJS] Sending verification to ${emailTarget}...`);
+            
+            emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams)
             .then(() => {
                 showNotification(`Kode terkirim ke ${emailTarget}`, 'success');
                 console.log('[EMAILJS] Email sent successfully.');
