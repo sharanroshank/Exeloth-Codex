@@ -268,8 +268,9 @@ function showNotification(message, type = 'info') {
         const icon = getNotificationIcon(type);
         
         notification.innerHTML = `
-            <i class="bi ${icon} me-2 fs-5"></i>
-            <div class="flex-grow-1">${message}</div>
+            <div class="flex-grow-1 d-flex align-items-center gap-2">
+                ${message} 
+            </div>
             <button type="button" class="btn-close btn-close-white ms-2" onclick="closeNotification(this)"></button>
         `;
         

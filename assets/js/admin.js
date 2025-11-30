@@ -692,171 +692,320 @@ window.addSection = addSection;
 window.deleteSection = deleteSection;
 window.addAdmin = addAdmin;
 
-// --- LOGIKA VERIFIKASI EMAIL (PROFILE) ---
-let generatedOTP = null;
-let timerInterval = null;
-const RESEND_DELAY = 60; // Detik
+// --- LOGIKA PROFILE & KEAMANAN (Unified) ---
 
-// Export fungsi verifikasi ke window agar bisa dipanggil dari HTML
-window.startEmailVerification = function() {
-    const btn = document.getElementById('btn-start-verify');
-    const panel = document.getElementById('verification-panel');
-    const input = document.getElementById('input-otp');
-    const msg = document.getElementById('otp-message');
+let pendingAction = null; // 'verify_email', 'change_email', 'change_password'
+let pendingData = null;   // Data sementara (email baru/pass baru)
+let generatedOTP = null;
+let otpTimer = null;
+const RESEND_DELAY = 60;
+
+// 1. UPDATE TAMPILAN USER (PINTAR)
+async function updateUserInfo(user) {
+    if (!user) return;
+
+    // Elemen UI
+    const nameInput = document.getElementById('settings-name');
+    const usernameInput = document.getElementById('settings-username');
+    const emailInput = document.getElementById('settings-email');
+    const imgProfile = document.getElementById('settings-profile-img');
+    const statusContainer = document.getElementById('email-status-container');
+    const btnVerify = document.getElementById('btn-verify-email');
+    const badgeGoogle = document.getElementById('provider-badge-google');
+    const passStatusText = document.getElementById('password-status-text');
+    const btnPass = document.getElementById('btn-change-password');
 
     // Reset UI
-    btn.disabled = true;
-    panel.classList.remove('d-none');
-    msg.textContent = '';
-    msg.className = 'small fw-bold'; // Reset class pesan
-    input.value = '';
-    input.disabled = false;
-    input.focus();
+    if(emailInput) emailInput.value = user.email;
+    updateGoogleUI(user);
 
-    // Generate Kode & Jalankan Timer
-    generateAndSendOTP();
-    startTimer(RESEND_DELAY);
-}
+    // Cek Provider (Google/Password)
+    const isGoogle = user.providerData.some(p => p.providerId === 'google.com');
+    const isPassword = user.providerData.some(p => p.providerId === 'password');
 
-function generateAndSendOTP() {
-    const emailTarget = document.getElementById('settings-email').value;
-    const nameTarget = document.getElementById('settings-name').value || 'User';
-
-    // Generate angka acak
-    generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+    if (isGoogle) badgeGoogle.style.display = 'block';
     
-    // Konfigurasi EmailJS
-    // Pastikan ENV_CONFIG sudah ada di window (dari inject-env.js atau file lokal)
-    if (window.emailjs && window.ENV_CONFIG && window.ENV_CONFIG.EMAILJS_PUBLIC_KEY) {
-            
-            const templateParams = {
-                to_email: emailTarget,
-                to_name: nameTarget,
-                otp_code: generatedOTP
-            };
-
-            // ---------------------------------------------------------
-            // GANTI BAGIAN INI DENGAN ID DARI DASHBOARD EMAILJS KAMU
-            // ---------------------------------------------------------
-            const SERVICE_ID = 'service_1jjn6mq'; // Contoh: 'service_abc123'
-            const TEMPLATE_ID = 'template_4a1wgog'; // Contoh: 'template_xyz789'
-            // ---------------------------------------------------------
-            
-            console.log(`[EMAILJS] Sending verification to ${emailTarget}...`);
-            
-            emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams)
-            .then(() => {
-                showNotification(`Kode terkirim ke ${emailTarget}`, 'success');
-                console.log('[EMAILJS] Email sent successfully.');
-            })
-            .catch((err) => {
-                showNotification('Gagal kirim email. Cek koneksi.', 'error');
-                console.error('[EMAILJS] Failed:', err);
-            });
-
+    // Status Password
+    if (isPassword) {
+        passStatusText.textContent = "Password aktif. Terakhir diubah: " + (user.metadata.lastSignInTime || 'N/A');
+        btnPass.textContent = "Ubah Password";
+        btnPass.className = "btn btn-sm btn-outline-light";
     } else {
-        // Fallback jika Key tidak ditemukan (Misal lupa set Env Var)
-        showNotification('Error: EmailJS Key tidak ditemukan.', 'error');
-        console.error('[SYSTEM] EMAILJS_PUBLIC_KEY is missing in ENV_CONFIG.');
+        passStatusText.textContent = "Anda login via Google. Belum ada password.";
+        btnPass.textContent = "Buat Password";
+        btnPass.className = "btn btn-sm btn-primary";
+    }
+
+    try {
+        // Ambil Data Firestore
+        const userDoc = await db.collection('users').doc(user.email).get();
+        let isVerified = user.emailVerified; 
+
+        if (userDoc.exists) {
+            const data = userDoc.data();
+            nameInput.value = data.displayName || user.displayName;
+            usernameInput.value = data.username || user.email.split('@')[0];
+            imgProfile.src = data.photoURL || user.photoURL;
+            
+            // Sinkronisasi status verifikasi
+            if (data.emailVerified) isVerified = true;
+        } else {
+            // User Baru
+            nameInput.value = user.displayName || '';
+            usernameInput.value = user.email.split('@')[0];
+            imgProfile.src = user.photoURL || `https://ui-avatars.com/api/?name=${user.email}`;
+        }
+
+        // Update UI Verifikasi (Pake Ikon Bagus)
+        if (isVerified) {
+            statusContainer.innerHTML = '<i class="bi bi-check-circle-fill text-success"></i> <span class="text-success fw-bold">Email Terverifikasi</span>';
+            btnVerify.style.display = 'none';
+        } else {
+            statusContainer.innerHTML = '<i class="bi bi-exclamation-triangle-fill text-warning"></i> <span class="text-warning">Email belum terverifikasi</span>';
+            btnVerify.style.display = 'block';
+        }
+
+    } catch (error) {
+        console.error("Error loading profile:", error);
     }
 }
 
-function startTimer(duration) {
-    let timer = duration;
-    const display = document.getElementById('timer-countdown');
-    const resendLink = document.getElementById('link-resend');
+// 2. MODAL & FLOW MANAGER
+function openChangeModal(type) {
+    const modal = new bootstrap.Modal(document.getElementById('securityModal'));
+    const title = document.getElementById('securityModalTitle');
+    const step1 = document.getElementById('step-input-data');
+    const step2 = document.getElementById('step-verify-otp');
     
-    resendLink.classList.add('d-none');
-    display.classList.remove('d-none');
+    // Reset State
+    step1.classList.remove('d-none');
+    step2.classList.add('d-none');
+    document.getElementById('input-group-email').classList.add('d-none');
+    document.getElementById('input-group-password').classList.add('d-none');
+    document.getElementById('new-email-input').value = '';
+    document.getElementById('new-pass-input').value = '';
+    document.getElementById('confirm-pass-input').value = '';
     
-    if (timerInterval) clearInterval(timerInterval);
+    // Set Context
+    if (type === 'email') {
+        title.innerHTML = '<i class="bi bi-envelope-arrow-up"></i> Ganti Email';
+        document.getElementById('input-group-email').classList.remove('d-none');
+        pendingAction = 'change_email';
+    } else if (type === 'password') {
+        title.innerHTML = '<i class="bi bi-key"></i> Setup / Ubah Password';
+        document.getElementById('input-group-password').classList.remove('d-none');
+        pendingAction = 'change_password';
+    }
 
-    timerInterval = setInterval(function () {
-        const minutes = parseInt(timer / 60, 10);
-        const seconds = parseInt(timer % 60, 10);
+    modal.show();
+}
 
-        const strMin = minutes < 10 ? "0" + minutes : minutes;
-        const strSec = seconds < 10 ? "0" + seconds : seconds;
+function initiateAction(type) {
+    if (type === 'verify_email') {
+        // Langsung kirim OTP ke email saat ini
+        pendingAction = 'verify_email';
+        pendingData = auth.currentUser.email;
+        sendOtpAndShowModal(auth.currentUser.email);
+    }
+}
 
-        display.textContent = `Kode kedaluwarsa dalam: ${strMin}:${strSec}`;
+// 3. VALIDASI & REQUEST OTP
+function requestOtpForAction() {
+    const emailErr = document.getElementById('email-error');
+    const passErr = document.getElementById('pass-error');
+    emailErr.textContent = '';
+    passErr.textContent = '';
 
-        if (--timer < 0) {
-            clearInterval(timerInterval);
-            handleTimeout();
+    let targetEmail = auth.currentUser.email; // Default kirim ke email sekarang
+
+    if (pendingAction === 'change_email') {
+        const newEmail = document.getElementById('new-email-input').value;
+        // Validasi Email Regex
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(newEmail)) {
+            emailErr.textContent = "Format email tidak valid.";
+            return;
+        }
+        if (newEmail === auth.currentUser.email) {
+            emailErr.textContent = "Email baru tidak boleh sama dengan email saat ini.";
+            return;
+        }
+        pendingData = newEmail;
+        targetEmail = newEmail; // Kirim OTP ke email BARU untuk verifikasi kepemilikan
+    } 
+    else if (pendingAction === 'change_password') {
+        const p1 = document.getElementById('new-pass-input').value;
+        const p2 = document.getElementById('confirm-pass-input').value;
+        
+        if (p1.length < 6) {
+            passErr.textContent = "Password minimal 6 karakter.";
+            return;
+        }
+        if (p1 !== p2) {
+            passErr.textContent = "Konfirmasi password tidak cocok.";
+            return;
+        }
+        pendingData = p1;
+        // targetEmail tetap email saat ini (currentUser.email)
+    }
+
+    // Switch ke Step 2 (UI OTP)
+    document.getElementById('step-input-data').classList.add('d-none');
+    document.getElementById('step-verify-otp').classList.remove('d-none');
+    
+    sendOtpAndShowModal(targetEmail);
+}
+
+// 4. KIRIM OTP (EmailJS)
+function sendOtpAndShowModal(emailDest) {
+    // Jika modal belum terbuka (kasus verify_email langsung), buka modal
+    const modalEl = document.getElementById('securityModal');
+    if (!modalEl.classList.contains('show')) {
+        const modal = new bootstrap.Modal(modalEl);
+        modal.show();
+        document.getElementById('step-input-data').classList.add('d-none');
+        document.getElementById('step-verify-otp').classList.remove('d-none');
+    }
+
+    document.getElementById('otp-target-email').textContent = emailDest;
+    document.getElementById('modal-otp-input').value = '';
+    document.getElementById('modal-otp-input').focus();
+    
+    // Generate Logic
+    generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // Kirim via EmailJS
+    if (window.emailjs && window.ENV_CONFIG) {
+        const params = {
+            to_email: emailDest,
+            to_name: auth.currentUser.displayName || 'User',
+            otp_code: generatedOTP
+        };
+        // GANTI ID DI BAWAH INI
+        const SID = 'YOUR_SERVICE_ID'; 
+        const TID = 'YOUR_TEMPLATE_ID'; 
+        
+        emailjs.send(SID, TID, params)
+            .then(() => showNotification(`Kode terkirim ke ${emailDest}`, 'success'))
+            .catch(err => console.error(err));
+    } else {
+        console.log(`[SIMULASI] OTP untuk ${emailDest}: ${generatedOTP}`);
+        showNotification('Mode Simulasi: Cek Console', 'info');
+    }
+
+    startOtpTimer();
+}
+
+// 5. VERIFIKASI OTP & EKSEKUSI FINAL
+async function verifyOtpAndCommit() {
+    const inputOtp = document.getElementById('modal-otp-input').value;
+    const msg = document.getElementById('otp-status-msg');
+
+    if (inputOtp !== generatedOTP) {
+        msg.innerHTML = '<span class="text-danger"><i class="bi bi-x-circle"></i> Kode Salah</span>';
+        return;
+    }
+
+    // OTP BENAR -> LAKUKAN AKSI FIREBASE
+    msg.innerHTML = '<span class="text-success"><i class="bi bi-check-circle"></i> Terverifikasi</span>';
+    const modal = bootstrap.Modal.getInstance(document.getElementById('securityModal'));
+    
+    try {
+        if (pendingAction === 'verify_email') {
+            // Update Firestore
+            await db.collection('users').doc(auth.currentUser.email).update({
+                emailVerified: true
+            });
+            // Update Auth (Opsional, kadang butuh kirim link asli firebase)
+            showNotification('✅ Email berhasil diverifikasi di sistem!', 'success');
+            
+        } else if (pendingAction === 'change_email') {
+            // Firebase Auth Update
+            await auth.currentUser.updateEmail(pendingData);
+            // Pindahkan Data Firestore ke ID Baru
+            const oldDoc = await db.collection('users').doc(auth.currentUser.email).get();
+            if (oldDoc.exists) {
+                await db.collection('users').doc(pendingData).set(oldDoc.data());
+                // await db.collection('users').doc(auth.currentUser.email).delete(); // Opsional hapus lama
+            }
+            showNotification('✅ Email berhasil diubah! Silakan login ulang.', 'success');
+            setTimeout(() => location.reload(), 2000);
+
+        } else if (pendingAction === 'change_password') {
+            await auth.currentUser.updatePassword(pendingData);
+            showNotification('✅ Password berhasil diubah/dibuat!', 'success');
+        }
+
+        modal.hide();
+        updateUserInfo(auth.currentUser); // Refresh UI
+
+    } catch (error) {
+        console.error(error);
+        if (error.code === 'auth/requires-recent-login') {
+            showNotification('⚠️ Sesi kedaluwarsa. Silakan login ulang lalu coba lagi.', 'warning');
+        } else {
+            showNotification('Gagal: ' + error.message, 'error');
+        }
+        modal.hide();
+    }
+}
+
+// 6. TIMER HELPER
+function startOtpTimer() {
+    let timeLeft = RESEND_DELAY;
+    const timerDisplay = document.getElementById('modal-timer');
+    if (otpTimer) clearInterval(otpTimer);
+    
+    timerDisplay.textContent = `Resend in ${timeLeft}s`;
+    
+    otpTimer = setInterval(() => {
+        timeLeft--;
+        timerDisplay.textContent = `Resend in ${timeLeft}s`;
+        if (timeLeft <= 0) {
+            clearInterval(otpTimer);
+            timerDisplay.innerHTML = '<a href="#" class="text-warning" onclick="requestOtpForAction()">Kirim Ulang</a>';
         }
     }, 1000);
 }
 
-function handleTimeout() {
-    const display = document.getElementById('timer-countdown');
-    const resendLink = document.getElementById('link-resend');
-    const input = document.getElementById('input-otp');
-    const msg = document.getElementById('otp-message');
+// 7. SIMPAN PROFIL BIASA (Nama & Username)
+async function saveProfileChanges() {
+    const name = document.getElementById('settings-name').value.trim();
+    const username = document.getElementById('settings-username').value.trim().toLowerCase();
+    const user = auth.currentUser;
+    const email = user.email;
 
-    display.classList.add('d-none'); // Sembunyikan timer angka
-    resendLink.classList.remove('d-none'); // Tampilkan tombol resend
-    
-    input.disabled = true; 
-    generatedOTP = null; 
-    
-    // UPDATE: Pesan menjadi "Kode telah kedaluwarsa, silahkan resend"
-    msg.className = 'small fw-bold text-danger';
-    msg.textContent = 'Kode telah kedaluwarsa, silahkan resend'; 
-}
-
-window.resendCode = function(e) {
-    e.preventDefault();
-    const input = document.getElementById('input-otp');
-    const msg = document.getElementById('otp-message');
-    
-    input.disabled = false;
-    input.value = '';
-    input.focus();
-    msg.textContent = '';
-    
-    generateAndSendOTP();
-    startTimer(RESEND_DELAY);
-}
-
-window.confirmCode = function() {
-    const input = document.getElementById('input-otp').value;
-    const msg = document.getElementById('otp-message');
-    const panel = document.getElementById('verification-panel');
-    const btnVerify = document.getElementById('btn-start-verify');
-    const statusText = document.getElementById('email-status-text');
-
-    if (!generatedOTP) {
-        msg.className = 'small fw-bold text-danger';
-        msg.textContent = 'Kode sudah tidak berlaku. Kirim ulang.';
+    // VALIDASI USERNAME (Regex: huruf, angka, underscore, tanpa spasi)
+    const usernameRegex = /^[a-zA-Z0-9_]+$/;
+    if (!usernameRegex.test(username)) {
+        document.getElementById('username-error').textContent = "Username hanya boleh huruf, angka, dan underscore (_).";
+        document.getElementById('username-error').classList.remove('d-none');
         return;
     }
+    document.getElementById('username-error').classList.add('d-none');
 
-    if (input === generatedOTP) {
-        // SUKSES
-        clearInterval(timerInterval);
-        msg.className = 'small fw-bold text-success';
-        msg.innerHTML = '<i class="bi bi-check-circle-fill"></i> Email Berhasil Diverifikasi!';
+    try {
+        await db.collection('users').doc(email).set({
+            displayName: name,
+            username: username,
+            email: email,
+            photoURL: document.getElementById('settings-profile-img').src,
+            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+
+        // Update Auth Profile juga
+        await user.updateProfile({ displayName: name });
+
+        showNotification('✅ Profil berhasil disimpan', 'success');
         
-        setTimeout(() => {
-            panel.classList.add('d-none');
-            btnVerify.innerHTML = '<i class="bi bi-check-lg"></i> Terverifikasi';
-            btnVerify.className = 'btn btn-success disabled';
-            statusText.textContent = 'Status: Terverifikasi ✅';
-            statusText.className = 'form-text text-success fw-bold';
-            showNotification('Email berhasil diverifikasi!', 'success');
-        }, 1500);
-    } else {
-        // GAGAL
-        msg.className = 'small fw-bold text-danger';
-        msg.innerHTML = '<i class="bi bi-x-circle-fill"></i> Kode Salah / Invalid!';
+        // Update Navbar Realtime
+        const navName = document.getElementById('nav-gh-username');
+        if(navName) navName.textContent = username;
+
+    } catch (error) {
+        showNotification('❌ Gagal: ' + error.message, 'error');
     }
 }
 
-window.saveProfileChanges = function() {
-    const username = document.getElementById('settings-username').value;
-    const name = document.getElementById('settings-name').value;
-    
-    // Logika simpan ke Firebase bisa ditambahkan di sini
-    console.log("Menyimpan:", { name, username });
-    showNotification('Profil diperbarui (Simulasi)', 'success');
-}
+// Custom Notification dengan Icon (Mengganti yang lama di auth-system.js jika perlu, atau pakai ini lokal)
+// Pastikan fungsi showNotification di auth-system.js mendukung HTML innerHTML, bukan textContent.
