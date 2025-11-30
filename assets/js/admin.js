@@ -1,4 +1,4 @@
-// assets/js/admin.js - V2 (Unified Content Management)
+// assets/js/admin.js - V2 (Unified Content Management & Profile Logic)
 
 let adminPanelInitialized = false;
 let allGamesData = []; // Menyimpan data lokal untuk tabel
@@ -442,8 +442,6 @@ function loadGameSlugs() {
 }
 
 // --- SECTION & ADMIN (KEEP EXISTING) ---
-// (Copy fungsi addSection, loadSections, dll dari file lama jika belum ada di sini.
-//  Tapi di script ini saya sudah cukupkan fungsi intinya.)
 
 function loadSections() {
     db.collection('sections').orderBy('createdAt').get().then(snap => {
@@ -500,8 +498,10 @@ async function addAdmin() {
 
 // Update User Info
 function updateUserInfo(user) {
-    // Fungsi ini bisa dikosongkan jika sudah ditangani di admin.html script
-    // Tapi untuk keamanan, biarkan placeholder
+    const emailInput = document.getElementById('settings-email');
+    if(emailInput) {
+        emailInput.value = user.email;
+    }
 }
 
 // Export Globals
@@ -514,3 +514,138 @@ window.toggleComingSoon = toggleComingSoon;
 window.addSection = addSection;
 window.deleteSection = deleteSection;
 window.addAdmin = addAdmin;
+
+// --- LOGIKA VERIFIKASI EMAIL (PROFILE) ---
+let generatedOTP = null;
+let timerInterval = null;
+const RESEND_DELAY = 60; // Detik
+
+// Export fungsi verifikasi ke window agar bisa dipanggil dari HTML
+window.startEmailVerification = function() {
+    const btn = document.getElementById('btn-start-verify');
+    const panel = document.getElementById('verification-panel');
+    const input = document.getElementById('input-otp');
+    const msg = document.getElementById('otp-message');
+
+    // Reset UI
+    btn.disabled = true;
+    panel.classList.remove('d-none');
+    msg.textContent = '';
+    input.value = '';
+    input.disabled = false;
+    input.focus();
+
+    // Generate Kode & Jalankan Timer
+    generateAndSendOTP();
+    startTimer(RESEND_DELAY);
+}
+
+function generateAndSendOTP() {
+    // Buat kode acak 6 digit
+    generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // SIMULASI PENGIRIMAN EMAIL (Cek Console Browser)
+    console.log(`%c[EMAIL SYSTEM] Kode Verifikasi Anda: ${generatedOTP}`, 'color: #0d6efd; font-size: 16px; font-weight: bold;');
+    
+    showNotification('Kode verifikasi telah dikirim (Cek Console)', 'info');
+}
+
+function startTimer(duration) {
+    let timer = duration;
+    const display = document.getElementById('timer-countdown');
+    const resendLink = document.getElementById('link-resend');
+    
+    resendLink.classList.add('d-none');
+    display.classList.remove('d-none');
+    
+    // Hapus timer lama jika ada
+    if (timerInterval) clearInterval(timerInterval);
+
+    timerInterval = setInterval(function () {
+        const minutes = parseInt(timer / 60, 10);
+        const seconds = parseInt(timer % 60, 10);
+
+        const strMin = minutes < 10 ? "0" + minutes : minutes;
+        const strSec = seconds < 10 ? "0" + seconds : seconds;
+
+        display.textContent = `Kode kedaluwarsa dalam: ${strMin}:${strSec}`;
+
+        if (--timer < 0) {
+            clearInterval(timerInterval);
+            handleTimeout();
+        }
+    }, 1000);
+}
+
+function handleTimeout() {
+    const display = document.getElementById('timer-countdown');
+    const resendLink = document.getElementById('link-resend');
+    const input = document.getElementById('input-otp');
+    const msg = document.getElementById('otp-message');
+
+    display.classList.add('d-none');
+    resendLink.classList.remove('d-none'); // Tampilkan tombol resend
+    
+    input.disabled = true; // Matikan input
+    generatedOTP = null; // Hapus kode (expire)
+    
+    msg.className = 'small fw-bold text-danger';
+    msg.textContent = 'Kode Kedaluwarsa. Silakan kirim ulang.';
+}
+
+window.resendCode = function(e) {
+    e.preventDefault();
+    const input = document.getElementById('input-otp');
+    const msg = document.getElementById('otp-message');
+    
+    input.disabled = false;
+    input.value = '';
+    input.focus();
+    msg.textContent = '';
+    
+    generateAndSendOTP();
+    startTimer(RESEND_DELAY);
+}
+
+window.confirmCode = function() {
+    const input = document.getElementById('input-otp').value;
+    const msg = document.getElementById('otp-message');
+    const panel = document.getElementById('verification-panel');
+    const btnVerify = document.getElementById('btn-start-verify');
+    const statusText = document.getElementById('email-status-text');
+
+    if (!generatedOTP) {
+        msg.className = 'small fw-bold text-danger';
+        msg.textContent = 'Kode sudah tidak berlaku. Kirim ulang.';
+        return;
+    }
+
+    if (input === generatedOTP) {
+        // SUKSES
+        clearInterval(timerInterval);
+        msg.className = 'small fw-bold text-success';
+        msg.innerHTML = '<i class="bi bi-check-circle-fill"></i> Email Berhasil Diverifikasi!';
+        
+        setTimeout(() => {
+            panel.classList.add('d-none');
+            btnVerify.innerHTML = '<i class="bi bi-check-lg"></i> Terverifikasi';
+            btnVerify.className = 'btn btn-success disabled';
+            statusText.textContent = 'Status: Terverifikasi ✅';
+            statusText.className = 'form-text text-success fw-bold';
+            showNotification('Email berhasil diverifikasi!', 'success');
+        }, 1500);
+    } else {
+        // GAGAL
+        msg.className = 'small fw-bold text-danger';
+        msg.innerHTML = '<i class="bi bi-x-circle-fill"></i> Kode Salah / Invalid!';
+    }
+}
+
+window.saveProfileChanges = function() {
+    const username = document.getElementById('settings-username').value;
+    const name = document.getElementById('settings-name').value;
+    
+    // Logika simpan ke Firebase bisa ditambahkan di sini
+    console.log("Menyimpan:", { name, username });
+    showNotification('Profil diperbarui (Simulasi)', 'success');
+}

@@ -276,11 +276,13 @@
                     </div>
                 </div>
                 <div id="section-profile" class="admin-tab-content fade-in" style="display: none;">
-                    <div class="card bg-dark mb-4 border-secondary"> <div class="card-header border-secondary py-3">
+                    <div class="card bg-dark mb-4 border-secondary">
+                        <div class="card-header border-secondary py-3">
                             <h5 class="mb-0 text-white"><i class="bi bi-gear-fill me-2"></i>Edit Profile</h5>
                         </div>
                         <div class="card-body p-4">
-                            <form id="profile-form" onsubmit="event.preventDefault(); showNotification('Fitur simpan profil belum terhubung ke database.', 'info');">
+                            <form id="profile-form" onsubmit="event.preventDefault(); saveProfileChanges();">
+                                
                                 <div class="text-center mb-5">
                                     <div class="position-relative d-inline-block">
                                         <div class="rounded-circle overflow-hidden border border-2 border-primary shadow" style="width: 120px; height: 120px;">
@@ -291,26 +293,65 @@
                                         <label class="btn btn-sm btn-outline-light disabled">
                                             <i class="bi bi-camera me-1"></i> Ganti Foto
                                         </label>
-                                        <p class="text-muted small mt-1">Foto diambil dari akun Google</p>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Email</label>
+                                    <div class="input-group">
+                                        <input type="email" class="form-control bg-darker text-white-50" id="settings-email" readonly disabled>
+                                        <button class="btn btn-outline-warning" type="button" id="btn-start-verify" onclick="startEmailVerification()">
+                                            <i class="bi bi-patch-check"></i> Verifikasi
+                                        </button>
+                                    </div>
+                                    <div class="form-text text-muted" id="email-status-text">Status: Belum Terverifikasi</div>
+                                </div>
+
+                                <div id="verification-panel" class="alert alert-dark border-secondary mb-4 d-none">
+                                    <h6 class="text-warning mb-2"><i class="bi bi-envelope-paper me-2"></i>Masukkan Kode Verifikasi</h6>
+                                    <p class="small text-muted mb-2">Kode telah dikirim ke email Anda (Cek Console F12 untuk simulasi).</p>
+                                    
+                                    <div class="d-flex gap-2 mb-2">
+                                        <input type="text" class="form-control form-control-sm w-auto text-center fw-bold text-white letter-spacing-2" 
+                                            id="input-otp" placeholder="XXXXXX" maxlength="6" style="letter-spacing: 3px;">
+                                        <button class="btn btn-sm btn-success" type="button" onclick="confirmCode()">Cek Kode</button>
+                                    </div>
+
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <span id="otp-message" class="small fw-bold"></span>
+                                        
+                                        <div class="small">
+                                            <span id="timer-countdown" class="text-info"></span>
+                                            <a href="#" id="link-resend" class="text-warning text-decoration-none d-none" onclick="resendCode(event)">
+                                                <i class="bi bi-arrow-clockwise"></i> Kirim Ulang Kode
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-info mb-4 d-flex align-items-center">
+                                    <i class="bi bi-google me-3 fs-4"></i>
+                                    <div>
+                                        <strong>Terhubung dengan Google</strong>
+                                        <div class="small">Akun ini menggunakan login Google untuk keamanan.</div>
                                     </div>
                                 </div>
 
                                 <div class="row g-3 mb-4">
                                     <div class="col-md-6">
-                                        <label class="form-label">Nama Tampilan</label>
+                                        <label class="form-label">Nama Lengkap</label>
                                         <input type="text" class="form-control" id="settings-name" placeholder="Nama Lengkap">
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="form-label">Email</label>
-                                        <input type="email" class="form-control bg-darker" id="settings-email" readonly disabled>
+                                        <label class="form-label">Username</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-dark border-secondary text-muted">@</span>
+                                            <input type="text" class="form-control" id="settings-username" placeholder="username_unik">
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div class="alert alert-info">
-                                    <i class="bi bi-info-circle me-2"></i> Akun Anda terhubung melalui Google Sign-In.
-                                </div>
-
-                                <div class="d-flex justify-content-end gap-2 pt-2 border-top border-secondary">
+                                <div class="d-flex justify-content-end gap-2 pt-3 border-top border-secondary">
                                     <button type="submit" class="btn btn-primary px-4">
                                         <i class="bi bi-save me-2"></i>Simpan Perubahan
                                     </button>
