@@ -531,6 +531,7 @@ window.startEmailVerification = function() {
     btn.disabled = true;
     panel.classList.remove('d-none');
     msg.textContent = '';
+    msg.className = 'small fw-bold'; // Reset class pesan
     input.value = '';
     input.disabled = false;
     input.focus();
@@ -544,29 +545,31 @@ function generateAndSendOTP() {
     const emailTarget = document.getElementById('settings-email').value;
     const nameTarget = document.getElementById('settings-name').value || 'User';
 
-    // 1. Generate Kode
     generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
     
-    // 2. Siapkan parameter untuk EmailJS (sesuai nama variabel di Template EmailJS tadi)
-    const templateParams = {
-        to_email: emailTarget,   // Email tujuan (diambil dari input form)
-        to_name: nameTarget,     // Nama user
-        otp_code: generatedOTP   // Kode angkanya
-    };
-
-    // 3. Kirim Email
-    // GANTI 'YOUR_SERVICE_ID' dan 'YOUR_TEMPLATE_ID' dengan ID dari EmailJS kamu
-    emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams)
-        .then(function(response) {
-            console.log('SUCCESS!', response.status, response.text);
-            showNotification(`Kode terkirim ke ${emailTarget}`, 'success');
-        }, function(error) {
-            console.log('FAILED...', error);
-            showNotification('Gagal mengirim email: ' + JSON.stringify(error), 'error');
-        });
-
-    // Tetap log ke console untuk jaga-jaga saat testing
-    console.log(`[DEBUG] OTP: ${generatedOTP}`); 
+    // Konfigurasi EmailJS (Pastikan ENV_CONFIG sudah ada di window)
+    if (window.emailjs && window.ENV_CONFIG && window.ENV_CONFIG.EMAILJS_PUBLIC_KEY) {
+        const templateParams = {
+            to_email: emailTarget,
+            to_name: nameTarget,
+            otp_code: generatedOTP
+        };
+        // GANTI 'service_id' dan 'template_id' jika belum diset di sini
+        // Sebaiknya gunakan hardcoded string untuk service & template id karena tidak rahasia
+        // Contoh: emailjs.send('service_xyz', 'template_abc', templateParams)
+        
+        // UNTUK SEMENTARA KITA GUNAKAN LOG CONSOLE JIKA SERVICE ID BELUM DIISI
+        console.log(`[EMAILJS] Sending OTP ${generatedOTP} to ${emailTarget}`);
+        
+        /* // UNCOMMENT INI JIKA SUDAH PUNYA SERVICE ID
+        emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams)
+            .then(() => showNotification(`Kode terkirim ke ${emailTarget}`, 'success'))
+            .catch((err) => showNotification('Gagal kirim email: ' + JSON.stringify(err), 'error'));
+        */
+    } else {
+        console.log(`[SIMULASI] OTP: ${generatedOTP}`); 
+        showNotification('Mode Simulasi: Cek Console untuk Kode OTP', 'info');
+    }
 }
 
 function startTimer(duration) {
@@ -577,7 +580,6 @@ function startTimer(duration) {
     resendLink.classList.add('d-none');
     display.classList.remove('d-none');
     
-    // Hapus timer lama jika ada
     if (timerInterval) clearInterval(timerInterval);
 
     timerInterval = setInterval(function () {
@@ -602,14 +604,15 @@ function handleTimeout() {
     const input = document.getElementById('input-otp');
     const msg = document.getElementById('otp-message');
 
-    display.classList.add('d-none');
+    display.classList.add('d-none'); // Sembunyikan timer angka
     resendLink.classList.remove('d-none'); // Tampilkan tombol resend
     
-    input.disabled = true; // Matikan input
-    generatedOTP = null; // Hapus kode (expire)
+    input.disabled = true; 
+    generatedOTP = null; 
     
+    // UPDATE: Pesan menjadi "Kode telah kedaluwarsa, silahkan resend"
     msg.className = 'small fw-bold text-danger';
-    msg.textContent = 'Kode Kedaluwarsa. Silakan kirim ulang.';
+    msg.textContent = 'Kode telah kedaluwarsa, silahkan resend'; 
 }
 
 window.resendCode = function(e) {
