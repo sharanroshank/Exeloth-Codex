@@ -600,3 +600,25 @@ select option {
     z-index: 1000;
     box-shadow: 0 4px 12px rgba(0,0,0,0.5);
 }
+
+/* Indikator Online (Titik Hijau) */
+.online-indicator {
+    width: 10px;
+    height: 10px;
+    background-color: #238636; /* Hijau khas GitHub */
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 4px rgba(35, 134, 54, 0.5);
+}
+
+.status-box {
+    background-color: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 0.85rem;
+    color: #e6edf3;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}

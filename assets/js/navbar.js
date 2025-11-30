@@ -45,19 +45,32 @@ function renderNavbar() {
 
                             <li>
                                 <div class="px-3 pb-2 mb-2 border-bottom border-secondary">
-                                    <div class="border border-secondary rounded px-2 py-1 text-muted small d-flex align-items-center">
-                                        <i class="bi bi-emoji-smile me-2"></i> <span>Set status</span>
+                                    <div class="status-box">
+                                        <span class="online-indicator"></span>
+                                        <span>Online</span>
                                     </div>
                                 </div>
                             </li>
                             
-                            <li><a class="dropdown-item" href="admin.html"><i class="bi bi-person me-2"></i> Your Profile</a></li>
-                            <li><a class="dropdown-item" href="admin.html"><i class="bi bi-book me-2"></i> Your Repositories (Content)</a></li>
-                            <li><a class="dropdown-item" href="admin.html"><i class="bi bi-gear me-2"></i> Settings</a></li>
+                            <li>
+                                <a class="dropdown-item" href="admin.html">
+                                    <i class="bi bi-person me-2"></i> Your Profile
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="admin.html" onclick="switchTab('content')">
+                                    <i class="bi bi-journal-richtext me-2"></i> Manajemen Konten
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="admin.html" onclick="switchTab('admin-settings')">
+                                    <i class="bi bi-gear me-2"></i> Pengaturan Admin
+                                </a>
+                            </li>
                             
                             <li><hr class="dropdown-divider"></li>
                             
-                            <li><a class="dropdown-item" href="#" onclick="signOut()"><i class="bi bi-box-arrow-right me-2"></i> Sign out</a></li>
+                            <li><a class="dropdown-item text-danger" href="#" onclick="signOut()"><i class="bi bi-box-arrow-right me-2"></i> Sign out</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -77,7 +90,7 @@ function renderNavbar() {
 
 // Fungsi kecil untuk toggle popup 'Add Account'
 window.toggleAddAccount = function(e) {
-    e.stopPropagation(); // Biar dropdown utama tidak tertutup
+    e.stopPropagation(); 
     const popup = document.getElementById('add-account-popup');
     if (popup) popup.classList.toggle('d-none');
 }
