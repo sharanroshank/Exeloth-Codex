@@ -16,6 +16,7 @@
         .overlay-sidebar { top: 76px; }
         #dismiss { width: 35px; height: 35px; line-height: 35px; text-align: center; background: rgba(255,255,255,0.1); border-radius: 50%; cursor: pointer; transition: 0.3s; align-self: flex-end; margin-top: 15px; margin-right: 20px; margin-bottom: 10px; }
         #dismiss:hover { background: var(--primary-color); }
+        /* .top-bar dihapus, style-nya dibiarkan tidak apa-apa atau bisa dihapus juga */
         .top-bar { background-color: rgba(37, 38, 43, 0.9); backdrop-filter: blur(5px); padding: 15px 30px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; position: sticky; top: 76px; z-index: 800; }
         @media (max-width: 768px) { #sidebarCollapse { display: block !important; font-size: 1.5rem; background: none; border: none; color: white; } }
         .btn-favorite { transition: all 0.3s ease; border: 1px solid #ff6b6b; background: transparent; color: #ff6b6b; }
@@ -53,16 +54,7 @@
         </nav>
 
         <div id="content" style="padding: 0;">
-            <div class="top-bar">
-                <div class="d-flex align-items-center gap-3">
-                    <button type="button" id="sidebarCollapse">
-                        <i class="bi bi-list"></i> <span class="ms-2 d-none d-md-inline font-monospace">MENU CERITA</span>
-                    </button>
-                </div>
-            </div>
-
-            <div class="container-fluid px-4 pb-5">
-                <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="container-fluid px-4 pb-5 pt-4"> <div class="d-flex justify-content-between align-items-center mb-4">
                     <img src="assets/img/games/logo-wuthering-waves.jpg" alt="Game Logo" style="height: 60px; width: auto; object-fit: contain;">
                     <button class="btn btn-favorite rounded-pill px-4" id="favorite-btn" onclick="toggleFavorite()">
                         <i class="bi bi-star me-2" id="favorite-icon"></i> <span id="favorite-text">Favorit</span>
@@ -126,30 +118,36 @@
         document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.getElementById('sidebar');
             const dismissBtn = document.getElementById('dismiss');
-            const collapseBtn = document.getElementById('sidebarCollapse');
+            const collapseBtn = document.getElementById('sidebarCollapse'); // Ini akan null sekarang
+            
             const overlay = document.createElement('div');
             overlay.className = 'overlay-sidebar';
             overlay.style.cssText = `display: none; position: fixed; top: 76px; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 899; transition: opacity 0.3s;`;
             document.querySelector('.dashboard-wrapper').appendChild(overlay);
 
-            dismissBtn.addEventListener('click', function() {
-                sidebar.classList.add('active'); 
-                if (window.innerWidth <= 768) {
-                   sidebar.classList.remove('active'); 
-                   overlay.style.display = 'none';
-                }
-            });
-
-            collapseBtn.addEventListener('click', function() {
-                sidebar.classList.toggle('active');
-                if (window.innerWidth <= 768) {
-                    if (sidebar.classList.contains('active')) {
-                        overlay.style.display = 'block';
-                    } else {
-                        overlay.style.display = 'none';
+            if(dismissBtn) {
+                dismissBtn.addEventListener('click', function() {
+                    sidebar.classList.add('active'); 
+                    if (window.innerWidth <= 768) {
+                       sidebar.classList.remove('active'); 
+                       overlay.style.display = 'none';
                     }
-                }
-            });
+                });
+            }
+
+            // Kita tambahkan pengecekan if(collapseBtn) agar tidak error karena tombolnya sudah dihapus
+            if(collapseBtn) {
+                collapseBtn.addEventListener('click', function() {
+                    sidebar.classList.toggle('active');
+                    if (window.innerWidth <= 768) {
+                        if (sidebar.classList.contains('active')) {
+                            overlay.style.display = 'block';
+                        } else {
+                            overlay.style.display = 'none';
+                        }
+                    }
+                });
+            }
 
             overlay.addEventListener('click', function() {
                 sidebar.classList.remove('active');
