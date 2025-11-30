@@ -518,3 +518,85 @@ select option {
 .modal-backdrop { background-color: rgba(0, 0, 0, 0.8); }
 .modal-backdrop.show { opacity: 0.8; }
 .modal-content { border-radius: 12px; }
+
+/* ==================== GITHUB STYLE DROPDOWN ==================== */
+.github-dropdown {
+    width: 300px !important; /* Ukuran pas, tidak terlalu lebar */
+    padding: 8px 0;
+    border: 1px solid rgba(255,255,255,0.15);
+    background-color: #161b22 !important; /* Warna gelap khas GitHub */
+}
+
+.github-header-row {
+    padding: 4px 16px 16px 16px; /* Padding atas-bawah disesuaikan */
+    display: flex;
+    align-items: flex-start; /* Supaya foto & teks sejajar di atas */
+    gap: 12px;
+}
+
+.gh-user-info {
+    flex-grow: 1;
+    line-height: 1.2;
+    overflow: hidden;
+}
+
+.gh-username {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #e6edf3;
+    display: block;
+}
+
+.gh-fullname {
+    font-size: 0.85rem;
+    color: #7d8590;
+    display: block;
+}
+
+.gh-switcher-btn {
+    color: #7d8590;
+    padding: 4px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: transparent;
+    border: 1px solid transparent;
+}
+
+.gh-switcher-btn:hover {
+    color: #2f81f7; /* Warna biru GitHub saat hover */
+    background-color: rgba(177, 186, 196, 0.12);
+}
+
+/* Item menu dropdown */
+.dropdown-item {
+    color: #e6edf3 !important;
+    padding: 6px 16px !important;
+    font-size: 0.9rem !important;
+    display: flex;
+    align-items: center;
+}
+
+.dropdown-item:hover {
+    background-color: #0d6efd !important; /* Biru Bootstrap saat hover */
+    color: white !important;
+}
+
+.dropdown-divider {
+    border-top: 1px solid rgba(255,255,255,0.1);
+    margin: 8px 0;
+}
+
+/* Kotak kecil 'Add Account' yang muncul saat switcher diklik */
+#add-account-popup {
+    position: absolute;
+    top: 50px;
+    right: 15px;
+    width: 150px;
+    background: #30363d;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    padding: 5px;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
