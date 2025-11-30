@@ -282,17 +282,24 @@
                         </div>
                         <div class="card-body p-4">
                             <form id="profile-form" onsubmit="event.preventDefault(); saveProfileChanges();">
-                                
                                 <div class="text-center mb-4">
                                     <div class="position-relative d-inline-block">
                                         <div class="rounded-circle overflow-hidden border border-2 border-primary shadow-lg" style="width: 120px; height: 120px;">
                                             <img id="settings-profile-img" src="https://ui-avatars.com/api/?name=User" class="w-100 h-100 object-fit-cover">
                                         </div>
+                                        
                                         <div class="position-absolute top-0 start-0 m-1">
                                             <span class="badge bg-dark border border-secondary rounded-circle p-2" title="Login via Google" id="provider-badge-google" style="display:none;">
-                                            <i class="bi bi-google text-white"></i>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="#fff" d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"/></svg>
                                             </span>
                                         </div>
+
+                                        <label for="file-upload-profile" class="btn btn-sm btn-dark position-absolute bottom-0 end-0 rounded-circle border border-secondary cursor-pointer hover-scale" 
+                                            style="width: 35px; height: 35px; padding: 0; display: flex; align-items: center; justify-content: center;"
+                                            title="Ganti Foto">
+                                            <i class="bi bi-camera-fill text-white small"></i>
+                                        </label>
+                                        <input type="file" id="file-upload-profile" class="d-none" accept="image/*" onchange="previewImage(this)">
                                     </div>
                                 </div>
 
@@ -300,15 +307,15 @@
                                     <div class="col-md-6">
                                         <label class="form-label text-white-50 small">Nama Lengkap</label>
                                         <div class="input-group">
-                                            <span class="input-group-text bg-dark border-secondary text-muted"><i class="bi bi-person"></i></span>
-                                            <input type="text" class="form-control" id="settings-name" placeholder="Nama Lengkap">
+                                            <span class="input-group-text bg-dark border-secondary text-secondary"><i class="bi bi-person"></i></span>
+                                            <input type="text" class="form-control text-white" id="settings-name" placeholder="Nama Lengkap">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label text-white-50 small">Username</label>
                                         <div class="input-group">
-                                            <span class="input-group-text bg-dark border-secondary text-muted">@</span>
-                                            <input type="text" class="form-control" id="settings-username" placeholder="username">
+                                            <span class="input-group-text bg-dark border-secondary text-secondary">@</span>
+                                            <input type="text" class="form-control text-white" id="settings-username" placeholder="username">
                                         </div>
                                         <div id="username-error" class="form-text text-danger d-none small"></div>
                                     </div>
@@ -317,22 +324,19 @@
                                 <div class="mb-3">
                                     <label class="form-label text-white-50 small">Email Utama</label>
                                     <div class="input-group">
-                                        <span class="input-group-text bg-dark border-secondary text-muted"><i class="bi bi-envelope"></i></span>
+                                        <span class="input-group-text bg-dark border-secondary text-secondary"><i class="bi bi-envelope"></i></span>
                                         <input type="email" class="form-control bg-darker text-white-50" id="settings-email" readonly>
                                         
                                         <button class="btn btn-outline-warning" type="button" id="btn-verify-email" onclick="initiateAction('verify_email')" style="display:none;">
                                             Verify
                                         </button>
-                                        
-                                        <button class="btn btn-outline-secondary" type="button" onclick="openChangeModal('email')">
-                                            <i class="bi bi-pencil-square"></i> Change
+                                        <button class="btn btn-outline-secondary text-white-50" type="button" onclick="openChangeModal('email')">
+                                            <i class="bi bi-pencil-square"></i>
                                         </button>
                                     </div>
                                     
-                                    <div class="mt-1 d-flex align-items-center gap-2" id="email-status-container">
-                                        <i class="bi bi-exclamation-circle text-warning"></i>
-                                        <span class="text-muted small">Email belum terverifikasi</span>
-                                    </div>
+                                    <div class="mt-2 d-flex align-items-center gap-2" id="email-status-container">
+                                        </div>
                                 </div>
 
                                 <div class="mb-4">
@@ -340,11 +344,11 @@
                                     <div class="card bg-dark border-secondary">
                                         <div class="card-body d-flex justify-content-between align-items-center p-3">
                                             <div>
-                                                <h6 class="text-white mb-1"><i class="bi bi-shield-lock me-2"></i>Password Login</h6>
-                                                <small class="text-muted" id="password-status-text">Anda belum mengatur password.</small>
+                                                <h6 class="text-white mb-1" style="font-size: 0.95rem;"><i class="bi bi-shield-lock me-2"></i>Password Login</h6>
+                                                <small class="text-white-50" id="password-status-text">Memuat status password...</small>
                                             </div>
                                             <button type="button" class="btn btn-sm btn-primary" id="btn-change-password" onclick="openChangeModal('password')">
-                                                Setup Password
+                                                Setup
                                             </button>
                                         </div>
                                     </div>

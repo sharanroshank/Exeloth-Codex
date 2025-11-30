@@ -692,19 +692,99 @@ window.addSection = addSection;
 window.deleteSection = deleteSection;
 window.addAdmin = addAdmin;
 
-// --- LOGIKA PROFILE & KEAMANAN (Unified) ---
+// --- FITUR PROFILE & UPLOAD (UPDATED) ---
 
-let pendingAction = null; // 'verify_email', 'change_email', 'change_password'
-let pendingData = null;   // Data sementara (email baru/pass baru)
-let generatedOTP = null;
-let otpTimer = null;
-const RESEND_DELAY = 60;
+// 1. Fungsi Preview Image (Dipanggil saat user pilih file)
+window.previewImage = function(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('settings-profile-img').src = e.target.result;
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
 
-// 1. UPDATE TAMPILAN USER (PINTAR)
+// 2. Helper Upload ke Firebase Storage
+async function uploadProfileImage(file) {
+    if (!file) return null;
+    const fileName = `profile-images/${currentUser.uid}-${Date.now()}.jpg`;
+    const storageRef = storage.ref().child(fileName);
+    await storageRef.put(file);
+    return await storageRef.getDownloadURL();
+}
+
+// 3. Simpan Profil (Termasuk Upload Foto)
+async function saveProfileChanges() {
+    const btn = document.querySelector('#profile-form button[type="submit"]');
+    const originalText = btn.innerHTML;
+    
+    const name = document.getElementById('settings-name').value.trim();
+    const username = document.getElementById('settings-username').value.trim().toLowerCase();
+    const email = auth.currentUser.email;
+    const fileInput = document.getElementById('file-upload-profile');
+    
+    // Validasi Username
+    const usernameRegex = /^[a-zA-Z0-9_]+$/;
+    if (!usernameRegex.test(username)) {
+        document.getElementById('username-error').textContent = "Username hanya huruf, angka, _ (tanpa spasi)";
+        document.getElementById('username-error').classList.remove('d-none');
+        return;
+    }
+    document.getElementById('username-error').classList.add('d-none');
+
+    // UI Loading
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Menyimpan...';
+
+    try {
+        let photoURL = document.getElementById('settings-profile-img').src;
+
+        // Cek jika ada file baru yang dipilih untuk diupload
+        if (fileInput.files && fileInput.files[0]) {
+            showNotification('Mengupload foto...', 'info');
+            photoURL = await uploadProfileImage(fileInput.files[0]);
+        }
+
+        // Simpan ke Firestore
+        await db.collection('users').doc(email).set({
+            displayName: name,
+            username: username,
+            email: email,
+            photoURL: photoURL,
+            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+
+        // Update Auth Profile (Nama & Foto)
+        await auth.currentUser.updateProfile({ 
+            displayName: name,
+            photoURL: photoURL
+        });
+
+        // Update Navbar (Biar langsung berubah)
+        const navImg = document.getElementById('nav-profile-img-btn'); // Foto kecil di navbar
+        const navImgInside = document.getElementById('nav-profile-img-inside'); // Foto di dropdown
+        const navName = document.getElementById('nav-gh-username'); 
+        
+        if (navImg) navImg.src = photoURL;
+        if (navImgInside) navImgInside.src = photoURL;
+        if (navName) navName.textContent = username;
+
+        showNotification('✅ Profil berhasil disimpan!', 'success');
+
+    } catch (error) {
+        console.error(error);
+        showNotification('❌ Gagal menyimpan: ' + error.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    }
+}
+
+// 4. Update User Info (Saat Load Halaman)
 async function updateUserInfo(user) {
     if (!user) return;
 
-    // Elemen UI
     const nameInput = document.getElementById('settings-name');
     const usernameInput = document.getElementById('settings-username');
     const emailInput = document.getElementById('settings-email');
@@ -715,29 +795,31 @@ async function updateUserInfo(user) {
     const passStatusText = document.getElementById('password-status-text');
     const btnPass = document.getElementById('btn-change-password');
 
-    // Reset UI
+    // Default UI Reset
     if(emailInput) emailInput.value = user.email;
     updateGoogleUI(user);
 
-    // Cek Provider (Google/Password)
+    // Cek Provider Login
     const isGoogle = user.providerData.some(p => p.providerId === 'google.com');
     const isPassword = user.providerData.some(p => p.providerId === 'password');
 
     if (isGoogle) badgeGoogle.style.display = 'block';
     
-    // Status Password
+    // Status Password (TEXT COLOR FIXED)
     if (isPassword) {
-        passStatusText.textContent = "Password aktif. Terakhir diubah: " + (user.metadata.lastSignInTime || 'N/A');
+        passStatusText.textContent = "Password aktif.";
+        passStatusText.className = "text-success small"; // Warna Hijau Terang
         btnPass.textContent = "Ubah Password";
         btnPass.className = "btn btn-sm btn-outline-light";
     } else {
-        passStatusText.textContent = "Anda login via Google. Belum ada password.";
+        passStatusText.textContent = "Login via Google (Tanpa Password).";
+        passStatusText.className = "text-white-50 small"; // Warna Putih Redup
         btnPass.textContent = "Buat Password";
         btnPass.className = "btn btn-sm btn-primary";
     }
 
     try {
-        // Ambil Data Firestore
+        // Cek Firestore
         const userDoc = await db.collection('users').doc(user.email).get();
         let isVerified = user.emailVerified; 
 
@@ -747,21 +829,23 @@ async function updateUserInfo(user) {
             usernameInput.value = data.username || user.email.split('@')[0];
             imgProfile.src = data.photoURL || user.photoURL;
             
-            // Sinkronisasi status verifikasi
             if (data.emailVerified) isVerified = true;
         } else {
-            // User Baru
+            // User Baru (Ambil dari Google)
             nameInput.value = user.displayName || '';
-            usernameInput.value = user.email.split('@')[0];
+            // Bikin username dari email (sebelum @)
+            usernameInput.value = user.email.split('@')[0]; 
+            // Ambil foto Google
             imgProfile.src = user.photoURL || `https://ui-avatars.com/api/?name=${user.email}`;
         }
 
-        // Update UI Verifikasi (Pake Ikon Bagus)
+        // Status Verifikasi (TEXT COLOR FIXED)
         if (isVerified) {
             statusContainer.innerHTML = '<i class="bi bi-check-circle-fill text-success"></i> <span class="text-success fw-bold">Email Terverifikasi</span>';
             btnVerify.style.display = 'none';
         } else {
-            statusContainer.innerHTML = '<i class="bi bi-exclamation-triangle-fill text-warning"></i> <span class="text-warning">Email belum terverifikasi</span>';
+            // Text Warning (Kuning) agar terlihat di background hitam
+            statusContainer.innerHTML = '<i class="bi bi-exclamation-triangle-fill text-warning"></i> <span class="text-warning fw-bold">Email belum terverifikasi</span>';
             btnVerify.style.display = 'block';
         }
 
@@ -769,243 +853,3 @@ async function updateUserInfo(user) {
         console.error("Error loading profile:", error);
     }
 }
-
-// 2. MODAL & FLOW MANAGER
-function openChangeModal(type) {
-    const modal = new bootstrap.Modal(document.getElementById('securityModal'));
-    const title = document.getElementById('securityModalTitle');
-    const step1 = document.getElementById('step-input-data');
-    const step2 = document.getElementById('step-verify-otp');
-    
-    // Reset State
-    step1.classList.remove('d-none');
-    step2.classList.add('d-none');
-    document.getElementById('input-group-email').classList.add('d-none');
-    document.getElementById('input-group-password').classList.add('d-none');
-    document.getElementById('new-email-input').value = '';
-    document.getElementById('new-pass-input').value = '';
-    document.getElementById('confirm-pass-input').value = '';
-    
-    // Set Context
-    if (type === 'email') {
-        title.innerHTML = '<i class="bi bi-envelope-arrow-up"></i> Ganti Email';
-        document.getElementById('input-group-email').classList.remove('d-none');
-        pendingAction = 'change_email';
-    } else if (type === 'password') {
-        title.innerHTML = '<i class="bi bi-key"></i> Setup / Ubah Password';
-        document.getElementById('input-group-password').classList.remove('d-none');
-        pendingAction = 'change_password';
-    }
-
-    modal.show();
-}
-
-function initiateAction(type) {
-    if (type === 'verify_email') {
-        // Langsung kirim OTP ke email saat ini
-        pendingAction = 'verify_email';
-        pendingData = auth.currentUser.email;
-        sendOtpAndShowModal(auth.currentUser.email);
-    }
-}
-
-// 3. VALIDASI & REQUEST OTP
-function requestOtpForAction() {
-    const emailErr = document.getElementById('email-error');
-    const passErr = document.getElementById('pass-error');
-    emailErr.textContent = '';
-    passErr.textContent = '';
-
-    let targetEmail = auth.currentUser.email; // Default kirim ke email sekarang
-
-    if (pendingAction === 'change_email') {
-        const newEmail = document.getElementById('new-email-input').value;
-        // Validasi Email Regex
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(newEmail)) {
-            emailErr.textContent = "Format email tidak valid.";
-            return;
-        }
-        if (newEmail === auth.currentUser.email) {
-            emailErr.textContent = "Email baru tidak boleh sama dengan email saat ini.";
-            return;
-        }
-        pendingData = newEmail;
-        targetEmail = newEmail; // Kirim OTP ke email BARU untuk verifikasi kepemilikan
-    } 
-    else if (pendingAction === 'change_password') {
-        const p1 = document.getElementById('new-pass-input').value;
-        const p2 = document.getElementById('confirm-pass-input').value;
-        
-        if (p1.length < 6) {
-            passErr.textContent = "Password minimal 6 karakter.";
-            return;
-        }
-        if (p1 !== p2) {
-            passErr.textContent = "Konfirmasi password tidak cocok.";
-            return;
-        }
-        pendingData = p1;
-        // targetEmail tetap email saat ini (currentUser.email)
-    }
-
-    // Switch ke Step 2 (UI OTP)
-    document.getElementById('step-input-data').classList.add('d-none');
-    document.getElementById('step-verify-otp').classList.remove('d-none');
-    
-    sendOtpAndShowModal(targetEmail);
-}
-
-// 4. KIRIM OTP (EmailJS)
-function sendOtpAndShowModal(emailDest) {
-    // Jika modal belum terbuka (kasus verify_email langsung), buka modal
-    const modalEl = document.getElementById('securityModal');
-    if (!modalEl.classList.contains('show')) {
-        const modal = new bootstrap.Modal(modalEl);
-        modal.show();
-        document.getElementById('step-input-data').classList.add('d-none');
-        document.getElementById('step-verify-otp').classList.remove('d-none');
-    }
-
-    document.getElementById('otp-target-email').textContent = emailDest;
-    document.getElementById('modal-otp-input').value = '';
-    document.getElementById('modal-otp-input').focus();
-    
-    // Generate Logic
-    generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
-    
-    // Kirim via EmailJS
-    if (window.emailjs && window.ENV_CONFIG) {
-        const params = {
-            to_email: emailDest,
-            to_name: auth.currentUser.displayName || 'User',
-            otp_code: generatedOTP
-        };
-        // GANTI ID DI BAWAH INI
-        const SID = 'YOUR_SERVICE_ID'; 
-        const TID = 'YOUR_TEMPLATE_ID'; 
-        
-        emailjs.send(SID, TID, params)
-            .then(() => showNotification(`Kode terkirim ke ${emailDest}`, 'success'))
-            .catch(err => console.error(err));
-    } else {
-        console.log(`[SIMULASI] OTP untuk ${emailDest}: ${generatedOTP}`);
-        showNotification('Mode Simulasi: Cek Console', 'info');
-    }
-
-    startOtpTimer();
-}
-
-// 5. VERIFIKASI OTP & EKSEKUSI FINAL
-async function verifyOtpAndCommit() {
-    const inputOtp = document.getElementById('modal-otp-input').value;
-    const msg = document.getElementById('otp-status-msg');
-
-    if (inputOtp !== generatedOTP) {
-        msg.innerHTML = '<span class="text-danger"><i class="bi bi-x-circle"></i> Kode Salah</span>';
-        return;
-    }
-
-    // OTP BENAR -> LAKUKAN AKSI FIREBASE
-    msg.innerHTML = '<span class="text-success"><i class="bi bi-check-circle"></i> Terverifikasi</span>';
-    const modal = bootstrap.Modal.getInstance(document.getElementById('securityModal'));
-    
-    try {
-        if (pendingAction === 'verify_email') {
-            // Update Firestore
-            await db.collection('users').doc(auth.currentUser.email).update({
-                emailVerified: true
-            });
-            // Update Auth (Opsional, kadang butuh kirim link asli firebase)
-            showNotification('✅ Email berhasil diverifikasi di sistem!', 'success');
-            
-        } else if (pendingAction === 'change_email') {
-            // Firebase Auth Update
-            await auth.currentUser.updateEmail(pendingData);
-            // Pindahkan Data Firestore ke ID Baru
-            const oldDoc = await db.collection('users').doc(auth.currentUser.email).get();
-            if (oldDoc.exists) {
-                await db.collection('users').doc(pendingData).set(oldDoc.data());
-                // await db.collection('users').doc(auth.currentUser.email).delete(); // Opsional hapus lama
-            }
-            showNotification('✅ Email berhasil diubah! Silakan login ulang.', 'success');
-            setTimeout(() => location.reload(), 2000);
-
-        } else if (pendingAction === 'change_password') {
-            await auth.currentUser.updatePassword(pendingData);
-            showNotification('✅ Password berhasil diubah/dibuat!', 'success');
-        }
-
-        modal.hide();
-        updateUserInfo(auth.currentUser); // Refresh UI
-
-    } catch (error) {
-        console.error(error);
-        if (error.code === 'auth/requires-recent-login') {
-            showNotification('⚠️ Sesi kedaluwarsa. Silakan login ulang lalu coba lagi.', 'warning');
-        } else {
-            showNotification('Gagal: ' + error.message, 'error');
-        }
-        modal.hide();
-    }
-}
-
-// 6. TIMER HELPER
-function startOtpTimer() {
-    let timeLeft = RESEND_DELAY;
-    const timerDisplay = document.getElementById('modal-timer');
-    if (otpTimer) clearInterval(otpTimer);
-    
-    timerDisplay.textContent = `Resend in ${timeLeft}s`;
-    
-    otpTimer = setInterval(() => {
-        timeLeft--;
-        timerDisplay.textContent = `Resend in ${timeLeft}s`;
-        if (timeLeft <= 0) {
-            clearInterval(otpTimer);
-            timerDisplay.innerHTML = '<a href="#" class="text-warning" onclick="requestOtpForAction()">Kirim Ulang</a>';
-        }
-    }, 1000);
-}
-
-// 7. SIMPAN PROFIL BIASA (Nama & Username)
-async function saveProfileChanges() {
-    const name = document.getElementById('settings-name').value.trim();
-    const username = document.getElementById('settings-username').value.trim().toLowerCase();
-    const user = auth.currentUser;
-    const email = user.email;
-
-    // VALIDASI USERNAME (Regex: huruf, angka, underscore, tanpa spasi)
-    const usernameRegex = /^[a-zA-Z0-9_]+$/;
-    if (!usernameRegex.test(username)) {
-        document.getElementById('username-error').textContent = "Username hanya boleh huruf, angka, dan underscore (_).";
-        document.getElementById('username-error').classList.remove('d-none');
-        return;
-    }
-    document.getElementById('username-error').classList.add('d-none');
-
-    try {
-        await db.collection('users').doc(email).set({
-            displayName: name,
-            username: username,
-            email: email,
-            photoURL: document.getElementById('settings-profile-img').src,
-            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true });
-
-        // Update Auth Profile juga
-        await user.updateProfile({ displayName: name });
-
-        showNotification('✅ Profil berhasil disimpan', 'success');
-        
-        // Update Navbar Realtime
-        const navName = document.getElementById('nav-gh-username');
-        if(navName) navName.textContent = username;
-
-    } catch (error) {
-        showNotification('❌ Gagal: ' + error.message, 'error');
-    }
-}
-
-// Custom Notification dengan Icon (Mengganti yang lama di auth-system.js jika perlu, atau pakai ini lokal)
-// Pastikan fungsi showNotification di auth-system.js mendukung HTML innerHTML, bukan textContent.
