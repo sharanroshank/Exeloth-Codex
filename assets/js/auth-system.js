@@ -70,6 +70,19 @@ if (adminDoc.exists) {
             currentUser = user;
             console.log('Admin access granted:', user.email);
             
+            // --- TAMBAHKAN KODE INI ---
+            // Update foto dan nama di navbar dropdown
+            const navImg = document.getElementById('nav-profile-img');
+            const navName = document.getElementById('nav-user-name');
+            
+            if (navImg && user.photoURL) {
+                navImg.src = user.photoURL; // Pakai foto Google
+            }
+            if (navName) {
+                navName.textContent = "Signed in as " + (user.displayName || user.email);
+            }
+            // ---------------------------
+            
             updateNavbar(true);
             
             const isFromLoginAction = sessionStorage.getItem('loginAction') === 'true';
