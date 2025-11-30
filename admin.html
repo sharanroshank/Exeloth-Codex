@@ -381,81 +381,80 @@
                                     </button>
                                 </div>
                             </form>
-
-                            <div class="modal fade" id="securityModal" tabindex="-1" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content bg-dark border-secondary text-white">
-                                        <div class="modal-header border-secondary">
-                                            <h5 class="modal-title" id="securityModalTitle">Security Check</h5>
-                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            
-                                            <div id="step-input-data">
-                                                <p class="text-muted small" id="step-input-desc">Masukkan data baru Anda.</p>
-                                                
-                                                <div id="input-group-email" class="d-none">
-                                                    <label class="form-label">Email Baru</label>
-                                                    <input type="email" class="form-control bg-darker text-white" id="new-email-input" placeholder="email@contoh.com">
-                                                    <div id="email-error" class="text-danger small mt-1"></div>
-                                                </div>
-
-                                                <div id="input-group-password" class="d-none">
-                                                    <label class="form-label">Password Baru</label>
-                                                    <input type="password" class="form-control bg-darker text-white mb-2" id="new-pass-input" placeholder="Minimal 8 karakter">
-                                                    <input type="password" class="form-control bg-darker text-white" id="confirm-pass-input" placeholder="Ulangi Password">
-                                                    <div id="pass-error" class="text-danger small mt-1"></div>
-                                                </div>
-
-                                                <div class="d-grid mt-4">
-                                                    <button class="btn btn-primary" onclick="requestOtpForAction()">
-                                                        <i class="bi bi-arrow-right-circle me-2"></i> Lanjutkan & Kirim OTP
-                                                    </button>
-                                                </div>
-                                            </div>
-
-                                            <div id="step-verify-otp" class="d-none">
-                                                <div class="text-center mb-3">
-                                                    <i class="bi bi-envelope-paper display-1 text-warning"></i>
-                                                    <h6 class="mt-2">Verifikasi OTP</h6>
-                                                    <p class="small text-muted">Kode telah dikirim ke <strong id="otp-target-email" class="text-white"></strong></p>
-                                                </div>
-                                                
-                                                <div class="d-flex justify-content-center gap-2 mb-3">
-                                                    <input type="text" class="form-control form-control-lg text-center fw-bold letter-spacing-2" 
-                                                        id="modal-otp-input" maxlength="6" style="max-width: 200px; letter-spacing: 5px;">
-                                                </div>
-
-                                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                                    <small id="otp-status-msg"></small>
-                                                    <small id="modal-timer" class="text-info"></small>
-                                                </div>
-
-                                                <div class="d-grid">
-                                                    <button class="btn btn-success" onclick="verifyOtpAndCommit()">
-                                                        <i class="bi bi-check-lg me-2"></i> Konfirmasi & Simpan
-                                                    </button>
-                                                </div>
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div id="notification-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
+    </div> </div> </div> </div> <div id="notification-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
+
+    <div class="modal fade" id="securityModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark border-secondary text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title" id="securityModalTitle">Security Check</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    
+                    <div id="step-input-data">
+                        <p class="text-muted small" id="step-input-desc">Masukkan data baru Anda.</p>
+                        
+                        <div id="input-group-email" class="d-none">
+                            <label class="form-label">Email Baru</label>
+                            <input type="email" class="form-control bg-darker text-white" id="new-email-input" placeholder="email@contoh.com">
+                            <div id="email-error" class="text-danger small mt-1"></div>
+                        </div>
+
+                        <div id="input-group-password" class="d-none">
+                            <label class="form-label">Password Baru</label>
+                            <input type="password" class="form-control bg-darker text-white mb-2" id="new-pass-input" placeholder="Minimal 8 karakter">
+                            <input type="password" class="form-control bg-darker text-white" id="confirm-pass-input" placeholder="Ulangi Password">
+                            <div id="pass-error" class="text-danger small mt-1"></div>
+                        </div>
+
+                        <div class="d-grid mt-4">
+                            <button class="btn btn-primary" onclick="requestOtpForAction()">
+                                <i class="bi bi-arrow-right-circle me-2"></i> Lanjutkan & Kirim OTP
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="step-verify-otp" class="d-none">
+                        <div class="text-center mb-3">
+                            <i class="bi bi-envelope-paper display-1 text-warning"></i>
+                            <h6 class="mt-2">Verifikasi OTP</h6>
+                            <p class="small text-muted">Kode telah dikirim ke <strong id="otp-target-email" class="text-white"></strong></p>
+                        </div>
+                        
+                        <div class="d-flex justify-content-center gap-2 mb-3">
+                            <input type="text" class="form-control form-control-lg text-center fw-bold letter-spacing-2" 
+                                   id="modal-otp-input" maxlength="6" style="max-width: 200px; letter-spacing: 5px;">
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <small id="otp-status-msg"></small>
+                            <small id="modal-timer" class="text-info"></small>
+                        </div>
+
+                        <div class="d-grid">
+                            <button class="btn btn-success" onclick="verifyOtpAndCommit()">
+                                <i class="bi bi-check-lg me-2"></i> Konfirmasi & Simpan
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="assets/js/env-config.js"></script> 
+    
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-
     <script>
     (function(){
-        // Pastikan config sudah termuat
         if (window.ENV_CONFIG && window.ENV_CONFIG.EMAILJS_PUBLIC_KEY) {
             emailjs.init(window.ENV_CONFIG.EMAILJS_PUBLIC_KEY);
             console.log("EmailJS Initialized Securely");
@@ -465,7 +464,6 @@
     })();
     </script>
 
-    <script src="assets/js/admin.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -474,7 +472,8 @@
     <script src="assets/js/firebase-config.js"></script>
     <script src="https://unpkg.com/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/auth-system.js"></script>
-    
+    <script src="assets/js/admin.js"></script>
     <script src="assets/js/admin-ui.js"></script>
+
 </body>
 </html>
