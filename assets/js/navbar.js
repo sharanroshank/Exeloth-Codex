@@ -60,14 +60,14 @@ function renderNavbar() {
 
                     <!-- Admin dropdown (show when logged in) -->
                     <li class="nav-item dropdown d-none" id="admin-nav-item">
-                        <a class="nav-link py-0" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link py-0 dropdown-toggle-click" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <img src="https://ui-avatars.com/api/?name=User&background=6f42c1&color=fff" 
-                                 id="nav-profile-img-btn" 
-                                 class="rounded-circle border border-secondary" 
-                                 width="32" 
-                                 height="32" 
-                                 alt="Profile"
-                                 onerror="this.src='https://ui-avatars.com/api/?name=User&background=6f42c1&color=fff'">
+                                id="nav-profile-img-btn" 
+                                class="rounded-circle border border-secondary" 
+                                width="32" 
+                                height="32" 
+                                alt="Profile"
+                                onerror="this.src='https://ui-avatars.com/api/?name=User&background=6f42c1&color=fff'">
                         </a>
                         
                         <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark github-dropdown shadow-lg mt-2">
@@ -132,8 +132,11 @@ function initializeNavbarComponents() {
     // Setup event listeners
     setupNavbarEventListeners();
     
-    // Setup dropdowns - DIPERBAIKI
+    // Setup dropdowns - CLICK ONLY VERSION
     setupDropdowns();
+    
+    // Nonaktifkan hover behavior
+    disableDropdownHover();
     
     // Setup tooltips
     setupTooltips();
@@ -141,7 +144,7 @@ function initializeNavbarComponents() {
     // Update sidebar state
     updateSidebarState();
     
-    console.log('✅ Navbar components initialized');
+    console.log('✅ Navbar components initialized (click-only dropdown)');
 }
 
 // Setup hamburger button khusus untuk halaman game
@@ -298,9 +301,9 @@ function setupActiveNavLinks() {
 
 // ==================== DROPDOWN FUNCTIONS - DIPERBAIKI ====================
 
-// Setup dropdown functionality - VERSION FIXED
+// Setup dropdown functionality - CLICK ONLY VERSION
 function setupDropdowns() {
-    console.log('🔧 Setting up dropdowns...');
+    console.log('🔧 Setting up dropdowns (click-only)...');
     
     // Tunggu sebentar untuk memastikan DOM siap
     setTimeout(() => {
@@ -308,11 +311,13 @@ function setupDropdowns() {
         if (typeof bootstrap !== 'undefined') {
             const dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
             dropdownElementList.map(function (dropdownToggleEl) {
-                const dropdown = new bootstrap.Dropdown(dropdownToggleEl);
+                const dropdown = new bootstrap.Dropdown(dropdownToggleEl, {
+                    display: 'static' // Agar tidak muncul saat hover
+                });
                 
                 // Custom event handlers untuk styling
                 dropdownToggleEl.addEventListener('show.bs.dropdown', function () {
-                    console.log('📋 Dropdown showing...');
+                    console.log('📋 Dropdown showing (click)...');
                     const dropdownMenu = this.nextElementSibling;
                     if (dropdownMenu) {
                         dropdownMenu.classList.add('github-dropdown', 'show');
@@ -356,22 +361,9 @@ function setupDropdowns() {
                     }
                 });
                 
-                // Tambahkan click handler untuk memastikan dropdown terbuka
-                dropdownToggleEl.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    const dropdownMenu = this.nextElementSibling;
-                    if (dropdownMenu) {
-                        const isShowing = dropdownMenu.classList.contains('show');
-                        
-                        if (!isShowing) {
-                            dropdown.show();
-                        } else {
-                            dropdown.hide();
-                        }
-                    }
-                });
+                // Hapus hover behavior yang ada
+                dropdownToggleEl.removeEventListener('mouseenter', () => {});
+                dropdownToggleEl.removeEventListener('mouseleave', () => {});
                 
                 return dropdown;
             });
@@ -387,9 +379,12 @@ function setupDropdowns() {
             menu.style.visibility = 'visible';
             menu.style.opacity = '1';
             menu.style.display = 'block';
+            
+            // Nonaktifkan hover effect pada dropdown menu
+            menu.style.pointerEvents = 'auto';
         });
         
-        console.log('✅ Dropdowns initialized');
+        console.log('✅ Dropdowns initialized (click-only)');
     }, 100);
     
     // Click outside to close dropdown
@@ -410,6 +405,53 @@ function setupDropdowns() {
             e.stopPropagation();
         }, { passive: true });
     });
+    
+    // Nonaktifkan hover behavior di CSS
+    disableDropdownHover();
+}
+
+// Nonaktifkan hover behavior untuk dropdown
+function disableDropdownHover() {
+    // Tambahkan style untuk menonaktifkan hover
+    const style = document.createElement('style');
+    style.id = 'disable-dropdown-hover';
+    style.textContent = `
+        /* Nonaktifkan hover untuk dropdown */
+        .nav-item.dropdown:hover .dropdown-menu {
+            display: none !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+        }
+        
+        /* Hanya tampilkan dropdown ketika memiliki class 'show' */
+        .nav-item.dropdown .dropdown-menu.show {
+            display: block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+        
+        /* Hilangkan pointer cursor saat hover di dropdown toggle */
+        .dropdown-toggle {
+            cursor: pointer;
+        }
+        
+        .dropdown-toggle:hover {
+            opacity: 0.8;
+        }
+        
+        /* Pastikan dropdown tidak muncul saat hover */
+        .dropdown-menu {
+            pointer-events: all !important;
+        }
+    `;
+    
+    // Hapus style lama jika ada
+    const existingStyle = document.getElementById('disable-dropdown-hover');
+    if (existingStyle) {
+        existingStyle.remove();
+    }
+    
+    document.head.appendChild(style);
 }
 
 // Fungsi untuk memastikan dropdown terlihat
@@ -482,6 +524,9 @@ function setupNavbarEventListeners() {
     
     // Handle click on nav links untuk mobile menu
     document.addEventListener('click', function(e) {
+        const dropdownToggle = e.target.closest('.dropdown-toggle');
+        const dropdownMenu = e.target.closest('.dropdown-menu');
+        
         if (currentSidebarState.isMobile && window.innerWidth < 768) {
             const navLink = e.target.closest('.nav-link');
             if (navLink && !navLink.hasAttribute('data-bs-toggle')) {
@@ -498,18 +543,17 @@ function setupNavbarEventListeners() {
                         navbarToggler.setAttribute('aria-expanded', 'false');
                     }
                 }
-                
-                // Juga tutup dropdown jika terbuka
-                const openDropdowns = document.querySelectorAll('.dropdown-menu.show');
-                openDropdowns.forEach(dropdown => {
-                    dropdown.classList.remove('show');
-                    dropdown.style.opacity = '0';
-                });
             }
         }
         
+        // Handle dropdown: hanya toggle saat klik toggle button
+        if (dropdownToggle) {
+            // Biarkan Bootstrap handle toggle
+            return;
+        }
+        
         // Handle dropdown close ketika klik di luar
-        if (!e.target.closest('.dropdown') && !e.target.closest('.dropdown-menu')) {
+        if (!e.target.closest('.dropdown') && !dropdownMenu) {
             const openDropdowns = document.querySelectorAll('.dropdown-menu.show');
             openDropdowns.forEach(dropdown => {
                 dropdown.classList.remove('show');
@@ -519,7 +563,7 @@ function setupNavbarEventListeners() {
         }
     });
     
-    // Keyboard navigation untuk navbar - TAMBAHKAN untuk dropdown
+    // Keyboard navigation untuk navbar
     document.addEventListener('keydown', function(e) {
         // Escape untuk close sidebar (hanya di mobile)
         if (e.key === 'Escape' && currentSidebarState.isOpen && currentSidebarState.isMobile) {
@@ -580,8 +624,11 @@ function setupNavbarEventListeners() {
     
     // Fix untuk touch devices
     document.addEventListener('touchstart', function(e) {
-        // Close dropdown jika touch di luar
-        if (!e.target.closest('.dropdown') && !e.target.closest('.dropdown-menu')) {
+        const dropdownToggle = e.target.closest('.dropdown-toggle');
+        const dropdownMenu = e.target.closest('.dropdown-menu');
+        
+        // Jika touch di luar dropdown, close semua dropdown
+        if (!dropdownToggle && !dropdownMenu) {
             const openDropdowns = document.querySelectorAll('.dropdown-menu.show');
             openDropdowns.forEach(dropdown => {
                 dropdown.classList.remove('show');
@@ -589,6 +636,20 @@ function setupNavbarEventListeners() {
             });
         }
     }, { passive: true });
+    
+    // Nonaktifkan hover behavior untuk dropdown item
+    document.querySelectorAll('.dropdown-item').forEach(item => {
+        // Hapus hover effects
+        item.style.transition = 'all 0.2s ease';
+        
+        item.addEventListener('mouseenter', function(e) {
+            this.style.backgroundColor = 'rgba(111, 66, 193, 0.15)';
+        });
+        
+        item.addEventListener('mouseleave', function(e) {
+            this.style.backgroundColor = '';
+        });
+    });
 }
 
 // Setup tooltips

@@ -1856,13 +1856,6 @@ body.admin-page .navbar .dropdown-menu {
     display: none !important;
 }
 
-/* Fix untuk hover state */
-.navbar .nav-item.dropdown:hover .dropdown-menu {
-    display: block !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-}
-
 /* Fix untuk dropdown yang tidak muncul di mobile */
 @media (max-width: 991.98px) {
     .navbar-collapse .dropdown-menu {
@@ -1932,4 +1925,65 @@ body.admin-page .navbar .dropdown-menu {
     opacity: 1 !important;
     transform: translateY(0) !important;
     display: block !important;
+}
+
+/* ==================== DROPDOWN CLICK-ONLY FIX ==================== */
+/* Nonaktifkan hover behavior */
+.nav-item.dropdown:hover .dropdown-menu {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
+/* Hanya tampilkan saat ada class show */
+.nav-item.dropdown .dropdown-menu.show {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.navbar .dropdown-toggle {
+    cursor: pointer !important;
+    user-select: none !important;
+}
+
+.navbar .dropdown-toggle:hover {
+    opacity: 0.9 !important;
+    transform: scale(1.05) !important;
+    transition: all 0.2s ease !important;
+}
+
+/* Pastikan dropdown tidak muncul saat hover parent */
+.dropdown:hover > .dropdown-menu {
+    display: none !important;
+}
+
+.dropdown.show > .dropdown-menu {
+    display: block !important;
+}
+
+/* Hilangkan Bootstrap default hover behavior */
+.dropdown-toggle::after {
+    display: none !important;
+}
+
+/* ==================== DROPDOWN SPACING IMPROVEMENT ==================== */
+.github-dropdown {
+    margin-top: 8px !important;
+}
+
+.github-dropdown .dropdown-item {
+    padding: 0.7rem 1.25rem !important;
+    min-height: 44px !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.github-dropdown .dropdown-divider {
+    margin: 0.4rem 0 !important;
+}
+
+.github-header-row {
+    padding: 1rem 1.25rem !important;
+    min-height: 80px !important;
 }
