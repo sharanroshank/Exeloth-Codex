@@ -1633,11 +1633,34 @@ body:not(.bg-light):not(.bg-white) .text-muted:not(.text-white):not(.text-light)
     object-fit: cover !important;
 }
 
+/* ==================== DROPDOWN STATUS STYLES ==================== */
+.gh-status {
+    font-size: 0.7rem;
+    display: flex;
+    align-items: center;
+    margin-top: 2px;
+}
+
+.gh-status i {
+    font-size: 0.5rem;
+}
+
+.gh-status.text-success i {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+/* Perbaikan layout untuk user info di dropdown */
 .gh-user-info {
-    display: flex !important;
-    flex-direction: column !important;
-    flex: 1 !important;
-    min-width: 0 !important;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
 }
 
 .gh-username {
@@ -1657,6 +1680,7 @@ body:not(.bg-light):not(.bg-white) .text-muted:not(.text-white):not(.text-light)
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
+    margin-top: 2px;
 }
 
 /* Dropdown Items */

@@ -78,6 +78,16 @@ async function handleUserSignedIn(user) {
             // ---------------------------------------
             
             updateNavbar(true);
+
+            // Tambah status online ke user di Firestore (opsional)
+            try {
+                await db.collection('users').doc(user.email).set({
+                    lastActive: firebase.firestore.FieldValue.serverTimestamp(),
+                    status: 'online'
+                }, { merge: true });
+            } catch (error) {
+                console.log('Note: Could not update user status:', error.message);
+            }
             
             const isFromLoginAction = sessionStorage.getItem('loginAction') === 'true';
             const isOnAdminPage = window.location.pathname.includes('admin');
@@ -192,12 +202,29 @@ function updateNavbar(isLoggedIn) {
     }
 }
 
-// Sign out function
+// Sign out function - COMPATIBLE VERSION (tetap sync, tapi handle async update)
 function signOut() {
     // Clear session storage
     sessionStorage.removeItem('welcomeShown');
     sessionStorage.removeItem('loginAction');
     
+    // ---- TAMBAHAN: Update status user ke offline ----
+    // Gunakan Promise tanpa await agar tidak mengubah flow
+    if (currentUser && currentUser.email) {
+        db.collection('users').doc(currentUser.email).set({
+            lastActive: firebase.firestore.FieldValue.serverTimestamp(),
+            status: 'offline'
+        }, { merge: true })
+        .then(() => {
+            console.log('✅ User status updated to offline');
+        })
+        .catch((error) => {
+            console.log('Note: Could not update logout status:', error.message);
+        });
+    }
+    // ---- AKHIR TAMBAHAN ----
+    
+    // LOGOUT PROSES UTAMA (tetap sama persis)
     auth.signOut().then(() => {
         console.log('Signed out successfully');
         currentUser = null;
@@ -205,8 +232,6 @@ function signOut() {
         showNotification('Signed out successfully', 'info');
         
         // [FIX BUG 17 - Sign Out Redirect]
-        // Jika di admin page, redirect ke homepage setelah sign out
-        // Menggunakan includes('admin') agar mencakup 'admin.html' maupun '/admin'
         if (window.location.pathname.includes('admin')) {
             setTimeout(() => {
                 window.location.href = 'index.html';

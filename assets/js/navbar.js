@@ -73,18 +73,26 @@ function renderNavbar() {
                         <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark github-dropdown shadow-lg mt-2">
                             <li class="github-header-row position-relative">
                                 <img src="https://ui-avatars.com/api/?name=User&background=6f42c1&color=fff" 
-                                     id="nav-profile-img-inside" 
-                                     class="rounded-circle border border-secondary" 
-                                     width="40" 
-                                     height="40" 
-                                     alt="Profile"
-                                     onerror="this.src='https://ui-avatars.com/api/?name=User&background=6f42c1&color=fff'">
+                                    id="nav-profile-img-inside" 
+                                    class="rounded-circle border border-secondary" 
+                                    width="40" 
+                                    height="40" 
+                                    alt="Profile"
+                                    onerror="this.src='https://ui-avatars.com/api/?name=User&background=6f42c1&color=fff'">
                                 <div class="gh-user-info">
+                                    <!-- Username di atas (lebih besar/menonjol) -->
                                     <span class="gh-username" id="nav-gh-username">User</span>
+                                    <!-- Nama lengkap di bawah -->
                                     <span class="gh-fullname" id="nav-gh-fullname">Guest</span>
+                                    <!-- Status online -->
+                                    <div class="gh-status text-success small mt-1">
+                                        <i class="bi bi-circle-fill me-1"></i> Online
+                                    </div>
                                 </div>
                             </li>
+                            <!-- HAPUS SALAH SATU divider, jadi hanya satu garis pemisah -->
                             <li><hr class="dropdown-divider"></li>
+                            <!-- Menu items lainnya tetap sama -->
                             <li><a class="dropdown-item" href="#" onclick="openAdminSection('section-profile')"><i class="bi bi-person me-2"></i> Your Profile</a></li>
                             <li><a class="dropdown-item" href="#" onclick="openAdminSection('section-content')"><i class="bi bi-journal-richtext me-2"></i> Manajemen Konten</a></li>
                             <li><a class="dropdown-item" href="#" onclick="openAdminSection('section-admin')"><i class="bi bi-gear me-2"></i> Pengaturan Admin</a></li>
@@ -621,7 +629,7 @@ window.openAdminSection = function(sectionId) {
     }
 }
 
-// Update Navbar Profile
+// Update Navbar Profile (navbar.js - function updateNavbarProfile)
 window.updateNavbarProfile = async function(user) {
     console.log('🔄 Updating navbar profile for:', user ? user.email : 'no user');
     
@@ -632,13 +640,13 @@ window.updateNavbarProfile = async function(user) {
 
     const navImgBtn = document.getElementById('nav-profile-img-btn');
     const navImgInside = document.getElementById('nav-profile-img-inside');
-    const navUsername = document.getElementById('nav-gh-username');
-    const navFullname = document.getElementById('nav-gh-fullname');
+    const navUsername = document.getElementById('nav-gh-username');  // Ini seharusnya untuk username
+    const navFullname = document.getElementById('nav-gh-fullname');  // Ini seharusnya untuk nama lengkap
 
     let displayName = user.displayName || 'User';
     let email = user.email;
     let photoURL = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=6f42c1&color=fff`;
-    let username = email.split('@')[0];
+    let username = email.split('@')[0];  // Ambil username dari email
 
     // Update semua elemen navbar
     if (navImgBtn) {
@@ -655,8 +663,28 @@ window.updateNavbarProfile = async function(user) {
             this.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=6f42c1&color=fff`;
         };
     }
-    if (navUsername) navUsername.textContent = username;
+    
+    // PERBAIKAN: Tampilkan username di bagian atas, nama lengkap di bawah
+    if (navUsername) navUsername.textContent = username || 'User';
     if (navFullname) navFullname.textContent = displayName;
+    
+    // Tambah status online
+    const statusElement = document.getElementById('nav-user-status') || (() => {
+        const statusDiv = document.createElement('div');
+        statusDiv.id = 'nav-user-status';
+        statusDiv.className = 'gh-status text-success small';
+        statusDiv.innerHTML = '<i class="bi bi-circle-fill me-1"></i> Online';
+        
+        // Tempatkan di dalam gh-user-info
+        const userInfo = document.querySelector('.gh-user-info');
+        if (userInfo) {
+            const fullnameElement = userInfo.querySelector('.gh-fullname');
+            if (fullnameElement) {
+                userInfo.insertBefore(statusDiv, fullnameElement.nextSibling);
+            }
+        }
+        return statusDiv;
+    })();
     
     // Re-initialize dropdowns setelah update profile
     setTimeout(setupDropdowns, 100);
