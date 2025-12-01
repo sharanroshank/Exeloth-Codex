@@ -84,19 +84,18 @@ function renderNavbar() {
                                     <span class="gh-username" id="nav-gh-username">User</span>
                                     <!-- Nama lengkap di bawah -->
                                     <span class="gh-fullname" id="nav-gh-fullname">Guest</span>
-                                    <!-- Status online -->
-                                    <div class="gh-status text-success small mt-1">
+                                    <!-- Status online - INI AKAN DIUPDATE OLEH JAVASCRIPT -->
+                                    <div class="gh-status text-success small mt-1" id="nav-user-status">
                                         <i class="bi bi-circle-fill me-1"></i> Online
                                     </div>
                                 </div>
                             </li>
-                            <!-- HAPUS SALAH SATU divider, jadi hanya satu garis pemisah -->
+                            <!-- HANYA SATU DIVIDER DI SINI -->
                             <li><hr class="dropdown-divider"></li>
-                            <!-- Menu items lainnya tetap sama -->
                             <li><a class="dropdown-item" href="#" onclick="openAdminSection('section-profile')"><i class="bi bi-person me-2"></i> Your Profile</a></li>
                             <li><a class="dropdown-item" href="#" onclick="openAdminSection('section-content')"><i class="bi bi-journal-richtext me-2"></i> Manajemen Konten</a></li>
                             <li><a class="dropdown-item" href="#" onclick="openAdminSection('section-admin')"><i class="bi bi-gear me-2"></i> Pengaturan Admin</a></li>
-                            <li><hr class="dropdown-divider"></li>
+                            <!-- TIDAK ADA DIVIDER DI SINI, LANGSUNG SIGN OUT -->
                             <li><a class="dropdown-item text-danger" href="#" onclick="signOut()"><i class="bi bi-box-arrow-right me-2"></i> Sign out</a></li>
                         </ul>
                     </li>
@@ -640,13 +639,14 @@ window.updateNavbarProfile = async function(user) {
 
     const navImgBtn = document.getElementById('nav-profile-img-btn');
     const navImgInside = document.getElementById('nav-profile-img-inside');
-    const navUsername = document.getElementById('nav-gh-username');  // Ini seharusnya untuk username
-    const navFullname = document.getElementById('nav-gh-fullname');  // Ini seharusnya untuk nama lengkap
+    const navUsername = document.getElementById('nav-gh-username');
+    const navFullname = document.getElementById('nav-gh-fullname');
+    const navStatus = document.getElementById('nav-user-status'); // Ambil elemen yang sudah ada
 
     let displayName = user.displayName || 'User';
     let email = user.email;
     let photoURL = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=6f42c1&color=fff`;
-    let username = email.split('@')[0];  // Ambil username dari email
+    let username = email.split('@')[0];
 
     // Update semua elemen navbar
     if (navImgBtn) {
@@ -668,23 +668,29 @@ window.updateNavbarProfile = async function(user) {
     if (navUsername) navUsername.textContent = username || 'User';
     if (navFullname) navFullname.textContent = displayName;
     
-    // Tambah status online
-    const statusElement = document.getElementById('nav-user-status') || (() => {
+    // PERBAIKAN: Update status yang sudah ada, bukan buat baru
+    if (navStatus) {
+        navStatus.innerHTML = '<i class="bi bi-circle-fill me-1"></i> Online';
+        navStatus.className = 'gh-status text-success small mt-1';
+    } else {
+        // Fallback jika elemen status belum ada (jarang terjadi)
         const statusDiv = document.createElement('div');
         statusDiv.id = 'nav-user-status';
-        statusDiv.className = 'gh-status text-success small';
+        statusDiv.className = 'gh-status text-success small mt-1';
         statusDiv.innerHTML = '<i class="bi bi-circle-fill me-1"></i> Online';
         
-        // Tempatkan di dalam gh-user-info
         const userInfo = document.querySelector('.gh-user-info');
         if (userInfo) {
             const fullnameElement = userInfo.querySelector('.gh-fullname');
             if (fullnameElement) {
-                userInfo.insertBefore(statusDiv, fullnameElement.nextSibling);
+                // Masukkan setelah fullname
+                fullnameElement.parentNode.insertBefore(statusDiv, fullnameElement.nextSibling);
+            } else {
+                // Masukkan di akhir userInfo
+                userInfo.appendChild(statusDiv);
             }
         }
-        return statusDiv;
-    })();
+    }
     
     // Re-initialize dropdowns setelah update profile
     setTimeout(setupDropdowns, 100);
@@ -696,6 +702,7 @@ function resetNavbarProfile() {
     const navImgInside = document.getElementById('nav-profile-img-inside');
     const navUsername = document.getElementById('nav-gh-username');
     const navFullname = document.getElementById('nav-gh-fullname');
+    const navStatus = document.getElementById('nav-user-status'); // Ambil elemen status
 
     const defaultPhoto = 'https://ui-avatars.com/api/?name=User&background=6f42c1&color=fff';
     
@@ -703,6 +710,11 @@ function resetNavbarProfile() {
     if (navImgInside) navImgInside.src = defaultPhoto;
     if (navUsername) navUsername.textContent = 'User';
     if (navFullname) navFullname.textContent = 'Guest';
+    if (navStatus) {
+        // Reset status atau sembunyikan
+        navStatus.innerHTML = '<i class="bi bi-circle-fill me-1"></i> Offline';
+        navStatus.className = 'gh-status text-secondary small mt-1';
+    }
 }
 
 // Helper untuk update navbar login state
