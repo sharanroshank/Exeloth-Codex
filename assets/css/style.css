@@ -743,81 +743,122 @@ body.admin-page #sidebar {
     opacity: 0; /* Ubah jadi 1 jika ingin efek overlay penuh, tapi 0 agar terlihat clean seperti Battle.net */
 }
 
-/* ==================== GAME OVERVIEW PAGE STYLES ==================== */
+/* ==================== GAME OVERVIEW PAGE STYLES (FINAL FIX) ==================== */
 
-/* Override Body khusus halaman ini */
+/* 1. Override Body khusus halaman ini */
 body.game-page { 
     padding-top: 76px !important; 
     background-color: #34353a; 
 }
 
-/* --- UPDATE 1: Sidebar Full Screen (Menutupi Navbar) --- */
+/* 2. Sidebar Full Height (Menutupi Navbar) */
 body.game-page #sidebar { 
     top: 0 !important;           /* Naik ke paling atas */
-    height: 100vh !important;    /* Tinggi penuh */
+    height: 100vh !important;    /* Tinggi 100% layar */
     z-index: 9999 !important;    /* Di atas segalanya */
     position: fixed;
     left: 0;
-    margin-left: -280px;         /* Sembunyi ke kiri (samakan dengan lebar sidebar global) */
-    background-color: #1a1d20;   /* Samakan warna background */
+    margin-left: -280px;         /* Default hidden */
+    background-color: #1a1d20; 
+    
+    /* Style Baru: Stroke & Rounded */
+    border-right: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 0 15px 15px 0;
+    
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
 }
 
-/* Saat aktif */
+/* Saat Sidebar Muncul */
 body.game-page #sidebar.active {
     margin-left: 0;
-    box-shadow: 5px 0 15px rgba(0,0,0,0.5);
+    box-shadow: 10px 0 30px rgba(0,0,0,0.5);
 }
 
-/* Overlay Gelap */
-body.game-page .overlay-sidebar { 
-    top: 0 !important;           /* Overlay juga full */
-    z-index: 9998 !important;    /* Di bawah sidebar */
-    height: 100vh;
+/* 3. Header Sidebar (Agar Teks & Tombol X sejajar) */
+.sidebar-header {
+    min-height: 70px;
+    background-color: #212529;
+    border-top-right-radius: 15px; /* Mengikuti rounded sidebar */
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px; /* Padding agar rapi */
 }
 
-/* --- UPDATE 2: Tombol Dismiss (X) --- */
+/* 4. Tombol Dismiss (X) */
 #dismiss { 
     width: 35px; 
     height: 35px; 
     line-height: 35px; 
     text-align: center; 
-    background: rgba(255,255,255,0.1); 
+    background: transparent; 
+    border: 1px solid rgba(255,255,255,0.2); 
     border-radius: 50%; 
     cursor: pointer; 
-    transition: 0.3s; 
-    /* Margin di-reset jadi 0 karena sudah masuk flexbox header */
-    margin: 0 !important; 
+    transition: all 0.3s; 
+    margin: 0 !important; /* Reset margin lama */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 #dismiss:hover { 
-    background: var(--primary-color); 
-    transform: rotate(90deg); /* Efek putar */
+    background: #dc3545; 
+    border-color: #dc3545;
+    transform: rotate(90deg); 
 }
 
-/* Header Sidebar (Agar X sejajar dengan Teks) */
-.sidebar-header {
+#dismiss i {
+    color: white;
+}
+
+/* 5. Menu & Footer */
+.sidebar-menu li a {
+    padding: 12px 25px;
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 15px 20px;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
+    gap: 15px;
+    transition: 0.2s;
+    border-left: 3px solid transparent;
 }
 
-/* --- BAGIAN DI BAWAH INI TETAP (JANGAN UBAH) --- */
+.sidebar-menu li a:hover, .sidebar-menu li a.active {
+    background: rgba(255,255,255,0.05);
+    color: #fff;
+    border-left-color: var(--primary-color);
+}
 
-/* Top Bar */
-.top-bar { 
-    background-color: rgba(37, 38, 43, 0.9); 
-    backdrop-filter: blur(5px); 
-    padding: 15px 30px; 
-    border-bottom: 1px solid rgba(255,255,255,0.05); 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    margin-bottom: 30px; 
-    position: sticky; 
-    top: 76px; 
-    z-index: 800; 
+/* 6. Overlay Gelap (Full Screen) */
+body.game-page .overlay-sidebar { 
+    top: 0 !important;
+    z-index: 9998 !important; /* Di bawah sidebar */
+    height: 100vh;
+    width: 100vw;
+    backdrop-filter: blur(3px);
+}
+
+/* --- BAGIAN LAIN (Background Image & Tombol Favorite) TETAP DIBAWA --- */
+
+/* Background Fixed Image */
+.bg-custom-fixed { 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100vw; 
+    height: 100vh; 
+    z-index: -1; 
+    /* Path naik satu folder ../img */
+    background: url('../img/games/background-wuthering-waves.jpg') no-repeat center center; 
+    background-size: cover; 
+    opacity: 0.15; 
+    -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%); 
+    mask-image: linear-gradient(to bottom, black 60%, transparent 100%); 
+    pointer-events: none; 
 }
 
 /* Tombol Favorite */
@@ -834,28 +875,13 @@ body.game-page .overlay-sidebar {
     box-shadow: 0 0 15px rgba(255, 107, 107, 0.4); 
 }
 
-/* Background Fixed Image */
-.bg-custom-fixed { 
-    position: fixed; 
-    top: 0; 
-    left: 0; 
-    width: 100vw; 
-    height: 100vh; 
-    z-index: -1; 
-    background: url('../img/games/background-wuthering-waves.jpg') no-repeat center center; 
-    background-size: cover; 
-    opacity: 0.15; 
-    -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%); 
-    mask-image: linear-gradient(to bottom, black 60%, transparent 100%); 
-    pointer-events: none; 
-}
-
 .dashboard-wrapper { 
     background-color: transparent !important; 
     position: relative; 
     z-index: 1; 
 }
 
+/* Top Bar (Hamburger di Mobile) */
 @media (max-width: 768px) { 
     #sidebarCollapse { 
         display: block !important; 
