@@ -1,10 +1,11 @@
-// assets/js/navbar.js - ENHANCED VERSION WITH SIDEBAR INTEGRATION
+// assets/js/navbar.js - FIXED VERSION WITH PROPER SIDEBAR INTEGRATION
 
 let currentSidebarState = {
     isOpen: false,
     isMobile: window.innerWidth < 992
 };
 
+// Render navbar function
 function renderNavbar() {
     const navbarHTML = `
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" id="main-navbar">
@@ -102,7 +103,7 @@ function renderNavbar() {
 
     console.log('✅ Navbar rendered');
 
-    // --- INITIALIZE NAVBAR COMPONENTS ---
+    // Initialize navbar components
     initializeNavbarComponents();
     
     // Dispatch event bahwa navbar sudah dirender
@@ -139,13 +140,13 @@ function initializeNavbarComponents() {
     console.log('✅ Navbar components initialized');
 }
 
-// Setup hamburger button khusus untuk halaman game - DIPERBARUI
+// Setup hamburger button khusus untuk halaman game
 function setupHamburgerButton() {
     const isGamePage = window.location.pathname.includes('game.html');
     const toggleBtn = document.getElementById('sidebar-toggle-btn');
     
     if (isGamePage && toggleBtn) {
-        // Tampilkan tombol hamburger dengan animasi
+        // Tampilkan tombol hamburger
         toggleBtn.classList.remove('d-none');
         toggleBtn.style.cssText = `
             display: flex !important;
@@ -183,13 +184,31 @@ function setupHamburgerButton() {
             this.style.backgroundColor = 'transparent';
         });
         
-        // Click event
-        toggleBtn.addEventListener('click', handleHamburgerClick);
+        // Click event - delegasikan ke game-ui.js
+        toggleBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Gunakan fungsi dari game-ui.js jika ada
+            if (typeof window.toggleSidebar === 'function') {
+                window.toggleSidebar();
+            } else {
+                // Fallback
+                console.warn('toggleSidebar function not found, using fallback');
+                if (typeof toggleSidebar === 'function') {
+                    toggleSidebar();
+                }
+            }
+        });
         
         // Touch event untuk mobile
         toggleBtn.addEventListener('touchstart', function(e) {
             e.preventDefault();
-            handleHamburgerClick();
+            e.stopPropagation();
+            
+            if (typeof window.toggleSidebar === 'function') {
+                window.toggleSidebar();
+            }
         }, { passive: false });
         
         // Update initial state
@@ -205,38 +224,17 @@ function setupHamburgerButton() {
     }
 }
 
-// Handle hamburger button click
-function handleHamburgerClick() {
-    const toggleBtn = document.getElementById('sidebar-toggle-btn');
-    const sidebar = document.getElementById('sidebar');
-    
-    if (!toggleBtn || !sidebar) return;
-    
-    // Toggle sidebar menggunakan fungsi dari game-ui.js jika ada
-    if (typeof toggleSidebar === 'function') {
-        toggleSidebar();
-    } else {
-        // Fallback toggle
-        const isActive = sidebar.classList.contains('active');
-        if (isActive) {
-            closeSidebar();
-        } else {
-            openSidebar();
-        }
-    }
-    
-    // Update button state setelah delay kecil
-    setTimeout(updateHamburgerButtonState, 50);
-}
-
 // Update hamburger button state
 function updateHamburgerButtonState() {
     const toggleBtn = document.getElementById('sidebar-toggle-btn');
     const sidebar = document.getElementById('sidebar');
+    const body = document.body;
     
-    if (!toggleBtn || !sidebar) return;
+    if (!toggleBtn) return;
     
-    const isActive = sidebar.classList.contains('active');
+    const isActive = body.classList.contains('sidebar-open') || 
+                    (sidebar && sidebar.classList.contains('active'));
+    
     currentSidebarState.isOpen = isActive;
     
     if (isActive) {
@@ -244,22 +242,33 @@ function updateHamburgerButtonState() {
         toggleBtn.setAttribute('title', 'Close Sidebar');
         toggleBtn.setAttribute('aria-label', 'Close Sidebar');
         toggleBtn.setAttribute('aria-expanded', 'true');
+        toggleBtn.classList.add('active');
         
-        // Hide navbar left group saat sidebar terbuka
-        const leftNavbarGroup = document.getElementById('navbar-left-group');
-        if (leftNavbarGroup) {
-            leftNavbarGroup.classList.add('nav-hidden');
+        // Hide navbar left group saat sidebar terbuka (mobile only)
+        if (currentSidebarState.isMobile) {
+            const leftNavbarGroup = document.getElementById('navbar-left-group');
+            if (leftNavbarGroup) {
+                leftNavbarGroup.style.opacity = '0';
+                leftNavbarGroup.style.visibility = 'hidden';
+                leftNavbarGroup.style.width = '0';
+                leftNavbarGroup.style.overflow = 'hidden';
+                leftNavbarGroup.style.transition = 'all 0.3s ease';
+            }
         }
     } else {
         toggleBtn.innerHTML = '<i class="bi bi-list fs-3"></i>';
         toggleBtn.setAttribute('title', 'Open Sidebar');
         toggleBtn.setAttribute('aria-label', 'Open Sidebar');
         toggleBtn.setAttribute('aria-expanded', 'false');
+        toggleBtn.classList.remove('active');
         
         // Show navbar left group saat sidebar tertutup
         const leftNavbarGroup = document.getElementById('navbar-left-group');
         if (leftNavbarGroup) {
-            leftNavbarGroup.classList.remove('nav-hidden');
+            leftNavbarGroup.style.opacity = '1';
+            leftNavbarGroup.style.visibility = 'visible';
+            leftNavbarGroup.style.width = 'auto';
+            leftNavbarGroup.style.overflow = 'visible';
         }
     }
     
@@ -273,87 +282,6 @@ function updateHamburgerButtonState() {
                 new bootstrap.Tooltip(toggleBtn);
             }, 100);
         }
-    }
-}
-
-// Open sidebar function
-function openSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    const content = document.getElementById('content');
-    const overlay = document.querySelector('.overlay-sidebar');
-    const body = document.body;
-    
-    if (sidebar) {
-        sidebar.classList.add('active');
-        sidebar.style.transform = 'translateX(0)';
-    }
-    
-    if (content) {
-        if (currentSidebarState.isMobile) {
-            content.classList.add('sidebar-shifted');
-            content.style.position = 'fixed';
-            content.style.width = '100%';
-            content.style.height = '100vh';
-        } else {
-            content.classList.add('shifted');
-        }
-    }
-    
-    if (overlay) {
-        overlay.classList.add('active');
-    }
-    
-    if (body) {
-        body.classList.add('sidebar-open');
-    }
-    
-    currentSidebarState.isOpen = true;
-    document.dispatchEvent(new CustomEvent('sidebar:opened'));
-    console.log('✅ Sidebar opened');
-}
-
-// Close sidebar function
-function closeSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    const content = document.getElementById('content');
-    const overlay = document.querySelector('.overlay-sidebar');
-    const body = document.body;
-    
-    if (sidebar) {
-        sidebar.classList.remove('active');
-        sidebar.style.transform = 'translateX(-100%)';
-    }
-    
-    if (content) {
-        if (currentSidebarState.isMobile) {
-            content.classList.remove('sidebar-shifted');
-            content.style.position = '';
-            content.style.width = '';
-            content.style.height = '';
-        } else {
-            content.classList.remove('shifted');
-        }
-    }
-    
-    if (overlay) {
-        overlay.classList.remove('active');
-    }
-    
-    if (body) {
-        body.classList.remove('sidebar-open');
-    }
-    
-    currentSidebarState.isOpen = false;
-    document.dispatchEvent(new CustomEvent('sidebar:closed'));
-    console.log('✅ Sidebar closed');
-}
-
-// Update sidebar state
-function updateSidebarState() {
-    const sidebar = document.getElementById('sidebar');
-    if (sidebar) {
-        currentSidebarState.isOpen = sidebar.classList.contains('active');
-        updateHamburgerButtonState();
     }
 }
 
@@ -383,7 +311,7 @@ function setupActiveNavLinks() {
             gamesLink.setAttribute('aria-current', 'page');
         }
     } else if (currentPage === 'admin.html') {
-        // Tidak ada link admin di navbar, jadi tidak ada yang di-set active
+        // Tidak ada link admin di navbar
     } else if (currentPage.includes('game.html')) {
         // Untuk game page, tidak ada nav link khusus
     }
@@ -400,21 +328,35 @@ function setupActiveNavLinks() {
 
 // Setup event listeners untuk navbar
 function setupNavbarEventListeners() {
-    // Update hamburger button icon saat sidebar state berubah
-    document.addEventListener('sidebar:opened', updateHamburgerButtonState);
-    document.addEventListener('sidebar:closed', updateHamburgerButtonState);
+    // Update hamburger button saat sidebar state berubah
+    document.addEventListener('sidebar:opened', function() {
+        currentSidebarState.isOpen = true;
+        updateHamburgerButtonState();
+    });
+    
+    document.addEventListener('sidebar:closed', function() {
+        currentSidebarState.isOpen = false;
+        updateHamburgerButtonState();
+    });
     
     // Handle window resize untuk responsive behavior
     let resizeTimer;
     window.addEventListener('resize', function() {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(function() {
+            const wasMobile = currentSidebarState.isMobile;
             currentSidebarState.isMobile = window.innerWidth < 992;
-            setupHamburgerButton();
             
-            // Jika resize dari mobile ke desktop dan sidebar terbuka, close sidebar
-            if (!currentSidebarState.isMobile && currentSidebarState.isOpen) {
-                closeSidebar();
+            // Jika berubah dari mobile ke desktop
+            if (wasMobile && !currentSidebarState.isMobile) {
+                // Reset hamburger button
+                setupHamburgerButton();
+            }
+            
+            // Jika berubah dari desktop ke mobile
+            if (!wasMobile && currentSidebarState.isMobile) {
+                // Update hamburger button
+                setupHamburgerButton();
             }
         }, 250);
     });
@@ -450,29 +392,8 @@ function setupNavbarEventListeners() {
     document.addEventListener('keydown', function(e) {
         // Escape untuk close sidebar
         if (e.key === 'Escape' && currentSidebarState.isOpen) {
-            closeSidebar();
-        }
-        
-        // Tab navigation untuk dropdown
-        if (e.key === 'Tab') {
-            const dropdown = document.querySelector('.dropdown.show');
-            if (dropdown) {
-                const dropdownItems = dropdown.querySelectorAll('.dropdown-item');
-                const focusedElement = document.activeElement;
-                
-                if (focusedElement.classList.contains('dropdown-item')) {
-                    const currentIndex = Array.from(dropdownItems).indexOf(focusedElement);
-                    
-                    if (e.shiftKey && currentIndex === 0) {
-                        // Shift+Tab dari item pertama: kembali ke dropdown toggle
-                        e.preventDefault();
-                        const dropdownToggle = dropdown.querySelector('.dropdown-toggle');
-                        if (dropdownToggle) dropdownToggle.focus();
-                    } else if (!e.shiftKey && currentIndex === dropdownItems.length - 1) {
-                        // Tab dari item terakhir: keluar dari dropdown
-                        // Biarkan default behavior
-                    }
-                }
+            if (typeof window.closeSidebar === 'function') {
+                window.closeSidebar();
             }
         }
     });
@@ -604,10 +525,26 @@ function setupResponsiveBehavior() {
             
             // Swipe kiri untuk close sidebar
             if (swipeDistance < -50) {
-                closeSidebar();
+                if (typeof window.closeSidebar === 'function') {
+                    window.closeSidebar();
+                }
             }
         }, { passive: true });
     }
+}
+
+// Update sidebar state
+function updateSidebarState() {
+    const body = document.body;
+    const sidebar = document.getElementById('sidebar');
+    
+    if (body) {
+        currentSidebarState.isOpen = body.classList.contains('sidebar-open');
+    } else if (sidebar) {
+        currentSidebarState.isOpen = sidebar.classList.contains('active');
+    }
+    
+    updateHamburgerButtonState();
 }
 
 // Helper Navigasi Admin
@@ -720,28 +657,8 @@ window.updateNavbar = function(isLoggedIn) {
     }
 }
 
-// Fallback functions jika tidak didefinisikan di game-ui.js
-if (typeof toggleSidebar === 'undefined') {
-    window.toggleSidebar = function() {
-        console.log('🔄 Toggling sidebar via navbar fallback');
-        if (currentSidebarState.isOpen) {
-            closeSidebar();
-        } else {
-            openSidebar();
-        }
-    };
-}
-
-if (typeof closeSidebar === 'undefined') {
-    window.closeSidebar = function() {
-        console.log('🔄 Closing sidebar via navbar fallback');
-        closeSidebar();
-    };
-}
-
 // Handle mobile navbar toggler
-document.addEventListener('DOMContentLoaded', function() {
-    // Setup navbar toggler for mobile
+function setupMobileNavbarToggler() {
     const navbarToggler = document.querySelector('.navbar-toggler');
     if (navbarToggler) {
         navbarToggler.addEventListener('click', function() {
@@ -785,15 +702,19 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
-    
-    // Close sidebar when clicking on overlay
+}
+
+// Close sidebar when clicking on overlay
+function setupOverlayClick() {
     document.addEventListener('click', function(e) {
         const overlay = document.querySelector('.overlay-sidebar');
         if (overlay && overlay.contains(e.target) && currentSidebarState.isOpen) {
-            closeSidebar();
+            if (typeof window.closeSidebar === 'function') {
+                window.closeSidebar();
+            }
         }
     });
-});
+}
 
 // Initialize navbar when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
@@ -805,6 +726,12 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         console.warn('⚠️ Navbar placeholder not found');
     }
+    
+    // Setup mobile navbar toggler
+    setupMobileNavbarToggler();
+    
+    // Setup overlay click
+    setupOverlayClick();
     
     // Setup event untuk re-render jika diperlukan
     document.addEventListener('navbar:refresh', function() {
@@ -819,6 +746,12 @@ document.addEventListener('DOMContentLoaded', function() {
             updateHamburgerButtonState();
         }
     });
+    
+    // Listen untuk window load
+    window.addEventListener('load', function() {
+        // Update sidebar state setelah semua konten dimuat
+        setTimeout(updateSidebarState, 500);
+    });
 });
 
 // Export fungsi untuk digunakan di file lain
@@ -828,8 +761,8 @@ window.updateNavbarProfile = updateNavbarProfile;
 window.updateNavbar = updateNavbar;
 window.resetNavbarProfile = resetNavbarProfile;
 window.updateHamburgerButtonState = updateHamburgerButtonState;
-window.openSidebar = openSidebar;
-window.closeSidebar = closeSidebar;
 
 // Export sidebar state untuk akses global
 window.sidebarState = currentSidebarState;
+
+console.log('✅ navbar.js loaded successfully');

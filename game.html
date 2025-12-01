@@ -68,20 +68,6 @@
             -webkit-overflow-scrolling: touch; /* Smooth scrolling di iOS */
         }
         
-        /* Untuk konten yang dipindahkan */
-        #content.shifted {
-            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        #content.sidebar-shifted {
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        /* Tombol sidebar dalam navbar */
-        #sidebar-toggle-btn {
-            transition: all 0.3s ease;
-        }
-        
         /* Active state untuk menu sidebar */
         .sidebar-menu li a.active {
             background: rgba(111, 66, 193, 0.1);
@@ -98,6 +84,48 @@
             50% { box-shadow: 0 0 0 10px rgba(111, 66, 193, 0); }
             100% { box-shadow: 0 0 0 0 rgba(111, 66, 193, 0); }
         }
+        
+        /* Tambahan CSS untuk fix sidebar */
+        #content {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        body.sidebar-open #content {
+            transform: translateX(280px);
+            overflow-x: hidden;
+        }
+        
+        /* Untuk mobile, konten tetap di tempat */
+        @media (max-width: 991.98px) {
+            body.sidebar-open #content {
+                transform: none;
+                position: relative;
+            }
+            
+            body.sidebar-open {
+                overflow: hidden;
+            }
+            
+            .overlay-sidebar {
+                display: block !important;
+                opacity: 1 !important;
+                background: rgba(0, 0, 0, 0.5);
+                backdrop-filter: blur(2px);
+                z-index: 1039;
+            }
+        }
+        
+        /* Desktop styles */
+        @media (min-width: 992px) {
+            body.sidebar-open #content {
+                width: calc(100% - 280px);
+                margin-left: 280px;
+            }
+            
+            .overlay-sidebar {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 <body class="game-page">
@@ -108,6 +136,9 @@
 
     <!-- Background tetap -->
     <div class="bg-custom-fixed"></div>
+
+    <!-- Overlay untuk sidebar -->
+    <div class="overlay-sidebar" role="button" aria-label="Close sidebar" tabindex="0"></div>
 
     <!-- Sidebar -->
     <nav id="sidebar" role="navigation" aria-label="Table of Contents">
@@ -185,9 +216,6 @@
             </a>
         </div>
     </nav>
-
-    <!-- Overlay untuk sidebar -->
-    <div class="overlay-sidebar" role="button" aria-label="Close sidebar" tabindex="0"></div>
 
     <div class="dashboard-wrapper">
         <div id="content">
@@ -320,6 +348,8 @@
     <script src="assets/js/firebase-config.js"></script>
     <script src="assets/js/auth-system.js"></script> 
     <script src="assets/js/app.js"></script>
+    
+    <!-- Game UI JavaScript -->
     <script src="assets/js/game-ui.js"></script>
     
     <!-- Game Page Specific JavaScript -->
@@ -420,6 +450,17 @@
             }
             
             return false; // Prevent default anchor behavior
+        }
+
+        // Fungsi untuk scroll ke section
+        function scrollToSection(sectionId) {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                element.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
         }
 
         // Fungsi untuk load game data
@@ -767,7 +808,9 @@
             
             // Initialize game UI
             if (typeof initGamePage === 'function') {
-                initGamePage();
+                setTimeout(() => {
+                    initGamePage();
+                }, 300);
             }
         });
 
@@ -783,6 +826,7 @@
         window.showChapterModal = showChapterModal;
         window.showCharacterModal = showCharacterModal;
         window.handleSidebarNavigation = handleSidebarNavigation;
+        window.scrollToSection = scrollToSection;
     </script>
 
 </body>

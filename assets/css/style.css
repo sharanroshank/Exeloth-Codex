@@ -12,6 +12,7 @@
     --danger-color: #dc3545;
     --info-color: #0dcaf0;
     --overlay-color: rgba(0, 0, 0, 0.7);
+    --sidebar-width: 280px;
 }
 
 * {
@@ -29,6 +30,7 @@ body {
     overflow-x: hidden;
     min-height: 100vh;
     position: relative;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Khusus Halaman Game */
@@ -43,6 +45,21 @@ body.sidebar-open {
     overflow: hidden;
 }
 
+/* Body shift saat sidebar terbuka - FIXED */
+body.sidebar-open {
+    transform: translateX(var(--sidebar-width));
+    overflow-x: hidden;
+}
+
+@media (max-width: 991.98px) {
+    body.sidebar-open {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+    }
+}
+
 /* ==================== 2. NAVBAR & HEADER ==================== */
 .navbar {
     backdrop-filter: blur(10px);
@@ -50,6 +67,11 @@ body.sidebar-open {
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1030;
 }
 
 .navbar-brand {
@@ -120,6 +142,12 @@ body.sidebar-open {
 
 #sidebar-toggle-btn[aria-expanded="true"] i {
     transform: rotate(180deg);
+}
+
+/* Navbar saat sidebar terbuka */
+body.sidebar-open .navbar {
+    transform: translateX(var(--sidebar-width));
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Navbar left group saat sidebar terbuka */
@@ -750,35 +778,35 @@ body.admin-page #sidebar {
     min-height: calc(100vh - 76px);
     background-color: transparent;
     position: relative;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     padding: 0;
-    will-change: transform, margin-left;
+    will-change: transform;
+}
+
+/* Content shift saat sidebar terbuka */
+body.sidebar-open #content {
+    transform: translateX(var(--sidebar-width));
 }
 
 /* ==================== SIDEBAR UNTUK GAME PAGE - DIPERBARUI ==================== */
 
-/* Sidebar untuk Game Page - DIPERBARUI */
+/* Sidebar untuk Game Page - FIXED */
 #sidebar {
     position: fixed;
-    top: 0; /* Mulai dari atas (menutupi navbar) */
+    top: 0;
     left: 0;
-    height: 100vh; /* Tinggi penuh viewport */
-    z-index: 9999;
+    height: 100vh;
+    width: var(--sidebar-width);
+    z-index: 1040;
     background-color: #1a1d20;
-    min-width: 280px;
-    max-width: 280px;
     transform: translateX(-100%);
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 10px 0 30px rgba(0,0,0,0.5);
-    border-radius: 0 20px 20px 0;
-    overflow-y: auto; /* Bisa di-scroll jika konten panjang */
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
-    border: none;
-    will-change: transform;
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    padding-top: 76px; /* Memberi ruang untuk navbar */
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 76px; /* Space for navbar */
 }
 
 /* Saat Sidebar Active */
@@ -788,20 +816,18 @@ body.admin-page #sidebar {
 
 /* Header Sidebar */
 .sidebar-header {
-    min-height: 70px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--sidebar-width);
+    height: 76px;
     background-color: #212529;
-    border-top-right-radius: 20px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 15px 20px;
-    flex-shrink: 0;
-    position: fixed; /* Header tetap di atas saat scroll */
-    top: 0;
-    left: 0;
-    width: 280px;
-    z-index: 10000;
+    z-index: 1041;
 }
 
 .sidebar-brand { 
@@ -809,24 +835,24 @@ body.admin-page #sidebar {
     font-size: 1.1rem; 
     letter-spacing: 1px; 
     text-transform: uppercase; 
+    color: white;
 }
 
 /* Tombol Dismiss (X) */
 #dismiss { 
     width: 35px; 
     height: 35px; 
-    line-height: 35px; 
     text-align: center;
     background: transparent; 
     border: 1px solid rgba(255,255,255,0.3); 
     border-radius: 50%;
     cursor: pointer; 
     transition: all 0.3s; 
-    margin: 0 !important;
     display: flex; 
     align-items: center; 
     justify-content: center;
     padding: 0;
+    color: white;
 }
 
 #dismiss:hover { 
@@ -843,20 +869,18 @@ body.admin-page #sidebar {
 .sidebar-scrollable {
     flex: 1;
     overflow-y: auto;
-    padding: 15px 0;
-    margin-top: 70px; /* Beri margin atas untuk header fixed */
+    padding: 20px 0;
+    margin-top: 76px; /* Space for fixed header */
 }
 
 /* Menu Sidebar */
 .sidebar-menu {
-    flex-grow: 1;
-    overflow-y: auto;
     padding: 0;
     margin: 0;
+    list-style: none;
 }
 
 .sidebar-menu li {
-    list-style: none;
     margin: 0;
     padding: 0;
 }
@@ -925,6 +949,8 @@ body.admin-page #sidebar {
     display: flex;
     align-items: center;
     gap: 10px;
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
 }
 
 .sidebar-footer a:hover {
@@ -933,46 +959,25 @@ body.admin-page #sidebar {
     padding-left: 25px;
 }
 
-/* ==================== EFEK GESER KONTEN - DIPERBARUI ==================== */
-
-/* Saat sidebar terbuka di desktop, geser konten ke kanan */
-#content.shifted {
-    margin-left: 280px;
-    margin-right: -280px;
-    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Saat sidebar terbuka di mobile, geser konten ke kanan dengan transform */
-#content.sidebar-shifted {
-    transform: translateX(280px);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    z-index: 1;
-    overflow: hidden; /* Mencegah scroll horizontal */
-}
-
-/* Overlay untuk sidebar - DIPERBARUI */
+/* Overlay untuk sidebar */
 .overlay-sidebar {
     display: none;
     position: fixed;
-    top: 0; /* Mulai dari atas */
+    top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0,0,0,0.7);
+    background: rgba(0,0,0,0.5);
     backdrop-filter: blur(3px);
-    z-index: 9998;
+    z-index: 1039;
     opacity: 0;
     transition: opacity 0.3s ease;
     cursor: pointer;
-    pointer-events: none;
-    will-change: opacity;
 }
 
 .overlay-sidebar.active {
     display: block;
     opacity: 1;
-    pointer-events: all;
 }
 
 /* Tombol Favorite */
@@ -1099,18 +1104,17 @@ body.admin-page #sidebar {
 /* Desktop (≥992px) */
 @media (min-width: 992px) {
     #sidebar {
-        top: 0;
-        height: 100vh;
+        width: var(--sidebar-width);
+    }
+    
+    /* Saat sidebar terbuka di desktop */
+    body.sidebar-open {
+        transform: translateX(var(--sidebar-width));
     }
     
     /* Hamburger button di navbar untuk desktop */
     #sidebar-toggle-btn {
         display: flex !important;
-    }
-    
-    /* Saat sidebar terbuka di desktop, beri ruang untuk konten */
-    body.sidebar-open #content {
-        margin-left: 280px;
     }
 }
 
@@ -1119,49 +1123,46 @@ body.admin-page #sidebar {
     #sidebar {
         width: 280px;
         max-width: 85vw;
-        top: 0;
-        height: 100vh;
     }
     
-    /* Saat sidebar terbuka di mobile, geser konten */
-    #content.sidebar-shifted {
+    /* Saat sidebar terbuka di mobile */
+    body.sidebar-open {
         transform: translateX(280px);
         position: fixed;
         width: 100%;
-        height: 100vh;
-        overflow: hidden;
-    }
-    
-    /* Mencegah scroll body saat sidebar terbuka di mobile */
-    body.sidebar-open {
+        height: 100%;
         overflow: hidden;
     }
     
     /* Overlay lebih gelap di mobile */
     .overlay-sidebar.active {
-        background: rgba(0,0,0,0.8);
+        background: rgba(0,0,0,0.7);
+    }
+    
+    /* Sidebar header adjustment for mobile */
+    .sidebar-header {
+        height: 76px;
+        width: 280px;
+    }
+    
+    .sidebar-scrollable {
+        margin-top: 76px;
     }
 }
 
+/* Mobile Medium (≤768px) */
 @media (max-width: 768px) {
     .navbar-brand {
         font-size: 1.3rem;
     }
     
     #sidebar {
-        min-width: 280px;
-        max-width: 280px;
-        border-radius: 0;
-    }
-    
-    .overlay-sidebar {
-        background: rgba(0,0,0,0.8);
-    }
-    
-    /* Di mobile, sidebar full screen */
-    #sidebar.active {
         width: 280px;
         max-width: 85vw;
+    }
+    
+    body.sidebar-open {
+        transform: translateX(280px);
     }
     
     .sidebar-menu li a {
@@ -1178,6 +1179,7 @@ body.admin-page #sidebar {
     }
 }
 
+/* Mobile Small (≤576px) */
 @media (max-width: 576px) {
     body {
         padding-top: 70px;
@@ -1190,19 +1192,23 @@ body.admin-page #sidebar {
     
     .navbar {
         padding: 10px 0;
+        height: 70px;
     }
     
     #sidebar {
-        top: 0;
-        height: 100vh;
         padding-top: 70px;
+        width: 85%;
+        max-width: 85%;
+    }
+    
+    body.sidebar-open {
+        transform: translateX(85%);
     }
     
     .sidebar-header {
-        height: 60px;
-        min-height: 60px;
+        height: 70px;
+        width: 85%;
         padding: 10px 15px;
-        width: 100%;
     }
     
     .sidebar-brand {
@@ -1213,6 +1219,10 @@ body.admin-page #sidebar {
         width: 30px;
         height: 30px;
         font-size: 0.9rem;
+    }
+    
+    .sidebar-scrollable {
+        margin-top: 70px;
     }
     
     .sidebar-footer a {
@@ -1236,16 +1246,6 @@ body.admin-page #sidebar {
     
     .game-page {
         padding-top: 70px;
-    }
-    
-    #sidebar {
-        width: 85%;
-        max-width: 85%;
-    }
-    
-    /* Saat sidebar terbuka di mobile kecil */
-    #content.sidebar-shifted {
-        transform: translateX(85%);
     }
     
     .modal-dialog {
@@ -1487,7 +1487,7 @@ body.admin-page #sidebar {
 .overlay-sidebar,
 #content,
 #sidebar {
-    will-change: transform, margin-left, opacity;
+    will-change: transform;
 }
 
 /* ==================== 17. MOBILE NAVBAR IMPROVEMENTS ==================== */
@@ -1561,7 +1561,8 @@ body.admin-page #sidebar {
 /* ==================== 18. UTILITY FOR SIDEBAR STATE ==================== */
 /* Hardware acceleration for sidebar */
 #sidebar,
-#content {
+#content,
+body {
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
     -webkit-backface-visibility: hidden;
@@ -1626,6 +1627,7 @@ body.admin-page #sidebar {
         padding-top: 0 !important;
         background-color: white !important;
         color: black !important;
+        transform: none !important;
     }
     
     .card {
@@ -1670,6 +1672,21 @@ body.admin-page #sidebar {
         color: var(--light-color) !important;
         border: 1px solid rgba(0, 0, 0, 0.15);
     }
+    
+    #sidebar {
+        background-color: #f8f9fa;
+        border-right: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    
+    .sidebar-menu li a {
+        color: rgba(0, 0, 0, 0.7);
+    }
+    
+    .sidebar-menu li a:hover,
+    .sidebar-menu li a.active {
+        background: rgba(0, 0, 0, 0.05);
+        color: #000;
+    }
 }
 
 /* ==================== 23. HIGH CONTRAST MODE ==================== */
@@ -1705,17 +1722,17 @@ body.admin-page #sidebar {
     }
     
     #sidebar,
-    #content {
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
-                    margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    #content,
+    body {
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 }
 
 /* ==================== 25. FINAL FIXES & POLISH ==================== */
 /* Ensure consistent z-index stacking */
 .navbar { z-index: 1030; }
-#sidebar { z-index: 1040; }
 .overlay-sidebar { z-index: 1039; }
+#sidebar { z-index: 1040; }
 .modal { z-index: 1050; }
 .notification { z-index: 1060; }
 
@@ -1773,4 +1790,53 @@ img[width][height] {
     background-image: linear-gradient(rgba(255, 0, 0, 0.1) 1px, transparent 1px),
                       linear-gradient(90deg, rgba(255, 0, 0, 0.1) 1px, transparent 1px);
     background-size: 20px 20px;
+}
+
+/* ==================== 27. SIDEBAR SPECIFIC FIXES ==================== */
+
+/* Fix untuk konten yang tidak bergeser */
+body.game-page:not(.sidebar-open) #content {
+    transform: translateX(0);
+}
+
+body.game-page.sidebar-open #content {
+    transform: translateX(var(--sidebar-width));
+}
+
+/* Pastikan semua konten bergeser, termasuk background */
+body.sidebar-open .bg-custom-fixed {
+    transform: translateX(var(--sidebar-width));
+}
+
+/* Fix untuk modal agar tetap di tengah */
+body.sidebar-open .modal {
+    transform: translateX(var(--sidebar-width));
+}
+
+/* Fix untuk notification agar tetap di posisi yang benar */
+body.sidebar-open #notification-container {
+    transform: translateX(var(--sidebar-width));
+}
+
+/* Hamburger button animation */
+#sidebar-toggle-btn i {
+    transition: transform 0.3s ease;
+}
+
+body.sidebar-open #sidebar-toggle-btn i.bi-list {
+    transform: rotate(90deg);
+}
+
+/* Smooth transition for all moving elements */
+body,
+#content,
+.bg-custom-fixed,
+.modal,
+#notification-container {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Disable transitions saat resize untuk menghindari glitch */
+.resizing * {
+    transition: none !important;
 }
