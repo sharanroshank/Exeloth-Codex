@@ -5,11 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game Overview - Exeloth Codex</title>
     
+    <!-- Bootstrap & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/game.css"> <!-- File CSS khusus game -->
+    
 </head>
 <body class="game-page">
 
@@ -17,8 +21,10 @@
     <script src="assets/js/navbar.js"></script>
     <script>renderNavbar();</script>
 
+    <!-- Background tetap -->
     <div class="bg-custom-fixed"></div>
 
+    <!-- Sidebar -->
     <nav id="sidebar">
         <div class="sidebar-header d-flex justify-content-between align-items-center p-3">
             <div class="sidebar-brand fw-bold text-uppercase ls-1 text-white">DAFTAR ISI</div>
@@ -42,8 +48,11 @@
         </div>
     </nav>
 
+    <!-- Overlay untuk sidebar -->
+    <div class="overlay-sidebar"></div>
+
     <div class="dashboard-wrapper">
-        <div id="content" style="padding: 0;">
+        <div id="content">
             <div class="container-fluid px-4 pb-5 pt-4"> 
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <img src="assets/img/games/logo-wuthering-waves.jpg" alt="Game Logo" style="height: 60px; width: auto; object-fit: contain;">
@@ -65,7 +74,7 @@
         </div>
     </div>
     
-    <div id="notification-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
+    <div id="notification-container" class="position-fixed top-0 end-0 p-3" style="z-index: 10000;"></div>
 
     <div class="modal fade" id="chapterModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
@@ -79,8 +88,10 @@
         </div>
     </div>
 
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -88,8 +99,25 @@
     <script src="assets/js/firebase-config.js"></script>
     <script src="assets/js/auth-system.js"></script> 
     <script src="assets/js/app.js"></script>
-    
     <script src="assets/js/game-ui.js"></script>
+    
+    <!-- Inisialisasi khusus game page -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tampilkan hamburger button
+            setTimeout(() => {
+                const toggleBtn = document.getElementById('sidebar-toggle-btn');
+                if (toggleBtn) {
+                    toggleBtn.classList.remove('d-none');
+                }
+            }, 100);
+            
+            // Load game data
+            if (typeof loadGameProfile === 'function') {
+                loadGameProfile();
+            }
+        });
+    </script>
 
 </body>
 </html>
