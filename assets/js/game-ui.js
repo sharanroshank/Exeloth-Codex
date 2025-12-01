@@ -18,13 +18,25 @@ function toggleFavorite() {
     }
 }
 
+// --- FUNGSI TOGGLE SIDEBAR & NAVBAR ---
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.querySelector('.overlay-sidebar');
-    
-    // Toggle Class Active
+    // Ini adalah grup Hamburger + Teks "Exeloth Codex" di navbar.js
+    const leftNavbarGroup = document.getElementById('navbar-left-group'); 
+
+    // 1. Buka/Tutup Sidebar & Overlay
     if (sidebar) sidebar.classList.toggle('active');
     if (overlay) overlay.classList.toggle('active');
+
+    // 2. Sembunyikan/Munculkan Hamburger & Teks di Navbar
+    if (sidebar && sidebar.classList.contains('active')) {
+        // Jika Sidebar Terbuka -> Sembunyikan Navbar Kiri
+        if (leftNavbarGroup) leftNavbarGroup.classList.add('nav-hidden');
+    } else {
+        // Jika Sidebar Tertutup -> Munculkan Navbar Kiri
+        if (leftNavbarGroup) leftNavbarGroup.classList.remove('nav-hidden');
+    }
 }
 
 // Inisialisasi Event Listener
@@ -32,12 +44,25 @@ document.addEventListener('DOMContentLoaded', function() {
     const dismissBtn = document.getElementById('dismiss');
     const sidebar = document.getElementById('sidebar');
     const overlay = document.querySelector('.overlay-sidebar');
+    const leftNavbarGroup = document.getElementById('navbar-left-group');
 
+    // Fungsi Tutup Sidebar (Dipanggil saat klik X atau Overlay)
     function closeSidebar() {
         if (sidebar) sidebar.classList.remove('active');
         if (overlay) overlay.classList.remove('active');
+        // Kembalikan Navbar Kiri
+        if (leftNavbarGroup) leftNavbarGroup.classList.remove('nav-hidden');
     }
 
     if (dismissBtn) dismissBtn.addEventListener('click', closeSidebar);
-    if (overlay) overlay.addEventListener('click', closeSidebar);
+    
+    // Event listener untuk overlay (perlu dibuat manual jika belum ada di HTML)
+    if (!overlay) {
+        const newOverlay = document.createElement('div');
+        newOverlay.className = 'overlay-sidebar';
+        document.body.appendChild(newOverlay);
+        newOverlay.addEventListener('click', closeSidebar);
+    } else {
+        overlay.addEventListener('click', closeSidebar);
+    }
 });

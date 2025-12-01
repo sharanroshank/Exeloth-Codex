@@ -11,38 +11,38 @@
     
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body class="game-page"> <div id="navbar-placeholder"></div>
+<body class="game-page">
+
+    <div id="navbar-placeholder"></div>
     <script src="assets/js/navbar.js"></script>
     <script>renderNavbar();</script>
 
     <div class="bg-custom-fixed"></div>
 
+    <nav id="sidebar">
+        <div class="sidebar-header d-flex justify-content-between align-items-center p-3">
+            <div class="sidebar-brand fw-bold text-uppercase ls-1 text-white">DAFTAR ISI</div>
+            <div id="dismiss" class="btn btn-sm btn-outline-light rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px; border: 1px solid rgba(255,255,255,0.3);">
+                <i class="bi bi-x-lg"></i>
+            </div>
+        </div>
+
+        <ul class="list-unstyled sidebar-menu py-2">
+            <li><a href="#" class="active d-flex align-items-center gap-3 py-3 px-4"><i class="bi bi-info-circle"></i> Overview</a></li>
+            <li><a href="#" class="d-flex align-items-center gap-3 py-3 px-4"><i class="bi bi-book"></i> Cerita Utama</a></li>
+            <li><a href="#" class="d-flex align-items-center gap-3 py-3 px-4"><i class="bi bi-people"></i> Cerita Karakter</a></li>
+            <li><a href="#" class="d-flex align-items-center gap-3 py-3 px-4"><i class="bi bi-calendar-event"></i> Cerita Event</a></li>
+            <li><a href="#" class="d-flex align-items-center gap-3 py-3 px-4"><i class="bi bi-archive"></i> Arsip Lore</a></li>
+        </ul>
+
+        <div class="sidebar-footer p-3 border-top border-secondary mt-auto">
+            <a href="games.html" class="text-decoration-none text-white-50 d-flex align-items-center gap-2">
+                <i class="bi bi-arrow-left"></i> Kembali ke Daftar
+            </a>
+        </div>
+    </nav>
+
     <div class="dashboard-wrapper">
-        
-        <nav id="sidebar">
-            <div class="sidebar-header d-flex justify-content-between align-items-center p-3 border-bottom border-secondary">
-                <div class="sidebar-brand fw-bold text-uppercase ls-1 text-white">DAFTAR ISI</div>
-                
-                <div id="dismiss" class="btn btn-sm btn-outline-light rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
-                    <i class="bi bi-x-lg"></i>
-                </div>
-            </div>
-
-            <ul class="list-unstyled sidebar-menu py-3">
-                <li><a href="#" class="active d-flex align-items-center gap-3 px-4 py-2"><i class="bi bi-info-circle"></i> Overview</a></li>
-                <li><a href="#" class="d-flex align-items-center gap-3 px-4 py-2"><i class="bi bi-book"></i> Cerita Utama</a></li>
-                <li><a href="#" class="d-flex align-items-center gap-3 px-4 py-2"><i class="bi bi-people"></i> Cerita Karakter</a></li>
-                <li><a href="#" class="d-flex align-items-center gap-3 px-4 py-2"><i class="bi bi-calendar-event"></i> Cerita Event</a></li>
-                <li><a href="#" class="d-flex align-items-center gap-3 px-4 py-2"><i class="bi bi-archive"></i> Arsip Lore</a></li>
-            </ul>
-
-            <div class="sidebar-footer p-3 border-top border-secondary mt-auto">
-                <a href="games.html" class="text-decoration-none text-white-50 d-flex align-items-center gap-2 hover-text-white">
-                    <i class="bi bi-arrow-left"></i> Kembali ke Daftar
-                </a>
-            </div>
-        </nav>
-
         <div id="content" style="padding: 0;">
             <div class="container-fluid px-4 pb-5 pt-4"> 
                 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -51,12 +51,11 @@
                         <i class="bi bi-star me-2" id="favorite-icon"></i> <span id="favorite-text">Favorit</span>
                     </button>
                 </div>
-
                 <div class="text-center mt-3">
                     <h1 class="fw-bold mb-4 text-white">Tentang Game</h1>
                     <div class="row justify-content-center">
                         <div class="col-lg-8 text-start text-white-50">
-                            <p class="lead">Wuthering Waves adalah game aksi dunia terbuka...</p>
+                            <p class="lead">Wuthering Waves adalah game aksi dunia terbuka yang kaya akan cerita...</p>
                             <div id="game-profile-container"></div>
                             <div id="story-sections-container" class="mt-5"></div>
                         </div>

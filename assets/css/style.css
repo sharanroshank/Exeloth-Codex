@@ -252,7 +252,7 @@ body.admin-page #sidebar { top: 76px !important; height: calc(100vh - 76px) !imp
 body.game-page #sidebar { 
     top: 0 !important;           
     height: 100vh !important;    
-    z-index: 9999 !important;    
+    z-index: 99999 !important; /* Pasti di atas navbar (1030) */  
     position: fixed;
     left: 0;
     margin-left: -290px;         /* Default hidden */
@@ -269,6 +269,13 @@ body.game-page #sidebar {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
+}
+
+/* Utility untuk menyembunyikan Hamburger & Teks Navbar */
+.nav-hidden {
+    opacity: 0 !important;
+    pointer-events: none; /* Agar tidak bisa diklik saat invisible */
+    transition: opacity 0.3s ease;
 }
 
 /* Saat Sidebar Muncul */
