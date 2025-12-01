@@ -315,44 +315,51 @@ select option {
     pointer-events: none;
 }
 
+/* ==================== NEW SIDEBAR LAYOUT (FULL HEIGHT) ==================== */
+
 /* Container Dashboard */
 .dashboard-wrapper {
-    display: flex;
     width: 100%;
     min-height: 100vh;
     background-color: transparent !important;
     position: relative;
     z-index: 1;
-    overflow-x: hidden;
 }
 
-/* Sidebar Styling */
+/* 1. Sidebar Full Height & Z-Index Tinggi (Menutupi Navbar) */
 #sidebar {
-    min-width: 260px;
-    max-width: 260px;
-    /* PENTING: Sidebar ditaruh di bawah Navbar Global */
-    min-height: calc(100vh - 76px); 
-    background-color: #25262b;
+    min-width: 280px;
+    max-width: 280px;
+    height: 100vh !important; /* Full dari ujung atas */
+    background-color: #1a1d20; 
     color: #fff;
-    transition: all 0.3s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: fixed;
+    z-index: 2000; /* Layer paling atas (di atas navbar 1030) */
+    left: 0;
+    top: 0 !important; /* Mulai dari Y=0 */
+    box-shadow: 4px 0 15px rgba(0,0,0,0.5);
+    
+    /* Default Hidden (Disembunyikan ke kiri) */
+    margin-left: -280px; 
     display: flex;
     flex-direction: column;
-    position: fixed;
-    z-index: 900;
-    left: 0;
-    top: 76px; /* Turun 76px dari atas */
 }
 
+/* Jika class active ditambahkan, sidebar muncul */
 #sidebar.active {
-    margin-left: -260px;
+    margin-left: 0;
 }
 
+/* 2. Header Sidebar */
 .sidebar-header {
-    padding: 20px;
+    padding: 20px 25px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid rgba(255,255,255,0.1);
+    background-color: #212529;
+    min-height: 76px; /* Samakan tinggi dengan navbar agar rapi */
 }
 
 .sidebar-brand {
@@ -365,6 +372,7 @@ select option {
 .sidebar-menu {
     padding: 20px 0;
     flex-grow: 1;
+    overflow-y: auto; /* Agar bisa discroll jika menu panjang */
 }
 
 .sidebar-menu li a {
@@ -388,9 +396,10 @@ select option {
 .sidebar-footer {
     padding: 20px;
     border-top: 1px solid rgba(255,255,255,0.1);
+    background-color: #212529;
 }
 
-/* Tombol Dismiss Sidebar */
+/* 3. Tombol Close (X) */
 #dismiss {
     width: 35px;
     height: 35px;
@@ -400,90 +409,54 @@ select option {
     border-radius: 50%;
     cursor: pointer;
     transition: 0.3s;
-    align-self: flex-end; 
-    margin-top: 15px;
-    margin-right: 20px;
-    margin-bottom: 10px;
+    margin: 0; /* Reset margin lama */
 }
-#dismiss:hover { background: var(--primary-color); }
 
-/* Content Area */
+#dismiss:hover {
+    background: var(--danger-color);
+    transform: rotate(90deg);
+}
+
+/* 4. Overlay Gelap */
+.overlay-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.7);
+    z-index: 1999; /* Di bawah sidebar, di atas navbar */
+    display: none;
+    backdrop-filter: blur(3px);
+}
+
+.overlay-sidebar.active {
+    display: block;
+}
+
+/* 5. Utility Navbar Hidden (Untuk menyembunyikan Hamburger saat sidebar buka) */
+.nav-hidden {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+/* 6. Content Area (Full Width, tidak terdorong) */
 #content {
     width: 100%;
     padding: 20px;
     min-height: 100vh;
     transition: all 0.3s;
-    margin-left: 260px;
+    margin-left: 0; /* Reset margin karena sidebar sekarang overlay */
 }
 
-#sidebar.active + #content {
-    margin-left: 0;
-}
-
-/* Top Bar (Menu Hamburger di dalam konten) */
-.top-bar {
-    background-color: rgba(37, 38, 43, 0.9);
-    backdrop-filter: blur(5px);
-    padding: 15px 30px;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    position: sticky;
-    /* PENTING: Topbar juga ditaruh di bawah Navbar Global */
-    top: 76px; 
-    z-index: 800;
-}
-
-#sidebarCollapse {
-    background: transparent;
-    border: none;
-    color: #fff;
-    font-size: 1.5rem;
-    cursor: pointer;
-    display: none;
-}
-
-#sidebar.active + #content #sidebarCollapse {
-    display: inline-block;
-}
-
-.btn-favorite {
-    transition: all 0.3s ease;
-    border: 1px solid #ff6b6b;
-    background: transparent;
-    color: #ff6b6b;
-    border-radius: 20px;
-    padding: 5px 20px;
-    font-weight: 600;
-}
-
-.btn-favorite.active {
-    background-color: #ff6b6b;
-    color: white;
-    box-shadow: 0 0 15px rgba(255, 107, 107, 0.4);
-}
-
-/* ==================== 9. RESPONSIVE UTILITIES ==================== */
+/* Responsive Fixes */
 @media (max-width: 768px) {
-    #sidebar { margin-left: -260px; }
+    #sidebar { margin-left: -280px; }
     #sidebar.active { margin-left: 0; }
-    #content { margin-left: 0; }
-    #sidebarCollapse { display: inline-block; }
-    #sidebar.active + #content { margin-left: 0; }
-    
-    .overlay-sidebar { top: 76px; }
-    
-    .admin-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-    }
-    .admin-item .admin-actions {
-        width: 100%;
-        justify-content: flex-end;
-    }
+    #content { width: 100%; }
+    .overlay-sidebar { display: none; }
+    .overlay-sidebar.active { display: block; }
 }
 
 /* ==================== 10. CARD OVERLAY STYLES ==================== */
@@ -768,4 +741,105 @@ body.admin-page #sidebar {
 
 .google-card:hover .card-overlay-hover {
     opacity: 0; /* Ubah jadi 1 jika ingin efek overlay penuh, tapi 0 agar terlihat clean seperti Battle.net */
+}
+
+/* ==================== GAME OVERVIEW PAGE STYLES ==================== */
+
+/* Override Body khusus halaman ini */
+body.game-page { 
+    padding-top: 76px !important; 
+    background-color: #34353a; 
+}
+
+/* Sidebar Override */
+body.game-page #sidebar { 
+    top: 76px !important; 
+    height: calc(100vh - 76px) !important; 
+    z-index: 900; 
+}
+
+body.game-page .overlay-sidebar { 
+    top: 76px; 
+}
+
+/* Tombol Dismiss Sidebar */
+#dismiss { 
+    width: 35px; 
+    height: 35px; 
+    line-height: 35px; 
+    text-align: center; 
+    background: rgba(255,255,255,0.1); 
+    border-radius: 50%; 
+    cursor: pointer; 
+    transition: 0.3s; 
+    align-self: flex-end; 
+    margin-top: 15px; 
+    margin-right: 20px; 
+    margin-bottom: 10px; 
+}
+
+#dismiss:hover { 
+    background: var(--primary-color); 
+}
+
+/* Top Bar (jika masih digunakan) */
+.top-bar { 
+    background-color: rgba(37, 38, 43, 0.9); 
+    backdrop-filter: blur(5px); 
+    padding: 15px 30px; 
+    border-bottom: 1px solid rgba(255,255,255,0.05); 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 30px; 
+    position: sticky; 
+    top: 76px; 
+    z-index: 800; 
+}
+
+/* Tombol Favorite */
+.btn-favorite { 
+    transition: all 0.3s ease; 
+    border: 1px solid #ff6b6b; 
+    background: transparent; 
+    color: #ff6b6b; 
+}
+
+.btn-favorite.active { 
+    background-color: #ff6b6b; 
+    color: white; 
+    box-shadow: 0 0 15px rgba(255, 107, 107, 0.4); 
+}
+
+/* Background Fixed Image */
+.bg-custom-fixed { 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100vw; 
+    height: 100vh; 
+    z-index: -1; 
+    /* Path gambar disesuaikan: naik satu folder dari css lalu masuk ke img */
+    background: url('../img/games/background-wuthering-waves.jpg') no-repeat center center; 
+    background-size: cover; 
+    opacity: 0.15; 
+    -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%); 
+    mask-image: linear-gradient(to bottom, black 60%, transparent 100%); 
+    pointer-events: none; 
+}
+
+.dashboard-wrapper { 
+    background-color: transparent !important; 
+    position: relative; 
+    z-index: 1; 
+}
+
+@media (max-width: 768px) { 
+    #sidebarCollapse { 
+        display: block !important; 
+        font-size: 1.5rem; 
+        background: none; 
+        border: none; 
+        color: white; 
+    } 
 }
