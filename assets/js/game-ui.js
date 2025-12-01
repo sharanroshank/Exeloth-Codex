@@ -1,15 +1,14 @@
-// assets/js/game-ui.js - VERSION WITH PROPER CONTENT SHIFT
+// assets/js/game-ui.js - VERSION WITH PERSISTENT SIDEBAR
 let isFavorite = false;
 let sidebarState = { 
-    isOpen: false, 
-    isAnimating: false,
-    isMobile: window.innerWidth < 992,
-    sidebarWidth: 280
+    isOpen: window.innerWidth >= 768, // Desktop: terbuka, Mobile: tertutup
+    isMobile: window.innerWidth < 768,
+    isAnimating: false
 };
 
-// Toggle sidebar dengan animasi smooth - DIPERBARUI TOTAL
+// Toggle sidebar HANYA UNTUK MOBILE
 function toggleSidebar() {
-    if (sidebarState.isAnimating) return;
+    if (!sidebarState.isMobile || sidebarState.isAnimating) return;
     
     sidebarState.isAnimating = true;
     sidebarState.isOpen = !sidebarState.isOpen;
@@ -20,21 +19,12 @@ function toggleSidebar() {
     const toggleBtn = document.getElementById('sidebar-toggle-btn');
     
     if (sidebarState.isOpen) {
-        // BUKA SIDEBAR
-        console.log('🔓 Opening sidebar');
+        // BUKA SIDEBAR di mobile
+        console.log('🔓 Opening sidebar (mobile)');
         
-        // Tambah class ke body
-        body.classList.add('sidebar-open');
-        
-        // Buka sidebar
-        if (sidebar) {
-            sidebar.classList.add('active');
-        }
-        
-        // Tampilkan overlay di mobile
-        if (sidebarState.isMobile && overlay) {
-            overlay.classList.add('active');
-        }
+        body.classList.add('sidebar-open-mobile');
+        if (sidebar) sidebar.classList.add('active');
+        if (overlay) overlay.classList.add('active');
         
         // Update hamburger button
         if (toggleBtn) {
@@ -45,25 +35,18 @@ function toggleSidebar() {
             toggleBtn.classList.add('active');
         }
         
-        // Dispatch event
+        // Lock body scroll
+        document.body.style.overflow = 'hidden';
+        
         document.dispatchEvent(new CustomEvent('sidebar:opened'));
         
     } else {
-        // TUTUP SIDEBAR
-        console.log('🔒 Closing sidebar');
+        // TUTUP SIDEBAR di mobile
+        console.log('🔒 Closing sidebar (mobile)');
         
-        // Hapus class dari body
-        body.classList.remove('sidebar-open');
-        
-        // Tutup sidebar
-        if (sidebar) {
-            sidebar.classList.remove('active');
-        }
-        
-        // Sembunyikan overlay di mobile
-        if (sidebarState.isMobile && overlay) {
-            overlay.classList.remove('active');
-        }
+        body.classList.remove('sidebar-open-mobile');
+        if (sidebar) sidebar.classList.remove('active');
+        if (overlay) overlay.classList.remove('active');
         
         // Update hamburger button
         if (toggleBtn) {
@@ -74,7 +57,9 @@ function toggleSidebar() {
             toggleBtn.classList.remove('active');
         }
         
-        // Dispatch event
+        // Unlock body scroll
+        document.body.style.overflow = '';
+        
         document.dispatchEvent(new CustomEvent('sidebar:closed'));
     }
     
@@ -84,15 +69,15 @@ function toggleSidebar() {
     }, 300);
 }
 
-// Close sidebar function
+// Close sidebar function - hanya untuk mobile
 function closeSidebar() {
-    if (!sidebarState.isOpen || sidebarState.isAnimating) return;
+    if (!sidebarState.isMobile || !sidebarState.isOpen || sidebarState.isAnimating) return;
     toggleSidebar();
 }
 
-// Open sidebar function
+// Open sidebar function - hanya untuk mobile
 function openSidebar() {
-    if (sidebarState.isOpen || sidebarState.isAnimating) return;
+    if (!sidebarState.isMobile || sidebarState.isOpen || sidebarState.isAnimating) return;
     toggleSidebar();
 }
 
@@ -121,7 +106,7 @@ function toggleFavorite() {
 
 // Initialize game page
 function initGamePage() {
-    console.log('🎮 Initializing game page UI...');
+    console.log('🎮 Initializing game page UI with persistent sidebar...');
     
     // Setup semua komponen
     setupOverlay();
@@ -131,22 +116,22 @@ function initGamePage() {
     setupKeyboardShortcuts();
     setupHamburgerButton();
     setupSwipeGestures();
+    setupScrollToSection();
     
     // Setup initial state
     updateSidebarHeight();
-    setupScrollToSection();
     
     console.log('✅ Game page UI initialized');
 }
 
-// Setup overlay
+// Setup overlay (hanya untuk mobile)
 function setupOverlay() {
     let overlay = document.querySelector('.overlay-sidebar');
     if (!overlay) {
         overlay = document.createElement('div');
         overlay.className = 'overlay-sidebar';
         document.body.appendChild(overlay);
-        console.log('✅ Overlay created');
+        console.log('✅ Overlay created for mobile');
     }
     
     // Setup overlay events
@@ -159,7 +144,7 @@ function setupOverlay() {
 
 // Setup sidebar events
 function setupSidebarEvents() {
-    // Dismiss button
+    // Dismiss button - hanya untuk mobile
     const dismissBtn = document.getElementById('dismiss');
     if (dismissBtn) {
         dismissBtn.addEventListener('click', function(e) {
@@ -190,18 +175,11 @@ function setupMenuInteractions() {
             menuItems.forEach(i => i.classList.remove('active'));
             this.classList.add('active');
             
-            // Coba eksekusi onclick attribute jika ada
-            const onclickAttr = this.getAttribute('onclick');
-            if (onclickAttr) {
-                try {
-                    const match = onclickAttr.match(/['"]([^'"]+)['"]/);
-                    if (match && match[1]) {
-                        const targetId = match[1];
-                        scrollToSection(targetId);
-                    }
-                } catch (err) {
-                    console.warn('Error executing onclick:', err);
-                }
+            // Scroll ke section
+            const href = this.getAttribute('href');
+            if (href && href.startsWith('#')) {
+                const targetId = href.substring(1);
+                scrollToSection(targetId);
             }
             
             // Di mobile, tutup sidebar setelah memilih menu
@@ -212,49 +190,54 @@ function setupMenuInteractions() {
     });
 }
 
-// Setup responsive behavior - DIPERBAIKI
+// Setup responsive behavior
 function setupResponsiveBehavior() {
     // Update mobile state on resize
     const updateMobileState = () => {
         const wasMobile = sidebarState.isMobile;
-        sidebarState.isMobile = window.innerWidth < 992;
+        sidebarState.isMobile = window.innerWidth < 768;
         
         console.log(`📱 Mobile state changed: ${sidebarState.isMobile} (was: ${wasMobile})`);
         
         const body = document.body;
+        const sidebar = document.getElementById('sidebar');
         const overlay = document.querySelector('.overlay-sidebar');
-        const isSidebarOpen = sidebarState.isOpen;
+        const toggleBtn = document.getElementById('sidebar-toggle-btn');
         
         if (sidebarState.isMobile) {
-            // MODE MOBILE
-            if (isSidebarOpen && overlay) {
-                overlay.classList.add('active');
+            // MODE MOBILE - sidebar default tertutup
+            sidebarState.isOpen = false;
+            
+            if (sidebar) sidebar.classList.remove('active');
+            if (overlay) overlay.classList.remove('active');
+            if (toggleBtn) {
+                toggleBtn.style.display = 'flex';
+                toggleBtn.innerHTML = '<i class="bi bi-list fs-3"></i>';
+                toggleBtn.setAttribute('title', 'Open Sidebar');
             }
-            // Di mobile, hapus margin dari body
-            body.classList.remove('sidebar-open');
+            body.classList.remove('sidebar-open-mobile');
+            document.body.style.overflow = '';
             
         } else {
-            // MODE DESKTOP
-            if (isSidebarOpen) {
-                body.classList.add('sidebar-open');
+            // MODE DESKTOP - sidebar default terbuka
+            sidebarState.isOpen = true;
+            
+            if (sidebar) sidebar.classList.add('active');
+            if (overlay) overlay.classList.remove('active');
+            if (toggleBtn) {
+                toggleBtn.style.display = 'none';
             }
-            if (overlay) {
-                overlay.classList.remove('active');
-            }
+            body.classList.remove('sidebar-open-mobile');
+            document.body.style.overflow = '';
         }
         
-        // Jika berubah dari mobile ke desktop dan sidebar terbuka
-        if (wasMobile && !sidebarState.isMobile && isSidebarOpen) {
-            body.classList.add('sidebar-open');
-        }
-        
-        // Jika berubah dari desktop ke mobile dan sidebar terbuka
-        if (!wasMobile && sidebarState.isMobile && isSidebarOpen) {
-            body.classList.remove('sidebar-open');
-            if (overlay) {
-                overlay.classList.add('active');
+        // Dispatch state update event
+        document.dispatchEvent(new CustomEvent('sidebar:state:update', { 
+            detail: { 
+                isOpen: sidebarState.isOpen,
+                isMobile: sidebarState.isMobile
             }
-        }
+        }));
     };
     
     // Initial check
@@ -270,50 +253,58 @@ function setupResponsiveBehavior() {
     });
 }
 
-// Setup keyboard shortcuts
-function setupKeyboardShortcuts() {
-    document.addEventListener('keydown', function(e) {
-        // Escape untuk menutup sidebar
-        if (e.key === 'Escape' && sidebarState.isOpen) {
-            closeSidebar();
-        }
-        
-        // Ctrl+/ atau Cmd+/ untuk toggle sidebar
-        if ((e.ctrlKey || e.metaKey) && e.key === '/') {
-            e.preventDefault();
-            toggleSidebar();
-        }
-    });
-}
-
 // Setup hamburger button
 function setupHamburgerButton() {
     const toggleBtn = document.getElementById('sidebar-toggle-btn');
     if (toggleBtn) {
-        // Pastikan tombol terlihat
-        toggleBtn.style.display = 'flex';
-        toggleBtn.style.visibility = 'visible';
-        toggleBtn.style.opacity = '1';
-        toggleBtn.classList.remove('d-none');
-        
-        // Set initial state
-        if (sidebarState.isOpen) {
-            toggleBtn.innerHTML = '<i class="bi bi-x-lg fs-3"></i>';
-            toggleBtn.setAttribute('title', 'Close Sidebar');
-            toggleBtn.setAttribute('aria-label', 'Close Sidebar');
-            toggleBtn.setAttribute('aria-expanded', 'true');
-            toggleBtn.classList.add('active');
+        // Hanya tampilkan di mobile
+        if (sidebarState.isMobile) {
+            toggleBtn.style.display = 'flex';
+            toggleBtn.style.visibility = 'visible';
+            toggleBtn.style.opacity = '1';
+            toggleBtn.classList.remove('d-none');
+            
+            // Set initial state
+            if (sidebarState.isOpen) {
+                toggleBtn.innerHTML = '<i class="bi bi-x-lg fs-3"></i>';
+                toggleBtn.setAttribute('title', 'Close Sidebar');
+                toggleBtn.setAttribute('aria-label', 'Close Sidebar');
+                toggleBtn.setAttribute('aria-expanded', 'true');
+                toggleBtn.classList.add('active');
+            } else {
+                toggleBtn.innerHTML = '<i class="bi bi-list fs-3"></i>';
+                toggleBtn.setAttribute('title', 'Open Sidebar');
+                toggleBtn.setAttribute('aria-label', 'Open Sidebar');
+                toggleBtn.setAttribute('aria-expanded', 'false');
+                toggleBtn.classList.remove('active');
+            }
+            
+            // Event listener
+            toggleBtn.onclick = toggleSidebar;
         } else {
-            toggleBtn.innerHTML = '<i class="bi bi-list fs-3"></i>';
-            toggleBtn.setAttribute('title', 'Open Sidebar');
-            toggleBtn.setAttribute('aria-label', 'Open Sidebar');
-            toggleBtn.setAttribute('aria-expanded', 'false');
-            toggleBtn.classList.remove('active');
+            // Di desktop: sembunyikan tombol
+            toggleBtn.style.display = 'none';
+            toggleBtn.classList.add('d-none');
+        }
+    }
+}
+
+// Setup keyboard shortcuts
+function setupKeyboardShortcuts() {
+    document.addEventListener('keydown', function(e) {
+        // Escape untuk menutup sidebar (hanya di mobile)
+        if (e.key === 'Escape' && sidebarState.isOpen && sidebarState.isMobile) {
+            closeSidebar();
         }
         
-        // Event listener
-        toggleBtn.onclick = toggleSidebar;
-    }
+        // Ctrl+B atau Cmd+B untuk toggle sidebar (hanya di mobile)
+        if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+            e.preventDefault();
+            if (sidebarState.isMobile) {
+                toggleSidebar();
+            }
+        }
+    });
 }
 
 // Setup swipe gestures untuk mobile
@@ -353,8 +344,7 @@ function updateSidebarHeight() {
         const scrollable = document.querySelector('.sidebar-scrollable');
         if (scrollable) {
             const viewportHeight = window.innerHeight;
-            const headerHeight = 76; // Height navbar
-            const availableHeight = viewportHeight - headerHeight;
+            const availableHeight = viewportHeight;
             
             scrollable.style.maxHeight = availableHeight + 'px';
         }
@@ -366,6 +356,22 @@ function updateSidebarHeight() {
 
 // Setup scroll to section
 function setupScrollToSection() {
+    const scrollToSection = (sectionId) => {
+        const element = document.getElementById(sectionId);
+        if (element) {
+            element.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+            
+            // Update URL hash tanpa reload
+            if (history.pushState) {
+                history.pushState(null, null, '#' + sectionId);
+            }
+        }
+    };
+    
+    // Setup untuk anchor links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function(e) {
             const href = this.getAttribute('href');
@@ -380,22 +386,9 @@ function setupScrollToSection() {
             }
         });
     });
-}
-
-// Helper function untuk scroll ke section
-function scrollToSection(sectionId) {
-    const element = document.getElementById(sectionId);
-    if (element) {
-        element.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-        });
-        
-        // Update URL hash tanpa reload
-        if (history.pushState) {
-            history.pushState(null, null, '#' + sectionId);
-        }
-    }
+    
+    // Export untuk akses global
+    window.scrollToSection = scrollToSection;
 }
 
 // Helper notification untuk game page
@@ -412,29 +405,33 @@ function showNotification(message, type = 'info', duration = 3000) {
 function setupOrientationChange() {
     window.addEventListener('orientationchange', function() {
         setTimeout(() => {
-            sidebarState.isMobile = window.innerWidth < 992;
+            sidebarState.isMobile = window.innerWidth < 768;
             console.log('🔄 Orientation changed, mobile:', sidebarState.isMobile);
+            setupHamburgerButton();
         }, 300);
     });
 }
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('📄 Game page DOM loaded');
+    console.log('📄 Game page DOM loaded with persistent sidebar');
+    
+    // Tambah class untuk persistent sidebar
+    document.body.classList.add('sidebar-persistent');
     
     // Tunggu sebentar untuk memastikan navbar sudah dirender
     setTimeout(() => {
         initGamePage();
         setupOrientationChange();
         
-        // Check URL parameters untuk auto-open sidebar
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('sidebar') === 'open') {
+        // Check URL hash untuk auto-scroll
+        if (window.location.hash) {
             setTimeout(() => {
-                if (!sidebarState.isOpen) {
-                    openSidebar();
+                const sectionId = window.location.hash.substring(1);
+                if (window.scrollToSection) {
+                    window.scrollToSection(sectionId);
                 }
-            }, 800);
+            }, 500);
         }
     }, 300);
     
@@ -451,7 +448,6 @@ window.openSidebar = openSidebar;
 window.closeSidebar = closeSidebar;
 window.toggleFavorite = toggleFavorite;
 window.initGamePage = initGamePage;
-window.scrollToSection = scrollToSection;
 window.showNotification = showNotification;
 
-console.log('✅ game-ui.js loaded successfully');
+console.log('✅ game-ui.js loaded successfully with persistent sidebar');

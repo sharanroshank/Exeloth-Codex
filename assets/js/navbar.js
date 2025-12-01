@@ -1,18 +1,18 @@
-// assets/js/navbar.js - FIXED VERSION WITH CONTENT SHIFT SIDEBAR
+// assets/js/navbar.js - COMPLETE VERSION WITH PERSISTENT SIDEBAR
 
 let currentSidebarState = {
-    isOpen: false,
-    isMobile: window.innerWidth < 992
+    isOpen: window.innerWidth >= 768, // Desktop: terbuka, Mobile: tertutup
+    isMobile: window.innerWidth < 768
 };
 
 // Render navbar function
 function renderNavbar() {
     const navbarHTML = `
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" id="main-navbar">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark" id="main-navbar">
         <div class="container-fluid px-4">
             
             <div class="d-flex align-items-center" id="navbar-left-group">
-                <!-- HAMBURGER BUTTON - Hanya tampil di halaman game -->
+                <!-- HAMBURGER BUTTON - Hanya tampil di halaman game dan hanya di mobile -->
                 <button class="btn btn-link text-white p-0 me-3 d-none" 
                         id="sidebar-toggle-btn"
                         aria-label="Toggle sidebar"
@@ -143,61 +143,51 @@ function setupHamburgerButton() {
     const toggleBtn = document.getElementById('sidebar-toggle-btn');
     
     if (isGamePage && toggleBtn) {
-        // Tampilkan tombol hamburger
-        toggleBtn.classList.remove('d-none');
-        toggleBtn.style.cssText = `
-            display: flex !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border-radius: 8px;
-            width: 40px;
-            height: 40px;
-            align-items: center;
-            justify-content: center;
-            background: transparent;
-            border: none;
-            margin-right: 15px;
-            color: #fff;
-            z-index: 1041;
-            position: relative;
-        `;
-        
-        // Setup proper attributes
-        toggleBtn.setAttribute('title', 'Toggle Sidebar');
-        toggleBtn.setAttribute('aria-label', 'Toggle Sidebar');
-        toggleBtn.setAttribute('aria-controls', 'sidebar');
-        toggleBtn.setAttribute('role', 'button');
-        
-        // Hover effects
-        toggleBtn.addEventListener('mouseenter', function() {
-            this.style.transform = 'scale(1.1)';
-            this.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-        });
-        
-        toggleBtn.addEventListener('mouseleave', function() {
-            this.style.transform = 'scale(1)';
-            this.style.backgroundColor = 'transparent';
-        });
-        
-        // Click event
-        toggleBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
+        // Di mobile (<768px): tampilkan tombol hamburger
+        if (window.innerWidth < 768) {
+            toggleBtn.style.display = 'flex';
+            toggleBtn.style.visibility = 'visible';
+            toggleBtn.style.opacity = '1';
+            toggleBtn.classList.remove('d-none');
             
-            // Gunakan fungsi dari game-ui.js
-            if (typeof window.toggleSidebar === 'function') {
-                window.toggleSidebar();
-            }
-        });
-        
-        // Update initial state
-        updateHamburgerButtonState();
-        
-        console.log('✅ Hamburger button enabled for game page');
+            // Setup proper attributes
+            toggleBtn.setAttribute('title', 'Toggle Sidebar');
+            toggleBtn.setAttribute('aria-label', 'Toggle Sidebar');
+            toggleBtn.setAttribute('aria-controls', 'sidebar');
+            toggleBtn.setAttribute('role', 'button');
+            
+            // Hover effects
+            toggleBtn.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.1)';
+                this.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+            });
+            
+            toggleBtn.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+                this.style.backgroundColor = 'transparent';
+            });
+            
+            // Click event - hanya untuk mobile
+            toggleBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                if (window.innerWidth < 768) {
+                    if (typeof window.toggleSidebar === 'function') {
+                        window.toggleSidebar();
+                    }
+                }
+            });
+            
+            console.log('✅ Hamburger button enabled for mobile');
+        } else {
+            // Di desktop (≥768px): sembunyikan tombol
+            toggleBtn.style.display = 'none';
+            toggleBtn.classList.add('d-none');
+        }
     } else if (toggleBtn) {
         // Sembunyikan tombol di halaman non-game
+        toggleBtn.style.display = 'none';
         toggleBtn.classList.add('d-none');
     }
 }
@@ -209,34 +199,53 @@ function updateHamburgerButtonState() {
     
     if (!toggleBtn) return;
     
-    currentSidebarState.isOpen = body.classList.contains('sidebar-open');
+    // Update state berdasarkan lebar layar
+    currentSidebarState.isMobile = window.innerWidth < 768;
+    currentSidebarState.isOpen = currentSidebarState.isMobile ? 
+        body.classList.contains('sidebar-open-mobile') : true;
     
-    if (currentSidebarState.isOpen) {
-        toggleBtn.innerHTML = '<i class="bi bi-x-lg fs-3"></i>';
-        toggleBtn.setAttribute('title', 'Close Sidebar');
-        toggleBtn.setAttribute('aria-label', 'Close Sidebar');
-        toggleBtn.setAttribute('aria-expanded', 'true');
-        toggleBtn.classList.add('active');
-        
-        // Di mobile, sembunyikan navbar left group
-        if (currentSidebarState.isMobile) {
+    if (currentSidebarState.isMobile) {
+        // MODE MOBILE
+        if (currentSidebarState.isOpen) {
+            toggleBtn.innerHTML = '<i class="bi bi-x-lg fs-3"></i>';
+            toggleBtn.setAttribute('title', 'Close Sidebar');
+            toggleBtn.setAttribute('aria-label', 'Close Sidebar');
+            toggleBtn.setAttribute('aria-expanded', 'true');
+            toggleBtn.classList.add('active');
+            
+            // Di mobile, sembunyikan navbar left group jika sidebar terbuka
+            if (currentSidebarState.isMobile) {
+                const leftNavbarGroup = document.getElementById('navbar-left-group');
+                if (leftNavbarGroup) {
+                    leftNavbarGroup.style.opacity = '0';
+                    leftNavbarGroup.style.visibility = 'hidden';
+                    leftNavbarGroup.style.width = '0';
+                    leftNavbarGroup.style.overflow = 'hidden';
+                    leftNavbarGroup.style.transition = 'all 0.3s ease';
+                }
+            }
+        } else {
+            toggleBtn.innerHTML = '<i class="bi bi-list fs-3"></i>';
+            toggleBtn.setAttribute('title', 'Open Sidebar');
+            toggleBtn.setAttribute('aria-label', 'Open Sidebar');
+            toggleBtn.setAttribute('aria-expanded', 'false');
+            toggleBtn.classList.remove('active');
+            
+            // Show navbar left group
             const leftNavbarGroup = document.getElementById('navbar-left-group');
             if (leftNavbarGroup) {
-                leftNavbarGroup.style.opacity = '0';
-                leftNavbarGroup.style.visibility = 'hidden';
-                leftNavbarGroup.style.width = '0';
-                leftNavbarGroup.style.overflow = 'hidden';
-                leftNavbarGroup.style.transition = 'all 0.3s ease';
+                leftNavbarGroup.style.opacity = '1';
+                leftNavbarGroup.style.visibility = 'visible';
+                leftNavbarGroup.style.width = 'auto';
+                leftNavbarGroup.style.overflow = 'visible';
             }
         }
     } else {
-        toggleBtn.innerHTML = '<i class="bi bi-list fs-3"></i>';
-        toggleBtn.setAttribute('title', 'Open Sidebar');
-        toggleBtn.setAttribute('aria-label', 'Open Sidebar');
-        toggleBtn.setAttribute('aria-expanded', 'false');
-        toggleBtn.classList.remove('active');
+        // MODE DESKTOP - tombol disembunyikan
+        toggleBtn.style.display = 'none';
+        toggleBtn.classList.add('d-none');
         
-        // Show navbar left group
+        // Pastikan navbar left group terlihat
         const leftNavbarGroup = document.getElementById('navbar-left-group');
         if (leftNavbarGroup) {
             leftNavbarGroup.style.opacity = '1';
@@ -271,6 +280,12 @@ function setupActiveNavLinks() {
             gamesLink.classList.add('active');
             gamesLink.setAttribute('aria-current', 'page');
         }
+    } else if (currentPage === 'game.html') {
+        const gamesLink = document.getElementById('nav-games');
+        if (gamesLink) {
+            gamesLink.classList.add('active');
+            gamesLink.setAttribute('aria-current', 'page');
+        }
     }
 }
 
@@ -293,16 +308,19 @@ function setupNavbarEventListeners() {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(function() {
             const wasMobile = currentSidebarState.isMobile;
-            currentSidebarState.isMobile = window.innerWidth < 992;
+            currentSidebarState.isMobile = window.innerWidth < 768;
             
-            // Update hamburger button
-            updateHamburgerButtonState();
+            if (wasMobile !== currentSidebarState.isMobile) {
+                console.log(`🔄 Mobile state changed: ${currentSidebarState.isMobile}`);
+                setupHamburgerButton();
+                updateHamburgerButtonState();
+            }
         }, 250);
     });
     
     // Handle click on nav links untuk mobile menu
     document.addEventListener('click', function(e) {
-        if (currentSidebarState.isMobile && window.innerWidth < 992) {
+        if (currentSidebarState.isMobile && window.innerWidth < 768) {
             const navLink = e.target.closest('.nav-link');
             if (navLink && !navLink.hasAttribute('data-bs-toggle')) {
                 // Close mobile navbar collapse
@@ -324,8 +342,8 @@ function setupNavbarEventListeners() {
     
     // Keyboard navigation untuk navbar
     document.addEventListener('keydown', function(e) {
-        // Escape untuk close sidebar
-        if (e.key === 'Escape' && currentSidebarState.isOpen) {
+        // Escape untuk close sidebar (hanya di mobile)
+        if (e.key === 'Escape' && currentSidebarState.isOpen && currentSidebarState.isMobile) {
             if (typeof window.closeSidebar === 'function') {
                 window.closeSidebar();
             }
@@ -360,7 +378,7 @@ function updateSidebarState() {
     const sidebar = document.getElementById('sidebar');
     
     if (body) {
-        currentSidebarState.isOpen = body.classList.contains('sidebar-open');
+        currentSidebarState.isOpen = body.classList.contains('sidebar-open-mobile');
     } else if (sidebar) {
         currentSidebarState.isOpen = sidebar.classList.contains('active');
     }
@@ -482,4 +500,4 @@ window.renderNavbar = renderNavbar;
 window.updateNavbarProfile = updateNavbarProfile;
 window.updateNavbar = updateNavbar;
 
-console.log('✅ navbar.js loaded successfully');
+console.log('✅ navbar.js loaded successfully with persistent sidebar support');
