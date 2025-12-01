@@ -1276,3 +1276,297 @@ body:not(.sidebar-open-mobile)::-webkit-scrollbar-thumb {
 body:not(.sidebar-open-mobile)::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.3);
 }
+
+/* ==================== 34. TEXT VISIBILITY FIXES (NEW) ==================== */
+
+/* Fix untuk teks yang tidak terlihat di background gelap */
+.text-muted {
+    color: rgba(255, 255, 255, 0.65) !important;
+}
+
+.text-light {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* Section description text */
+.section-description {
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 1.1rem;
+    margin-bottom: 3rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Coming soon section specific */
+#coming-soon .section-description {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.15rem;
+}
+
+/* Hero section paragraph */
+.hero-section p.lead {
+    color: rgba(255, 255, 255, 0.9);
+    opacity: 0.95;
+}
+
+/* Card overlay text visibility */
+.card-overlay-text p {
+    color: rgba(255, 255, 255, 0.9);
+    opacity: 0.95;
+}
+
+/* Game card description */
+.game-card .card-text {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Filter text visibility */
+.filter-box .text-muted {
+    color: rgba(255, 255, 255, 0.75) !important;
+}
+
+/* Responsive text color adjustments */
+@media (max-width: 768px) {
+    .text-muted {
+        color: rgba(255, 255, 255, 0.7) !important;
+    }
+    
+    .section-description {
+        font-size: 1rem;
+        padding: 0 15px;
+    }
+}
+
+/* ==================== 35. BADGE & TAG VISIBILITY ==================== */
+
+/* Badge with dark background */
+.badge.bg-dark {
+    background-color: rgba(0, 0, 0, 0.4) !important;
+    color: rgba(255, 255, 255, 0.95) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Badge with secondary background */
+.badge.bg-secondary {
+    background-color: rgba(108, 117, 125, 0.7) !important;
+    color: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* Game status badges */
+.badge-section {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    margin: 0.25rem;
+    background: rgba(111, 66, 193, 0.2);
+    color: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    font-size: 0.9rem;
+    border: 1px solid rgba(111, 66, 193, 0.3);
+}
+
+/* ==================== 36. CONTRAST IMPROVEMENTS ==================== */
+
+/* Improve text contrast on dark backgrounds */
+.bg-dark .text-muted,
+.bg-darker .text-muted {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* Coming soon section specific contrast */
+#coming-soon .container .text-center .text-muted {
+    color: rgba(255, 255, 255, 0.85) !important;
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+}
+
+/* Footer text visibility */
+footer.bg-darker .text-muted {
+    color: rgba(255, 255, 255, 0.65) !important;
+}
+
+footer.bg-darker a {
+    color: rgba(255, 255, 255, 0.85);
+    transition: color 0.2s ease;
+}
+
+footer.bg-darker a:hover {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+/* ==================== 37. FORM LABEL VISIBILITY ==================== */
+
+.form-label {
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.form-text {
+    color: rgba(255, 255, 255, 0.65) !important;
+}
+
+/* Placeholder text visibility */
+.form-control::placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* ==================== 38. SPECIFIC FIX FOR INDEX.HTML ==================== */
+
+/* Fix for "Nantikan cerita dari game-game berikut ini" text */
+#coming-soon .text-muted {
+    color: rgba(255, 255, 255, 0.85) !important;
+    font-size: 1.15rem;
+    opacity: 0.9;
+}
+
+/* Codex section subtitle */
+#codex-list .text-muted {
+    color: rgba(255, 255, 255, 0.8) !important;
+    font-size: 1.1rem;
+}
+
+/* Loading text visibility */
+#coming-soon-container .text-center.text-muted {
+    color: rgba(255, 255, 255, 0.75) !important;
+}
+
+/* ==================== 39. HOME PAGE HERO TEXT FIXES ==================== */
+.hero-section h1.display-4 {
+    color: rgba(255, 255, 255, 0.95) !important;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.hero-section p.lead.text-light {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* ==================== 40. BETTER TEXT CONTRAST UTILITIES ==================== */
+.text-contrast-high {
+    color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.text-contrast-medium {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.text-contrast-low {
+    color: rgba(255, 255, 255, 0.65) !important;
+}
+
+/* ==================== 41. DARK THEME TEXT ENHANCEMENTS ==================== */
+.bg-dark *:not(.btn):not(.badge):not(.alert) .text-muted,
+.bg-darker *:not(.btn):not(.badge):not(.alert) .text-muted {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* ==================== 42. CARD TEXT VISIBILITY ==================== */
+.card .text-muted,
+.card-body .text-muted {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.card .card-text {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* ==================== 43. OVERRIDE BOOTSTRAP DARK TEXT ==================== */
+.text-dark {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.text-body {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* ==================== 44. SPECIFIC ELEMENT OVERRIDES ==================== */
+/* Override Bootstrap's text-muted for dark theme */
+body.bg-dark .text-muted,
+body.bg-darker .text-muted,
+.bg-dark .text-muted,
+.bg-darker .text-muted {
+    --bs-text-opacity: 1;
+    color: rgba(255, 255, 255, 0.75) !important;
+}
+
+/* ==================== 45. ACCESSIBILITY CONTRAST FIXES ==================== */
+/* Ensure WCAG AA compliance for text */
+a:not(.btn):not(.nav-link):not(.dropdown-item) {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+a:not(.btn):not(.nav-link):not(.dropdown-item):hover {
+    color: var(--primary-color);
+}
+
+/* Heading contrast */
+h1, h2, h3, h4, h5, h6 {
+    color: rgba(255, 255, 255, 0.95);
+}
+
+/* Paragraph contrast */
+p:not(.lead) {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+/* List items */
+li {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* ==================== 46. SPECIFIC PAGE FIXES ==================== */
+/* Homepage specific text fixes */
+#coming-soon p.text-muted,
+#codex-list p.text-muted {
+    color: rgba(255, 255, 255, 0.8) !important;
+    font-weight: 400;
+}
+
+/* Games page text visibility */
+#publicGamesContainer .text-muted {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* ==================== 47. FINAL TEXT CONTRAST OVERRIDE ==================== */
+/* Global override for Bootstrap text-muted in dark themes */
+[class*="bg-"]:not(.bg-light):not(.bg-white) .text-muted {
+    color: rgba(255, 255, 255, 0.75) !important;
+}
+
+/* Specific for bg-dark and bg-darker */
+.bg-dark .text-muted:not(.text-white):not(.text-light),
+.bg-darker .text-muted:not(.text-white):not(.text-light) {
+    color: rgba(255, 255, 255, 0.75) !important;
+}
+
+/* For sections with gradient/dark backgrounds */
+section .text-muted {
+    color: rgba(255, 255, 255, 0.75) !important;
+}
+
+/* ==================== 48. BORDER AND DIVIDER VISIBILITY ==================== */
+.border-secondary {
+    border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.border-light {
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* ==================== 49. ICON VISIBILITY ==================== */
+.bi {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* ==================== 50. FINAL GLOBAL TEXT FIX ==================== */
+/* This ensures ALL text-muted elements are visible in dark theme */
+:root[data-bs-theme="dark"] .text-muted,
+body[data-bs-theme="dark"] .text-muted,
+.dark-theme .text-muted {
+    --bs-text-opacity: 1;
+    color: rgba(255, 255, 255, 0.75) !important;
+}
+
+/* Direct override for all dark background contexts */
+body:not(.bg-light):not(.bg-white) .text-muted:not(.text-white):not(.text-light):not(.text-primary):not(.text-success):not(.text-warning):not(.text-danger):not(.text-info) {
+    color: rgba(255, 255, 255, 0.75) !important;
+}
