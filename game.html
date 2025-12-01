@@ -14,6 +14,51 @@
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/game.css"> <!-- File CSS khusus game -->
     
+    <style>
+        .game-badge {
+            font-size: 0.85rem;
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .chapter-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .chapter-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-3px);
+            border-color: #6f42c1;
+        }
+        
+        .chapter-title {
+            color: #fff;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .chapter-excerpt {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .story-section-title {
+            color: #fff;
+            border-bottom: 2px solid #6f42c1;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+    </style>
 </head>
 <body class="game-page">
 
@@ -34,11 +79,11 @@
         </div>
 
         <ul class="list-unstyled sidebar-menu py-2">
-            <li><a href="#" class="active d-flex align-items-center gap-3 py-3 px-4"><i class="bi bi-info-circle"></i> Overview</a></li>
-            <li><a href="#" class="d-flex align-items-center gap-3 py-3 px-4"><i class="bi bi-book"></i> Cerita Utama</a></li>
-            <li><a href="#" class="d-flex align-items-center gap-3 py-3 px-4"><i class="bi bi-people"></i> Cerita Karakter</a></li>
-            <li><a href="#" class="d-flex align-items-center gap-3 py-3 px-4"><i class="bi bi-calendar-event"></i> Cerita Event</a></li>
-            <li><a href="#" class="d-flex align-items-center gap-3 py-3 px-4"><i class="bi bi-archive"></i> Arsip Lore</a></li>
+            <li><a href="#" class="active d-flex align-items-center gap-3 py-3 px-4" onclick="scrollToSection('overview')"><i class="bi bi-info-circle"></i> Overview</a></li>
+            <li><a href="#" class="d-flex align-items-center gap-3 py-3 px-4" onclick="scrollToSection('main-story')"><i class="bi bi-book"></i> Cerita Utama</a></li>
+            <li><a href="#" class="d-flex align-items-center gap-3 py-3 px-4" onclick="scrollToSection('character-story')"><i class="bi bi-people"></i> Cerita Karakter</a></li>
+            <li><a href="#" class="d-flex align-items-center gap-3 py-3 px-4" onclick="scrollToSection('event-story')"><i class="bi bi-calendar-event"></i> Cerita Event</a></li>
+            <li><a href="#" class="d-flex align-items-center gap-3 py-3 px-4" onclick="scrollToSection('lore-archive')"><i class="bi bi-archive"></i> Arsip Lore</a></li>
         </ul>
 
         <div class="sidebar-footer p-3 border-top border-secondary mt-auto">
@@ -54,21 +99,96 @@
     <div class="dashboard-wrapper">
         <div id="content">
             <div class="container-fluid px-4 pb-5 pt-4"> 
+                <!-- Game Header -->
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <img src="assets/img/games/logo-wuthering-waves.jpg" alt="Game Logo" style="height: 60px; width: auto; object-fit: contain;">
+                    <img src="assets/img/games/logo-wuthering-waves.jpg" alt="Wuthering Waves Logo" 
+                         id="game-logo" 
+                         style="height: 60px; width: auto; object-fit: contain;"
+                         onerror="this.src='https://ui-avatars.com/api/?name=Wuthering+Waves&background=6f42c1&color=fff'">
                     <button class="btn btn-favorite rounded-pill px-4" id="favorite-btn" onclick="toggleFavorite()">
                         <i class="bi bi-star me-2" id="favorite-icon"></i> <span id="favorite-text">Favorit</span>
                     </button>
                 </div>
-                <div class="text-center mt-3">
-                    <h1 class="fw-bold mb-4 text-white">Tentang Game</h1>
-                    <div class="row justify-content-center">
-                        <div class="col-lg-8 text-start text-white-50">
-                            <p class="lead">Wuthering Waves adalah game aksi dunia terbuka yang kaya akan cerita...</p>
-                            <div id="game-profile-container"></div>
-                            <div id="story-sections-container" class="mt-5"></div>
-                        </div>
+                
+                <!-- Game Content Container -->
+                <div id="game-content">
+                    <div class="text-center mb-5">
+                        <h1 class="fw-bold mb-2 text-white" id="game-title">Loading Game...</h1>
+                        <div id="game-badges" class="d-flex justify-content-center flex-wrap gap-2 mb-4"></div>
+                        <p class="lead text-white-50" id="game-description">Loading description...</p>
                     </div>
+                    
+                    <!-- Overview Section -->
+                    <section id="overview" class="mb-5">
+                        <h2 class="story-section-title"><i class="bi bi-info-circle me-2"></i>Overview</h2>
+                        <div class="row">
+                            <div class="col-md-4 mb-4">
+                                <div class="card bg-dark border-secondary h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title text-white"><i class="bi bi-calendar-event me-2"></i>Release Info</h5>
+                                        <p class="card-text text-white-50" id="release-info">Loading...</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-4">
+                                <div class="card bg-dark border-secondary h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title text-white"><i class="bi bi-controller me-2"></i>Genre</h5>
+                                        <p class="card-text text-white-50" id="game-genre">Loading...</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-4">
+                                <div class="card bg-dark border-secondary h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title text-white"><i class="bi bi-globe me-2"></i>Platform</h5>
+                                        <p class="card-text text-white-50" id="game-platform">Loading...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- Main Story Section -->
+                    <section id="main-story" class="mb-5">
+                        <h2 class="story-section-title"><i class="bi bi-book me-2"></i>Cerita Utama</h2>
+                        <div id="main-story-content">
+                            <div class="text-center text-white-50 py-4">
+                                <div class="spinner-border text-primary" role="status"></div>
+                                <p class="mt-2">Memuat cerita...</p>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- Character Story Section -->
+                    <section id="character-story" class="mb-5">
+                        <h2 class="story-section-title"><i class="bi bi-people me-2"></i>Cerita Karakter</h2>
+                        <div id="character-story-content">
+                            <div class="text-center text-white-50 py-4">
+                                <p>Belum ada konten untuk bagian ini.</p>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- Event Story Section -->
+                    <section id="event-story" class="mb-5">
+                        <h2 class="story-section-title"><i class="bi bi-calendar-event me-2"></i>Cerita Event</h2>
+                        <div id="event-story-content">
+                            <div class="text-center text-white-50 py-4">
+                                <p>Belum ada konten untuk bagian ini.</p>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <!-- Lore Archive Section -->
+                    <section id="lore-archive" class="mb-5">
+                        <h2 class="story-section-title"><i class="bi bi-archive me-2"></i>Arsip Lore</h2>
+                        <div id="lore-archive-content">
+                            <div class="text-center text-white-50 py-4">
+                                <p>Belum ada konten untuk bagian ini.</p>
+                            </div>
+                        </div>
+                    </section>
                 </div>
             </div>
         </div>
@@ -76,6 +196,7 @@
     
     <div id="notification-container" class="position-fixed top-0 end-0 p-3" style="z-index: 10000;"></div>
 
+    <!-- Chapter Detail Modal -->
     <div class="modal fade" id="chapterModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-scrollable">
             <div class="modal-content bg-dark text-white border-secondary">
@@ -83,7 +204,12 @@
                     <h5 class="modal-title" id="chapterModalTitle">Chapter Title</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body" id="chapterModalContent"></div>
+                <div class="modal-body" id="chapterModalContent">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="mt-3">Memuat konten...</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -101,9 +227,230 @@
     <script src="assets/js/app.js"></script>
     <script src="assets/js/game-ui.js"></script>
     
-    <!-- Inisialisasi khusus game page -->
+    <!-- Static Game Data -->
     <script>
+        // Data statis untuk Wuthering Waves (fallback)
+        const staticGamesData = {
+            'wuthering-waves': {
+                title: "Wuthering Waves",
+                slug: "wuthering-waves",
+                description: "Wuthering Waves adalah game aksi open-world dengan sistem pertarungan berbasis resonansi. Jelajahi dunia pasca-apokaliptik yang luas, temukan misteri di balik bencana 'Lament', dan bangun hubungan dengan Resonator lain.",
+                thumbnailURL: "assets/img/games/wuthering-waves.jpg",
+                logoURL: "assets/img/games/logo-wuthering-waves.jpg",
+                status: "New Release",
+                releaseDate: "22 Mei 2024",
+                genre: "Action RPG, Open World, Gacha",
+                platform: "PC, iOS, Android",
+                badges: ["New Release", "Open World", "Action", "Gacha", "Free-to-play"],
+                mainStory: [
+                    {
+                        id: 1,
+                        title: "Prologue: The Awakening",
+                        excerpt: "Kamu terbangun di tengah reruntuhan peradaban lama. Dunia telah berubah, dan kamu harus menemukan jawaban tentang siapa dirimu sebenarnya.",
+                        content: `<h3>Prologue: The Awakening</h3>
+                                <p>Matahari terbit di atas reruntuhan kota tua, memancarkan cahaya keemasan melalui celah-celah bangunan yang telah hancur. Kamu terbaring di atas puing-puing, tubuh terasa berat dan pikiran berkabut.</p>
+                                <p>Suara gemerisik membuatmu terbangun sepenuhnya. Seekor makhluk aneh dengan tubuh transparan dan mata merah mendekat. Insting bertahan hidup membuatmu berdiri, dan tanpa sadar tanganmu memancarkan energi resonansi.</p>
+                                <p>"Kamu akhirnya bangun," suara perempuan terdengar dari balik pilar. Seorang perempuan dengan pakaian putih muncul, matanya memancarkan kekhawatiran. "Aku Rover. Dan kamu... kamu Resonator baru."</p>
+                                <p>Dunia di sekitarmu perlahan mulai masuk ke dalam ingatanmu. Ini adalah era pasca-Lament, sebuah bencana yang mengubah segalanya. Kamu memiliki kekuatan resonansi, kemampuan langka yang bisa berinteraksi dengan gelombang suara dunia.</p>`
+                    },
+                    {
+                        id: 2,
+                        title: "Chapter 1: Echoes of Huanglong",
+                        excerpt: "Perjalanan ke kota Huanglong mengungkap rahasia pertama tentang asal usul Lament dan kekuatan resonansi.",
+                        content: `<h3>Chapter 1: Echoes of Huanglong</h3>
+                                <p>Kota Huanglong berdiri megah di tengah dataran tinggi, arsitekturnya memadukan teknologi canggih dengan estetika tradisional. Rover membawamu melalui gerbang kota, menjelaskan bahwa Huanglong adalah salah satu dari sedikit tempat yang relatif aman setelah Lament.</p>
+                                <p>"Di sini kamu bisa belajar mengendalikan resonansimu," kata Rover sambil menunjuk menara tinggi di tengah kota. "Itu Menara Bel, tempat para Resonator berlatih."</p>
+                                <p>Pertemuan dengan Jiyan, komandan Pengawal Huanglong, membuka mata tentang situasi yang sebenarnya. Dunia masih penuh dengan Tacet Discord, makhluk yang lahir dari energi resonansi yang tidak stabil.</p>
+                                <p>"Lament bukan hanya bencana," ujar Jiyan dengan suara serius. "Itu adalah perubahan mendasar pada alam semesta kita. Gelombang suara yang biasa sekarang membawa kekuatan dan bahaya."</p>`
+                    },
+                    {
+                        id: 3,
+                        title: "Chapter 2: Whispers of the Past",
+                        excerpt: "Eksplorasi ke reruntuhan kuno mengungkap kebenaran tentang peradaban sebelum Lament.",
+                        content: `<h3>Chapter 2: Whispers of the Past</h3>
+                                <p>Reruntuhan peradaban lama menyimpan banyak rahasia. Bersama Rover, kamu menjelajahi situs arkeologi di pinggiran Huanglong. Tablet-tablet kuno yang ditemukan menceritakan kisah tentang "Era Resonansi", zaman ketika manusia pertama kali menemukan kekuatan gelombang suara.</p>
+                                <p>"Mereka bukan hanya menggunakannya," teriak Rover dari balik tumpukan batu. "Mereka menyatu dengan resonansi!"</p>
+                                <p>Penemuan itu mengubah segalanya. Lament bukan bencana alami, melainkan akibat dari eksperimen yang melampaui batas. Peradaban lama mencoba menguasai resonansi sempurna, dan dunia membayar harganya.</p>
+                                <p>Di kedalaman reruntuhan, kamu menemukan ruang tersembunyi dengan perangkat yang masih aktif. Saat menyentuhnya, ingatan-ingatan asing membanjiri pikiranmu. Kamu melihat wajah-wajah dari masa lalu, mendengar suara yang sudah lama hilang.</p>`
+                    }
+                ],
+                characterStories: [
+                    {
+                        name: "Jiyan",
+                        title: "Sang Pengawal",
+                        excerpt: "Komandan Pengawal Huanglong yang setia namun menyimpan luka masa lalu.",
+                        content: "Jiyan kehilangan keluarganya selama Lament. Janjinya untuk melindungi Huanglong berasal dari rasa bersalah karena tidak bisa menyelamatkan mereka."
+                    },
+                    {
+                        name: "Rover",
+                        title: "Penuntun Misterius",
+                        excerpt: "Resonator berpengalaman yang menemukanmu dan menjadi penuntun perjalananmu.",
+                        content: "Identitas asli Rover masih menjadi misteri. Meski selalu membantu, dia jarang membicarakan masa lalunya sendiri."
+                    }
+                ]
+            }
+        };
+
+        // Fungsi untuk load game data
+        async function loadGameData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const gameSlug = urlParams.get('slug') || 'wuthering-waves';
+            
+            console.log('Loading game:', gameSlug);
+            
+            // Coba load dari Firestore terlebih dahulu
+            try {
+                if (typeof db !== 'undefined') {
+                    console.log('Trying to load from Firestore...');
+                    const querySnapshot = await db.collection("games")
+                        .where("slug", "==", gameSlug)
+                        .get();
+                    
+                    if (!querySnapshot.empty) {
+                        // Data ditemukan di Firestore
+                        const gameDoc = querySnapshot.docs[0];
+                        const game = gameDoc.data();
+                        console.log('Game loaded from Firestore:', game.title);
+                        renderGame(game);
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.warn('Firestore error, using static data:', error);
+            }
+            
+            // Fallback ke data statis
+            console.log('Using static data for:', gameSlug);
+            const staticGame = staticGamesData[gameSlug] || staticGamesData['wuthering-waves'];
+            renderGame(staticGame);
+        }
+
+        // Fungsi render game
+        function renderGame(game) {
+            // Update judul halaman
+            document.title = `${game.title} - Exeloth Codex`;
+            
+            // Update elemen-elemen utama
+            document.getElementById('game-title').textContent = game.title;
+            document.getElementById('game-description').textContent = game.description;
+            document.getElementById('release-info').textContent = game.releaseDate || 'TBA';
+            document.getElementById('game-genre').textContent = game.genre || 'Action RPG';
+            document.getElementById('game-platform').textContent = game.platform || 'Multi-platform';
+            
+            // Update logo jika ada
+            const logoImg = document.getElementById('game-logo');
+            if (logoImg && game.logoURL) {
+                logoImg.src = game.logoURL;
+                logoImg.alt = `${game.title} Logo`;
+            }
+            
+            // Render badges
+            const badgesContainer = document.getElementById('game-badges');
+            if (badgesContainer && game.badges) {
+                badgesContainer.innerHTML = '';
+                game.badges.forEach(badge => {
+                    const badgeElement = document.createElement('span');
+                    badgeElement.className = 'badge bg-primary game-badge';
+                    badgeElement.textContent = badge;
+                    badgesContainer.appendChild(badgeElement);
+                });
+            }
+            
+            // Render main story
+            const mainStoryContainer = document.getElementById('main-story-content');
+            if (mainStoryContainer && game.mainStory) {
+                mainStoryContainer.innerHTML = '';
+                game.mainStory.forEach(chapter => {
+                    const chapterElement = document.createElement('div');
+                    chapterElement.className = 'chapter-card';
+                    chapterElement.onclick = () => showChapterModal(chapter);
+                    chapterElement.innerHTML = `
+                        <div class="chapter-title">${chapter.title}</div>
+                        <div class="chapter-excerpt">${chapter.excerpt}</div>
+                        <div class="text-end mt-3">
+                            <span class="badge bg-secondary">Baca Selengkapnya</span>
+                        </div>
+                    `;
+                    mainStoryContainer.appendChild(chapterElement);
+                });
+            }
+            
+            // Render character stories jika ada
+            if (game.characterStories) {
+                const charContainer = document.getElementById('character-story-content');
+                charContainer.innerHTML = '<div class="row"></div>';
+                
+                game.characterStories.forEach(character => {
+                    const col = document.createElement('div');
+                    col.className = 'col-md-6 mb-3';
+                    col.innerHTML = `
+                        <div class="card bg-dark border-secondary h-100">
+                            <div class="card-body">
+                                <h5 class="card-title text-white">${character.name}</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">${character.title}</h6>
+                                <p class="card-text text-white-50">${character.excerpt}</p>
+                                <button class="btn btn-sm btn-outline-info" onclick="showCharacterModal('${character.name}', '${character.title}', '${character.content.replace(/'/g, "\\'")}')">
+                                    Detail
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    charContainer.querySelector('.row').appendChild(col);
+                });
+            }
+        }
+
+        // Fungsi untuk menampilkan modal chapter
+        function showChapterModal(chapter) {
+            document.getElementById('chapterModalTitle').textContent = chapter.title;
+            document.getElementById('chapterModalContent').innerHTML = chapter.content;
+            
+            const modal = new bootstrap.Modal(document.getElementById('chapterModal'));
+            modal.show();
+        }
+
+        // Fungsi untuk menampilkan modal karakter
+        function showCharacterModal(name, title, content) {
+            document.getElementById('chapterModalTitle').textContent = `${name} - ${title}`;
+            document.getElementById('chapterModalContent').innerHTML = `
+                <div class="character-modal">
+                    <h4 class="text-white mb-3">${name}</h4>
+                    <h6 class="text-info mb-4">${title}</h6>
+                    <div class="character-content text-white-50">
+                        ${content}
+                    </div>
+                </div>
+            `;
+            
+            const modal = new bootstrap.Modal(document.getElementById('chapterModal'));
+            modal.show();
+        }
+
+        // Fungsi untuk scroll ke section
+        function scrollToSection(sectionId) {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                
+                // Update active menu
+                document.querySelectorAll('.sidebar-menu li a').forEach(link => {
+                    link.classList.remove('active');
+                });
+                event.target.closest('a').classList.add('active');
+                
+                // Tutup sidebar di mobile
+                if (window.innerWidth < 992) {
+                    if (typeof closeSidebar === 'function') {
+                        closeSidebar();
+                    }
+                }
+            }
+        }
+
+        // Inisialisasi ketika halaman dimuat
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('Game page initialized');
+            
             // Tampilkan hamburger button
             setTimeout(() => {
                 const toggleBtn = document.getElementById('sidebar-toggle-btn');
@@ -112,10 +459,51 @@
                 }
             }, 100);
             
-            // Load game data
-            if (typeof loadGameProfile === 'function') {
-                loadGameProfile();
-            }
+            // Load game data (dengan fallback)
+            loadGameData();
+            
+            // Setup menu click handlers
+            document.querySelectorAll('.sidebar-menu li a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Update active state
+                    document.querySelectorAll('.sidebar-menu li a').forEach(l => {
+                        l.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    
+                    // Get section from onclick attribute
+                    const onclickAttr = this.getAttribute('onclick');
+                    if (onclickAttr && onclickAttr.includes('scrollToSection')) {
+                        const sectionMatch = onclickAttr.match(/'([^']+)'/);
+                        if (sectionMatch && sectionMatch[1]) {
+                            scrollToSection(sectionMatch[1]);
+                        }
+                    }
+                });
+            });
+            
+            // Setup favorite button
+            window.toggleFavorite = function() {
+                const btn = document.getElementById('favorite-btn');
+                const icon = document.getElementById('favorite-icon');
+                const text = document.getElementById('favorite-text');
+                
+                if (btn.classList.contains('active')) {
+                    btn.classList.remove('active');
+                    icon.classList.remove('bi-star-fill');
+                    icon.classList.add('bi-star');
+                    text.textContent = 'Favorit';
+                    showNotification('Removed from favorites', 'info');
+                } else {
+                    btn.classList.add('active');
+                    icon.classList.remove('bi-star');
+                    icon.classList.add('bi-star-fill');
+                    text.textContent = 'Favorited';
+                    showNotification('Added to favorites', 'success');
+                }
+            };
         });
     </script>
 
