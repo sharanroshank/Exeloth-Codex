@@ -30,7 +30,7 @@ body {
     overflow-x: hidden;
     min-height: 100vh;
     position: relative;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Changed from transform to margin-left */
 }
 
 /* Khusus Halaman Game */
@@ -47,7 +47,7 @@ body.sidebar-open {
 
 /* Body shift saat sidebar terbuka - FIXED */
 body.sidebar-open {
-    transform: translateX(var(--sidebar-width));
+    margin-left: var(--sidebar-width);
     overflow-x: hidden;
 }
 
@@ -57,6 +57,7 @@ body.sidebar-open {
         width: 100%;
         height: 100%;
         overflow: hidden;
+        margin-left: 0; /* Reset margin di mobile */
     }
 }
 
@@ -72,6 +73,7 @@ body.sidebar-open {
     left: 0;
     width: 100%;
     z-index: 1030;
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Added for shift */
 }
 
 .navbar-brand {
@@ -144,10 +146,10 @@ body.sidebar-open {
     transform: rotate(180deg);
 }
 
-/* Navbar saat sidebar terbuka */
+/* Navbar saat sidebar terbuka - FIXED */
 body.sidebar-open .navbar {
-    transform: translateX(var(--sidebar-width));
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
 }
 
 /* Navbar left group saat sidebar terbuka */
@@ -663,6 +665,7 @@ body.admin-page #sidebar {
 #notification-container { 
     pointer-events: none; 
     z-index: 99999;
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 #notification-container .notification { 
@@ -763,6 +766,7 @@ body.admin-page #sidebar {
     pointer-events: none;
     image-rendering: -webkit-optimize-contrast;
     image-rendering: crisp-edges;
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Dashboard wrapper */
@@ -778,14 +782,15 @@ body.admin-page #sidebar {
     min-height: calc(100vh - 76px);
     background-color: transparent;
     position: relative;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     padding: 0;
-    will-change: transform;
+    will-change: margin-left;
 }
 
 /* Content shift saat sidebar terbuka */
 body.sidebar-open #content {
-    transform: translateX(var(--sidebar-width));
+    margin-left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
 }
 
 /* ==================== SIDEBAR UNTUK GAME PAGE - DIPERBARUI ==================== */
@@ -1109,12 +1114,32 @@ body.sidebar-open #content {
     
     /* Saat sidebar terbuka di desktop */
     body.sidebar-open {
-        transform: translateX(var(--sidebar-width));
+        margin-left: var(--sidebar-width);
+    }
+    
+    body.sidebar-open .navbar {
+        margin-left: var(--sidebar-width);
+        width: calc(100% - var(--sidebar-width));
+    }
+    
+    body.sidebar-open #content {
+        margin-left: var(--sidebar-width);
+        width: calc(100% - var(--sidebar-width));
+    }
+    
+    body.sidebar-open .bg-custom-fixed {
+        margin-left: var(--sidebar-width);
+        width: calc(100% - var(--sidebar-width));
     }
     
     /* Hamburger button di navbar untuk desktop */
     #sidebar-toggle-btn {
         display: flex !important;
+    }
+    
+    /* Overlay disembunyikan di desktop */
+    .overlay-sidebar.active {
+        display: none !important;
     }
 }
 
@@ -1127,22 +1152,38 @@ body.sidebar-open #content {
     
     /* Saat sidebar terbuka di mobile */
     body.sidebar-open {
-        transform: translateX(280px);
-        position: fixed;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
+        margin-left: 0; /* Reset margin di mobile */
+        transform: translateX(0); /* Reset transform */
+    }
+    
+    body.sidebar-open .navbar {
+        margin-left: 0; /* Reset margin di mobile */
+        width: 100%; /* Full width di mobile */
+    }
+    
+    body.sidebar-open #content {
+        margin-left: 0; /* Reset margin di mobile */
+        width: 100%; /* Full width di mobile */
+        pointer-events: none; /* Disable interaction saat sidebar terbuka */
+        filter: brightness(0.7); /* Darken content */
+    }
+    
+    body.sidebar-open .bg-custom-fixed {
+        margin-left: 0; /* Reset margin di mobile */
+        width: 100%; /* Full width di mobile */
     }
     
     /* Overlay lebih gelap di mobile */
     .overlay-sidebar.active {
         background: rgba(0,0,0,0.7);
+        display: block !important;
     }
     
     /* Sidebar header adjustment for mobile */
     .sidebar-header {
         height: 76px;
         width: 280px;
+        max-width: 85vw;
     }
     
     .sidebar-scrollable {
@@ -1162,7 +1203,7 @@ body.sidebar-open #content {
     }
     
     body.sidebar-open {
-        transform: translateX(280px);
+        margin-left: 0;
     }
     
     .sidebar-menu li a {
@@ -1201,13 +1242,10 @@ body.sidebar-open #content {
         max-width: 85%;
     }
     
-    body.sidebar-open {
-        transform: translateX(85%);
-    }
-    
     .sidebar-header {
         height: 70px;
         width: 85%;
+        max-width: 85%;
         padding: 10px 15px;
     }
     
@@ -1450,6 +1488,7 @@ body.sidebar-open #content {
 .modal-game .modal-content {
     background: rgba(33, 37, 41, 0.95);
     border: 1px solid rgba(111, 66, 193, 0.5);
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Content styling in modals */
@@ -1487,7 +1526,7 @@ body.sidebar-open #content {
 .overlay-sidebar,
 #content,
 #sidebar {
-    will-change: transform;
+    will-change: transform, margin-left;
 }
 
 /* ==================== 17. MOBILE NAVBAR IMPROVEMENTS ==================== */
@@ -1627,7 +1666,7 @@ body {
         padding-top: 0 !important;
         background-color: white !important;
         color: black !important;
-        transform: none !important;
+        margin-left: 0 !important;
     }
     
     .card {
@@ -1723,7 +1762,15 @@ body {
     
     #sidebar,
     #content,
-    body {
+    body,
+    .navbar,
+    .bg-custom-fixed,
+    .modal-content,
+    #notification-container {
+        transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    #sidebar {
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 }
@@ -1796,26 +1843,26 @@ img[width][height] {
 
 /* Fix untuk konten yang tidak bergeser */
 body.game-page:not(.sidebar-open) #content {
-    transform: translateX(0);
+    margin-left: 0;
 }
 
 body.game-page.sidebar-open #content {
-    transform: translateX(var(--sidebar-width));
+    margin-left: var(--sidebar-width);
 }
 
 /* Pastikan semua konten bergeser, termasuk background */
 body.sidebar-open .bg-custom-fixed {
-    transform: translateX(var(--sidebar-width));
+    margin-left: var(--sidebar-width);
 }
 
 /* Fix untuk modal agar tetap di tengah */
-body.sidebar-open .modal {
-    transform: translateX(var(--sidebar-width));
+body.sidebar-open .modal-content {
+    margin-left: var(--sidebar-width);
 }
 
 /* Fix untuk notification agar tetap di posisi yang benar */
 body.sidebar-open #notification-container {
-    transform: translateX(var(--sidebar-width));
+    margin-left: var(--sidebar-width);
 }
 
 /* Hamburger button animation */
@@ -1831,9 +1878,10 @@ body.sidebar-open #sidebar-toggle-btn i.bi-list {
 body,
 #content,
 .bg-custom-fixed,
-.modal,
-#notification-container {
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+.modal-content,
+#notification-container,
+.navbar {
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Disable transitions saat resize untuk menghindari glitch */
