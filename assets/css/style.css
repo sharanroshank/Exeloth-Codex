@@ -751,18 +751,31 @@ body.game-page {
     background-color: #34353a; 
 }
 
-/* Sidebar Override */
+/* --- UPDATE 1: Sidebar Full Screen (Menutupi Navbar) --- */
 body.game-page #sidebar { 
-    top: 76px !important; 
-    height: calc(100vh - 76px) !important; 
-    z-index: 900; 
+    top: 0 !important;           /* Naik ke paling atas */
+    height: 100vh !important;    /* Tinggi penuh */
+    z-index: 9999 !important;    /* Di atas segalanya */
+    position: fixed;
+    left: 0;
+    margin-left: -280px;         /* Sembunyi ke kiri (samakan dengan lebar sidebar global) */
+    background-color: #1a1d20;   /* Samakan warna background */
 }
 
+/* Saat aktif */
+body.game-page #sidebar.active {
+    margin-left: 0;
+    box-shadow: 5px 0 15px rgba(0,0,0,0.5);
+}
+
+/* Overlay Gelap */
 body.game-page .overlay-sidebar { 
-    top: 76px; 
+    top: 0 !important;           /* Overlay juga full */
+    z-index: 9998 !important;    /* Di bawah sidebar */
+    height: 100vh;
 }
 
-/* Tombol Dismiss Sidebar */
+/* --- UPDATE 2: Tombol Dismiss (X) --- */
 #dismiss { 
     width: 35px; 
     height: 35px; 
@@ -772,17 +785,27 @@ body.game-page .overlay-sidebar {
     border-radius: 50%; 
     cursor: pointer; 
     transition: 0.3s; 
-    align-self: flex-end; 
-    margin-top: 15px; 
-    margin-right: 20px; 
-    margin-bottom: 10px; 
+    /* Margin di-reset jadi 0 karena sudah masuk flexbox header */
+    margin: 0 !important; 
 }
 
 #dismiss:hover { 
     background: var(--primary-color); 
+    transform: rotate(90deg); /* Efek putar */
 }
 
-/* Top Bar (jika masih digunakan) */
+/* Header Sidebar (Agar X sejajar dengan Teks) */
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+/* --- BAGIAN DI BAWAH INI TETAP (JANGAN UBAH) --- */
+
+/* Top Bar */
 .top-bar { 
     background-color: rgba(37, 38, 43, 0.9); 
     backdrop-filter: blur(5px); 
@@ -819,7 +842,6 @@ body.game-page .overlay-sidebar {
     width: 100vw; 
     height: 100vh; 
     z-index: -1; 
-    /* Path gambar disesuaikan: naik satu folder dari css lalu masuk ke img */
     background: url('../img/games/background-wuthering-waves.jpg') no-repeat center center; 
     background-size: cover; 
     opacity: 0.15; 
