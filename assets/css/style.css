@@ -38,6 +38,11 @@ body.game-page {
     min-height: 100vh;
 }
 
+/* Class untuk saat sidebar terbuka */
+body.sidebar-open {
+    overflow: hidden;
+}
+
 /* ==================== 2. NAVBAR & HEADER ==================== */
 .navbar {
     backdrop-filter: blur(10px);
@@ -95,6 +100,8 @@ body.game-page {
     border-radius: 8px;
     margin-right: 15px;
     outline: none;
+    z-index: 1041;
+    position: relative;
 }
 
 #sidebar-toggle-btn:hover {
@@ -748,34 +755,14 @@ body.admin-page #sidebar {
     will-change: transform, margin-left;
 }
 
-/* Saat sidebar terbuka di desktop, geser konten */
-#content.shifted {
-    margin-left: 280px;
-    margin-right: -280px;
-}
+/* ==================== SIDEBAR UNTUK GAME PAGE - DIPERBARUI ==================== */
 
-/* Saat sidebar terbuka di mobile, gelapkan konten */
-#content.sidebar-shifted::before {
-    content: '';
-    position: fixed;
-    top: 76px;
-    left: 0;
-    width: 100vw;
-    height: calc(100vh - 76px);
-    background: rgba(0,0,0,0.5);
-    backdrop-filter: blur(2px);
-    z-index: 9998;
-    pointer-events: all;
-    opacity: 1;
-    transition: opacity 0.3s ease;
-}
-
-/* Sidebar untuk Game Page */
+/* Sidebar untuk Game Page - DIPERBARUI */
 #sidebar {
     position: fixed;
-    top: 76px;
+    top: 0; /* Mulai dari atas (menutupi navbar) */
     left: 0;
-    height: calc(100vh - 76px);
+    height: 100vh; /* Tinggi penuh viewport */
     z-index: 9999;
     background-color: #1a1d20;
     min-width: 280px;
@@ -784,13 +771,14 @@ body.admin-page #sidebar {
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 10px 0 30px rgba(0,0,0,0.5);
     border-radius: 0 20px 20px 0;
-    overflow-y: auto;
+    overflow-y: auto; /* Bisa di-scroll jika konten panjang */
     display: flex;
     flex-direction: column;
     border: none;
     will-change: transform;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
+    padding-top: 76px; /* Memberi ruang untuk navbar */
 }
 
 /* Saat Sidebar Active */
@@ -809,6 +797,11 @@ body.admin-page #sidebar {
     align-items: center;
     padding: 15px 20px;
     flex-shrink: 0;
+    position: fixed; /* Header tetap di atas saat scroll */
+    top: 0;
+    left: 0;
+    width: 280px;
+    z-index: 10000;
 }
 
 .sidebar-brand { 
@@ -844,6 +837,14 @@ body.admin-page #sidebar {
 
 #dismiss i {
     font-size: 1rem;
+}
+
+/* Container untuk konten sidebar yang bisa discroll */
+.sidebar-scrollable {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px 0;
+    margin-top: 70px; /* Beri margin atas untuk header fixed */
 }
 
 /* Menu Sidebar */
@@ -914,6 +915,7 @@ body.admin-page #sidebar {
     margin-top: auto;
     border-top: 1px solid rgba(255,255,255,0.1);
     background-color: rgba(0,0,0,0.2);
+    padding: 15px 20px;
 }
 
 .sidebar-footer a {
@@ -931,14 +933,32 @@ body.admin-page #sidebar {
     padding-left: 25px;
 }
 
-/* Overlay untuk sidebar */
+/* ==================== EFEK GESER KONTEN - DIPERBARUI ==================== */
+
+/* Saat sidebar terbuka di desktop, geser konten ke kanan */
+#content.shifted {
+    margin-left: 280px;
+    margin-right: -280px;
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Saat sidebar terbuka di mobile, geser konten ke kanan dengan transform */
+#content.sidebar-shifted {
+    transform: translateX(280px);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 1;
+    overflow: hidden; /* Mencegah scroll horizontal */
+}
+
+/* Overlay untuk sidebar - DIPERBARUI */
 .overlay-sidebar {
     display: none;
     position: fixed;
-    top: 76px;
+    top: 0; /* Mulai dari atas */
     left: 0;
     width: 100vw;
-    height: calc(100vh - 76px);
+    height: 100vh;
     background: rgba(0,0,0,0.7);
     backdrop-filter: blur(3px);
     z-index: 9998;
@@ -1074,30 +1094,51 @@ body.admin-page #sidebar {
     animation: slideOutLeft 0.3s ease-in;
 }
 
-/* ==================== 12. RESPONSIVE DESIGN ==================== */
-@media (max-width: 1200px) {
-    .container-fluid {
-        padding-left: 20px;
-        padding-right: 20px;
+/* ==================== 12. RESPONSIVE DESIGN - DIPERBARUI ==================== */
+
+/* Desktop (≥992px) */
+@media (min-width: 992px) {
+    #sidebar {
+        top: 0;
+        height: 100vh;
+    }
+    
+    /* Hamburger button di navbar untuk desktop */
+    #sidebar-toggle-btn {
+        display: flex !important;
+    }
+    
+    /* Saat sidebar terbuka di desktop, beri ruang untuk konten */
+    body.sidebar-open #content {
+        margin-left: 280px;
     }
 }
 
-@media (max-width: 992px) {
-    #content.shifted {
-        margin-left: 0;
-        margin-right: 0;
-    }
-    
+/* Tablet & Mobile (<992px) */
+@media (max-width: 991.98px) {
     #sidebar {
-        box-shadow: 5px 0 20px rgba(0,0,0,0.7);
+        width: 280px;
+        max-width: 85vw;
+        top: 0;
+        height: 100vh;
     }
     
-    .hero-section {
-        padding-top: 60px;
-        padding-bottom: 60px;
+    /* Saat sidebar terbuka di mobile, geser konten */
+    #content.sidebar-shifted {
+        transform: translateX(280px);
+        position: fixed;
+        width: 100%;
+        height: 100vh;
+        overflow: hidden;
     }
     
-    body.game-page .overlay-sidebar {
+    /* Mencegah scroll body saat sidebar terbuka di mobile */
+    body.sidebar-open {
+        overflow: hidden;
+    }
+    
+    /* Overlay lebih gelap di mobile */
+    .overlay-sidebar.active {
         background: rgba(0,0,0,0.8);
     }
 }
@@ -1152,18 +1193,16 @@ body.admin-page #sidebar {
     }
     
     #sidebar {
-        top: 70px;
-        height: calc(100vh - 70px);
-    }
-    
-    .overlay-sidebar {
-        top: 70px;
-        height: calc(100vh - 70px);
+        top: 0;
+        height: 100vh;
+        padding-top: 70px;
     }
     
     .sidebar-header {
+        height: 60px;
         min-height: 60px;
         padding: 10px 15px;
+        width: 100%;
     }
     
     .sidebar-brand {
@@ -1201,6 +1240,12 @@ body.admin-page #sidebar {
     
     #sidebar {
         width: 85%;
+        max-width: 85%;
+    }
+    
+    /* Saat sidebar terbuka di mobile kecil */
+    #content.sidebar-shifted {
+        transform: translateX(85%);
     }
     
     .modal-dialog {
@@ -1514,10 +1559,6 @@ body.admin-page #sidebar {
 }
 
 /* ==================== 18. UTILITY FOR SIDEBAR STATE ==================== */
-.sidebar-open {
-    overflow: hidden;
-}
-
 /* Hardware acceleration for sidebar */
 #sidebar,
 #content {

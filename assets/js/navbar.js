@@ -1,4 +1,9 @@
-// assets/js/navbar.js - VERSION WITH SIDEBAR FIXES
+// assets/js/navbar.js - ENHANCED VERSION WITH SIDEBAR INTEGRATION
+
+let currentSidebarState = {
+    isOpen: false,
+    isMobile: window.innerWidth < 992
+};
 
 function renderNavbar() {
     const navbarHTML = `
@@ -12,7 +17,9 @@ function renderNavbar() {
                         aria-label="Toggle sidebar"
                         aria-expanded="false"
                         aria-controls="sidebar"
-                        onclick="toggleSidebar()">
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="bottom"
+                        title="Toggle Sidebar">
                     <i class="bi bi-list fs-3"></i>
                 </button>
                 
@@ -95,39 +102,55 @@ function renderNavbar() {
 
     console.log('✅ Navbar rendered');
 
-    // --- SETUP HAMBURGER BUTTON UNTUK GAME PAGE ---
-    setupHamburgerButton();
-
-    // --- SETUP ACTIVE STATE FOR NAV LINKS ---
-    setupActiveNavLinks();
-
-    // --- SETUP EVENT LISTENERS ---
-    setupNavbarEventListeners();
-
-    // --- SETUP DROPDOWN FUNCTIONALITY ---
-    setupDropdowns();
-
+    // --- INITIALIZE NAVBAR COMPONENTS ---
+    initializeNavbarComponents();
+    
     // Dispatch event bahwa navbar sudah dirender
     setTimeout(() => {
         document.dispatchEvent(new CustomEvent('navbar:rendered'));
     }, 100);
+    
+    return true;
 }
 
-// Setup hamburger button khusus untuk halaman game
+// Initialize semua komponen navbar
+function initializeNavbarComponents() {
+    // Setup hamburger button
+    setupHamburgerButton();
+    
+    // Setup active state untuk nav links
+    setupActiveNavLinks();
+    
+    // Setup event listeners
+    setupNavbarEventListeners();
+    
+    // Setup dropdowns
+    setupDropdowns();
+    
+    // Setup tooltips
+    setupTooltips();
+    
+    // Setup responsive behavior
+    setupResponsiveBehavior();
+    
+    // Update sidebar state
+    updateSidebarState();
+    
+    console.log('✅ Navbar components initialized');
+}
+
+// Setup hamburger button khusus untuk halaman game - DIPERBARUI
 function setupHamburgerButton() {
     const isGamePage = window.location.pathname.includes('game.html');
     const toggleBtn = document.getElementById('sidebar-toggle-btn');
     
     if (isGamePage && toggleBtn) {
-        // Tampilkan tombol hamburger
+        // Tampilkan tombol hamburger dengan animasi
         toggleBtn.classList.remove('d-none');
-        toggleBtn.setAttribute('title', 'Toggle Sidebar');
-        toggleBtn.setAttribute('aria-label', 'Toggle Sidebar');
-        toggleBtn.setAttribute('aria-controls', 'sidebar');
-        
-        // Setup proper styling
         toggleBtn.style.cssText = `
             display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
             cursor: pointer;
             transition: all 0.3s ease;
             border-radius: 8px;
@@ -138,7 +161,16 @@ function setupHamburgerButton() {
             background: transparent;
             border: none;
             margin-right: 15px;
+            color: #fff;
+            z-index: 1041;
+            position: relative;
         `;
+        
+        // Setup proper attributes
+        toggleBtn.setAttribute('title', 'Toggle Sidebar');
+        toggleBtn.setAttribute('aria-label', 'Toggle Sidebar');
+        toggleBtn.setAttribute('aria-controls', 'sidebar');
+        toggleBtn.setAttribute('role', 'button');
         
         // Hover effects
         toggleBtn.addEventListener('mouseenter', function() {
@@ -151,42 +183,177 @@ function setupHamburgerButton() {
             this.style.backgroundColor = 'transparent';
         });
         
-        // Update initial aria-expanded state
-        const sidebar = document.getElementById('sidebar');
-        if (sidebar && sidebar.classList.contains('active')) {
-            toggleBtn.setAttribute('aria-expanded', 'true');
-            toggleBtn.innerHTML = '<i class="bi bi-x-lg fs-3"></i>';
-        } else {
-            toggleBtn.setAttribute('aria-expanded', 'false');
-            toggleBtn.innerHTML = '<i class="bi bi-list fs-3"></i>';
-        }
+        // Click event
+        toggleBtn.addEventListener('click', handleHamburgerClick);
+        
+        // Touch event untuk mobile
+        toggleBtn.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            handleHamburgerClick();
+        }, { passive: false });
+        
+        // Update initial state
+        updateHamburgerButtonState();
         
         console.log('✅ Hamburger button enabled for game page');
     } else if (toggleBtn) {
         // Sembunyikan tombol di halaman non-game
         toggleBtn.classList.add('d-none');
         toggleBtn.style.display = 'none';
+        toggleBtn.style.visibility = 'hidden';
+        toggleBtn.style.opacity = '0';
     }
 }
 
-// Update hamburger icon berdasarkan state sidebar
-function updateHamburgerIcon() {
+// Handle hamburger button click
+function handleHamburgerClick() {
     const toggleBtn = document.getElementById('sidebar-toggle-btn');
-    if (!toggleBtn) return;
-    
     const sidebar = document.getElementById('sidebar');
-    if (sidebar && sidebar.classList.contains('active')) {
+    
+    if (!toggleBtn || !sidebar) return;
+    
+    // Toggle sidebar menggunakan fungsi dari game-ui.js jika ada
+    if (typeof toggleSidebar === 'function') {
+        toggleSidebar();
+    } else {
+        // Fallback toggle
+        const isActive = sidebar.classList.contains('active');
+        if (isActive) {
+            closeSidebar();
+        } else {
+            openSidebar();
+        }
+    }
+    
+    // Update button state setelah delay kecil
+    setTimeout(updateHamburgerButtonState, 50);
+}
+
+// Update hamburger button state
+function updateHamburgerButtonState() {
+    const toggleBtn = document.getElementById('sidebar-toggle-btn');
+    const sidebar = document.getElementById('sidebar');
+    
+    if (!toggleBtn || !sidebar) return;
+    
+    const isActive = sidebar.classList.contains('active');
+    currentSidebarState.isOpen = isActive;
+    
+    if (isActive) {
         toggleBtn.innerHTML = '<i class="bi bi-x-lg fs-3"></i>';
         toggleBtn.setAttribute('title', 'Close Sidebar');
         toggleBtn.setAttribute('aria-label', 'Close Sidebar');
         toggleBtn.setAttribute('aria-expanded', 'true');
-        toggleBtn.style.display = 'flex';
+        
+        // Hide navbar left group saat sidebar terbuka
+        const leftNavbarGroup = document.getElementById('navbar-left-group');
+        if (leftNavbarGroup) {
+            leftNavbarGroup.classList.add('nav-hidden');
+        }
     } else {
         toggleBtn.innerHTML = '<i class="bi bi-list fs-3"></i>';
         toggleBtn.setAttribute('title', 'Open Sidebar');
         toggleBtn.setAttribute('aria-label', 'Open Sidebar');
         toggleBtn.setAttribute('aria-expanded', 'false');
-        toggleBtn.style.display = 'flex';
+        
+        // Show navbar left group saat sidebar tertutup
+        const leftNavbarGroup = document.getElementById('navbar-left-group');
+        if (leftNavbarGroup) {
+            leftNavbarGroup.classList.remove('nav-hidden');
+        }
+    }
+    
+    // Update tooltip
+    if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+        const tooltipInstance = bootstrap.Tooltip.getInstance(toggleBtn);
+        if (tooltipInstance) {
+            tooltipInstance.hide();
+            setTimeout(() => {
+                tooltipInstance.dispose();
+                new bootstrap.Tooltip(toggleBtn);
+            }, 100);
+        }
+    }
+}
+
+// Open sidebar function
+function openSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const content = document.getElementById('content');
+    const overlay = document.querySelector('.overlay-sidebar');
+    const body = document.body;
+    
+    if (sidebar) {
+        sidebar.classList.add('active');
+        sidebar.style.transform = 'translateX(0)';
+    }
+    
+    if (content) {
+        if (currentSidebarState.isMobile) {
+            content.classList.add('sidebar-shifted');
+            content.style.position = 'fixed';
+            content.style.width = '100%';
+            content.style.height = '100vh';
+        } else {
+            content.classList.add('shifted');
+        }
+    }
+    
+    if (overlay) {
+        overlay.classList.add('active');
+    }
+    
+    if (body) {
+        body.classList.add('sidebar-open');
+    }
+    
+    currentSidebarState.isOpen = true;
+    document.dispatchEvent(new CustomEvent('sidebar:opened'));
+    console.log('✅ Sidebar opened');
+}
+
+// Close sidebar function
+function closeSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const content = document.getElementById('content');
+    const overlay = document.querySelector('.overlay-sidebar');
+    const body = document.body;
+    
+    if (sidebar) {
+        sidebar.classList.remove('active');
+        sidebar.style.transform = 'translateX(-100%)';
+    }
+    
+    if (content) {
+        if (currentSidebarState.isMobile) {
+            content.classList.remove('sidebar-shifted');
+            content.style.position = '';
+            content.style.width = '';
+            content.style.height = '';
+        } else {
+            content.classList.remove('shifted');
+        }
+    }
+    
+    if (overlay) {
+        overlay.classList.remove('active');
+    }
+    
+    if (body) {
+        body.classList.remove('sidebar-open');
+    }
+    
+    currentSidebarState.isOpen = false;
+    document.dispatchEvent(new CustomEvent('sidebar:closed'));
+    console.log('✅ Sidebar closed');
+}
+
+// Update sidebar state
+function updateSidebarState() {
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) {
+        currentSidebarState.isOpen = sidebar.classList.contains('active');
+        updateHamburgerButtonState();
     }
 }
 
@@ -194,6 +361,7 @@ function updateHamburgerIcon() {
 function setupActiveNavLinks() {
     const path = window.location.pathname;
     const currentPage = path.split('/').pop() || 'index.html';
+    const hash = window.location.hash;
     
     // Reset semua active state
     document.querySelectorAll('.nav-link').forEach(link => {
@@ -216,29 +384,97 @@ function setupActiveNavLinks() {
         }
     } else if (currentPage === 'admin.html') {
         // Tidak ada link admin di navbar, jadi tidak ada yang di-set active
+    } else if (currentPage.includes('game.html')) {
+        // Untuk game page, tidak ada nav link khusus
     }
-    // Untuk game.html, tidak ada nav link khusus, jadi tidak di-set active
+    
+    // Handle hash untuk deep linking
+    if (hash && hash !== '#') {
+        const targetLink = document.querySelector(`.nav-link[href="${hash}"]`);
+        if (targetLink) {
+            targetLink.classList.add('active');
+            targetLink.setAttribute('aria-current', 'page');
+        }
+    }
 }
 
 // Setup event listeners untuk navbar
 function setupNavbarEventListeners() {
     // Update hamburger button icon saat sidebar state berubah
-    document.addEventListener('sidebar:opened', updateHamburgerIcon);
-    document.addEventListener('sidebar:closed', updateHamburgerIcon);
+    document.addEventListener('sidebar:opened', updateHamburgerButtonState);
+    document.addEventListener('sidebar:closed', updateHamburgerButtonState);
     
     // Handle window resize untuk responsive behavior
     let resizeTimer;
     window.addEventListener('resize', function() {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(function() {
+            currentSidebarState.isMobile = window.innerWidth < 992;
             setupHamburgerButton();
+            
+            // Jika resize dari mobile ke desktop dan sidebar terbuka, close sidebar
+            if (!currentSidebarState.isMobile && currentSidebarState.isOpen) {
+                closeSidebar();
+            }
         }, 250);
     });
     
     // Handle navigation events
-    document.addEventListener('DOMContentLoaded', function() {
-        // Update active links after any navigation
+    window.addEventListener('popstate', function() {
         setTimeout(setupActiveNavLinks, 100);
+    });
+    
+    // Handle click on nav links untuk mobile menu
+    document.addEventListener('click', function(e) {
+        if (currentSidebarState.isMobile && window.innerWidth < 992) {
+            const navLink = e.target.closest('.nav-link');
+            if (navLink && !navLink.hasAttribute('data-bs-toggle')) {
+                // Close mobile navbar collapse
+                const navbarNav = document.getElementById('navbarNav');
+                const navbarToggler = document.querySelector('.navbar-toggler');
+                
+                if (navbarNav && navbarNav.classList.contains('show')) {
+                    const bsCollapse = bootstrap.Collapse.getInstance(navbarNav);
+                    if (bsCollapse) {
+                        bsCollapse.hide();
+                    }
+                    if (navbarToggler) {
+                        navbarToggler.setAttribute('aria-expanded', 'false');
+                    }
+                }
+            }
+        }
+    });
+    
+    // Keyboard navigation untuk navbar
+    document.addEventListener('keydown', function(e) {
+        // Escape untuk close sidebar
+        if (e.key === 'Escape' && currentSidebarState.isOpen) {
+            closeSidebar();
+        }
+        
+        // Tab navigation untuk dropdown
+        if (e.key === 'Tab') {
+            const dropdown = document.querySelector('.dropdown.show');
+            if (dropdown) {
+                const dropdownItems = dropdown.querySelectorAll('.dropdown-item');
+                const focusedElement = document.activeElement;
+                
+                if (focusedElement.classList.contains('dropdown-item')) {
+                    const currentIndex = Array.from(dropdownItems).indexOf(focusedElement);
+                    
+                    if (e.shiftKey && currentIndex === 0) {
+                        // Shift+Tab dari item pertama: kembali ke dropdown toggle
+                        e.preventDefault();
+                        const dropdownToggle = dropdown.querySelector('.dropdown-toggle');
+                        if (dropdownToggle) dropdownToggle.focus();
+                    } else if (!e.shiftKey && currentIndex === dropdownItems.length - 1) {
+                        // Tab dari item terakhir: keluar dari dropdown
+                        // Biarkan default behavior
+                    }
+                }
+            }
+        }
     });
 }
 
@@ -253,6 +489,67 @@ function setupDropdowns() {
         
         console.log('✅ Bootstrap dropdowns initialized');
     }
+    
+    // Enhanced dropdown behavior
+    document.querySelectorAll('.dropdown').forEach(dropdown => {
+        const toggle = dropdown.querySelector('.dropdown-toggle');
+        const menu = dropdown.querySelector('.dropdown-menu');
+        
+        if (toggle && menu) {
+            // Keyboard navigation
+            toggle.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    this.click();
+                    
+                    // Focus first item setelah dropdown terbuka
+                    setTimeout(() => {
+                        const firstItem = menu.querySelector('.dropdown-item');
+                        if (firstItem) firstItem.focus();
+                    }, 100);
+                }
+            });
+            
+            // Menu keyboard navigation
+            menu.addEventListener('keydown', function(e) {
+                const items = this.querySelectorAll('.dropdown-item');
+                const currentItem = document.activeElement;
+                const currentIndex = Array.from(items).indexOf(currentItem);
+                
+                switch(e.key) {
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        if (currentIndex < items.length - 1) {
+                            items[currentIndex + 1].focus();
+                        }
+                        break;
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        if (currentIndex > 0) {
+                            items[currentIndex - 1].focus();
+                        } else {
+                            toggle.focus();
+                            const dropdownInstance = bootstrap.Dropdown.getInstance(toggle);
+                            if (dropdownInstance) dropdownInstance.hide();
+                        }
+                        break;
+                    case 'Escape':
+                        toggle.focus();
+                        const dropdownInstance = bootstrap.Dropdown.getInstance(toggle);
+                        if (dropdownInstance) dropdownInstance.hide();
+                        break;
+                    case 'Home':
+                        e.preventDefault();
+                        items[0].focus();
+                        break;
+                    case 'End':
+                        e.preventDefault();
+                        items[items.length - 1].focus();
+                        break;
+                }
+            });
+        }
+    });
     
     // Close dropdown ketika klik di luar
     document.addEventListener('click', function(e) {
@@ -269,6 +566,48 @@ function setupDropdowns() {
             }
         });
     });
+}
+
+// Setup tooltips
+function setupTooltips() {
+    if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+        // Inisialisasi tooltips
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+        
+        console.log('✅ Tooltips initialized');
+    }
+}
+
+// Setup responsive behavior
+function setupResponsiveBehavior() {
+    // Update mobile state
+    currentSidebarState.isMobile = window.innerWidth < 992;
+    
+    // Handle touch events untuk mobile
+    if (currentSidebarState.isMobile) {
+        // Touch swipe untuk close sidebar
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        document.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+        
+        document.addEventListener('touchend', function(e) {
+            if (!currentSidebarState.isOpen) return;
+            
+            touchEndX = e.changedTouches[0].screenX;
+            const swipeDistance = touchEndX - touchStartX;
+            
+            // Swipe kiri untuk close sidebar
+            if (swipeDistance < -50) {
+                closeSidebar();
+            }
+        }, { passive: true });
+    }
 }
 
 // Helper Navigasi Admin
@@ -381,43 +720,22 @@ window.updateNavbar = function(isLoggedIn) {
     }
 }
 
-// Fallback function jika toggleSidebar tidak didefinisikan
+// Fallback functions jika tidak didefinisikan di game-ui.js
 if (typeof toggleSidebar === 'undefined') {
     window.toggleSidebar = function() {
-        console.warn('⚠️ toggleSidebar function is not defined, using fallback');
-        const sidebar = document.getElementById('sidebar');
-        if (sidebar) {
-            sidebar.classList.toggle('active');
-            updateHamburgerIcon();
-            
-            // Update nav-hidden class
-            const leftNavbarGroup = document.getElementById('navbar-left-group');
-            if (leftNavbarGroup) {
-                if (sidebar.classList.contains('active')) {
-                    leftNavbarGroup.classList.add('nav-hidden');
-                } else {
-                    leftNavbarGroup.classList.remove('nav-hidden');
-                }
-            }
+        console.log('🔄 Toggling sidebar via navbar fallback');
+        if (currentSidebarState.isOpen) {
+            closeSidebar();
+        } else {
+            openSidebar();
         }
     };
 }
 
-// Fallback function jika closeSidebar tidak didefinisikan
 if (typeof closeSidebar === 'undefined') {
     window.closeSidebar = function() {
-        console.warn('⚠️ closeSidebar function is not defined, using fallback');
-        const sidebar = document.getElementById('sidebar');
-        if (sidebar && sidebar.classList.contains('active')) {
-            sidebar.classList.remove('active');
-            updateHamburgerIcon();
-            
-            // Update nav-hidden class
-            const leftNavbarGroup = document.getElementById('navbar-left-group');
-            if (leftNavbarGroup) {
-                leftNavbarGroup.classList.remove('nav-hidden');
-            }
-        }
+        console.log('🔄 Closing sidebar via navbar fallback');
+        closeSidebar();
     };
 }
 
@@ -431,6 +749,21 @@ document.addEventListener('DOMContentLoaded', function() {
             if (navbarNav) {
                 const isExpanded = this.getAttribute('aria-expanded') === 'true';
                 this.setAttribute('aria-expanded', !isExpanded);
+                
+                // Update aria-label
+                if (!isExpanded) {
+                    this.setAttribute('aria-label', 'Close navigation menu');
+                } else {
+                    this.setAttribute('aria-label', 'Open navigation menu');
+                }
+            }
+        });
+        
+        // Keyboard support
+        navbarToggler.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.click();
             }
         });
     }
@@ -447,7 +780,17 @@ document.addEventListener('DOMContentLoaded', function() {
             const bsCollapse = bootstrap.Collapse.getInstance(navbarNav);
             if (bsCollapse) {
                 bsCollapse.hide();
+                navbarToggler.setAttribute('aria-expanded', 'false');
+                navbarToggler.setAttribute('aria-label', 'Open navigation menu');
             }
+        }
+    });
+    
+    // Close sidebar when clicking on overlay
+    document.addEventListener('click', function(e) {
+        const overlay = document.querySelector('.overlay-sidebar');
+        if (overlay && overlay.contains(e.target) && currentSidebarState.isOpen) {
+            closeSidebar();
         }
     });
 });
@@ -459,12 +802,22 @@ document.addEventListener('DOMContentLoaded', function() {
     // Jika navbar placeholder ada, render navbar
     if (document.getElementById('navbar-placeholder')) {
         renderNavbar();
+    } else {
+        console.warn('⚠️ Navbar placeholder not found');
     }
     
     // Setup event untuk re-render jika diperlukan
     document.addEventListener('navbar:refresh', function() {
         console.log('🔄 Refreshing navbar...');
         renderNavbar();
+    });
+    
+    // Listen untuk update sidebar state
+    document.addEventListener('sidebar:state:update', function(e) {
+        if (e.detail && typeof e.detail.isOpen !== 'undefined') {
+            currentSidebarState.isOpen = e.detail.isOpen;
+            updateHamburgerButtonState();
+        }
     });
 });
 
@@ -474,3 +827,9 @@ window.setupHamburgerButton = setupHamburgerButton;
 window.updateNavbarProfile = updateNavbarProfile;
 window.updateNavbar = updateNavbar;
 window.resetNavbarProfile = resetNavbarProfile;
+window.updateHamburgerButtonState = updateHamburgerButtonState;
+window.openSidebar = openSidebar;
+window.closeSidebar = closeSidebar;
+
+// Export sidebar state untuk akses global
+window.sidebarState = currentSidebarState;

@@ -58,6 +58,46 @@
             margin-bottom: 20px;
             font-weight: 600;
         }
+        
+        /* Sidebar styling khusus untuk game page */
+        .sidebar-scrollable {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px 0;
+            margin-top: 70px;
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling di iOS */
+        }
+        
+        /* Untuk konten yang dipindahkan */
+        #content.shifted {
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        #content.sidebar-shifted {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* Tombol sidebar dalam navbar */
+        #sidebar-toggle-btn {
+            transition: all 0.3s ease;
+        }
+        
+        /* Active state untuk menu sidebar */
+        .sidebar-menu li a.active {
+            background: rgba(111, 66, 193, 0.1);
+            border-left: 3px solid var(--primary-color);
+        }
+        
+        /* Highlight untuk section yang aktif */
+        .section-highlight {
+            animation: highlightPulse 2s ease;
+        }
+        
+        @keyframes highlightPulse {
+            0% { box-shadow: 0 0 0 0 rgba(111, 66, 193, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(111, 66, 193, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(111, 66, 193, 0); }
+        }
     </style>
 </head>
 <body class="game-page">
@@ -70,31 +110,84 @@
     <div class="bg-custom-fixed"></div>
 
     <!-- Sidebar -->
-    <nav id="sidebar">
+    <nav id="sidebar" role="navigation" aria-label="Table of Contents">
         <div class="sidebar-header d-flex justify-content-between align-items-center p-3">
             <div class="sidebar-brand fw-bold text-uppercase ls-1 text-white">DAFTAR ISI</div>
-            <div id="dismiss" class="btn btn-sm btn-outline-light rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px; border: 1px solid rgba(255,255,255,0.3);">
+            <button id="dismiss" class="btn btn-sm btn-outline-light rounded-circle d-flex align-items-center justify-content-center" 
+                    style="width: 35px; height: 35px; border: 1px solid rgba(255,255,255,0.3);"
+                    aria-label="Close sidebar"
+                    title="Tutup sidebar">
                 <i class="bi bi-x-lg"></i>
-            </div>
+            </button>
         </div>
 
-        <ul class="list-unstyled sidebar-menu py-2">
-            <li><a href="#" class="active d-flex align-items-center gap-3 py-3 px-4" onclick="scrollToSection('overview')"><i class="bi bi-info-circle"></i> Overview</a></li>
-            <li><a href="#" class="d-flex align-items-center gap-3 py-3 px-4" onclick="scrollToSection('main-story')"><i class="bi bi-book"></i> Cerita Utama</a></li>
-            <li><a href="#" class="d-flex align-items-center gap-3 py-3 px-4" onclick="scrollToSection('character-story')"><i class="bi bi-people"></i> Cerita Karakter</a></li>
-            <li><a href="#" class="d-flex align-items-center gap-3 py-3 px-4" onclick="scrollToSection('event-story')"><i class="bi bi-calendar-event"></i> Cerita Event</a></li>
-            <li><a href="#" class="d-flex align-items-center gap-3 py-3 px-4" onclick="scrollToSection('lore-archive')"><i class="bi bi-archive"></i> Arsip Lore</a></li>
-        </ul>
+        <div class="sidebar-scrollable">
+            <ul class="list-unstyled sidebar-menu py-2">
+                <li>
+                    <a href="#overview" 
+                       class="active d-flex align-items-center gap-3 py-3 px-4" 
+                       onclick="handleSidebarNavigation('overview', this)"
+                       data-target="overview"
+                       aria-label="Go to Overview section">
+                        <i class="bi bi-info-circle"></i> 
+                        <span>Overview</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#main-story" 
+                       class="d-flex align-items-center gap-3 py-3 px-4" 
+                       onclick="handleSidebarNavigation('main-story', this)"
+                       data-target="main-story"
+                       aria-label="Go to Main Story section">
+                        <i class="bi bi-book"></i> 
+                        <span>Cerita Utama</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#character-story" 
+                       class="d-flex align-items-center gap-3 py-3 px-4" 
+                       onclick="handleSidebarNavigation('character-story', this)"
+                       data-target="character-story"
+                       aria-label="Go to Character Story section">
+                        <i class="bi bi-people"></i> 
+                        <span>Cerita Karakter</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#event-story" 
+                       class="d-flex align-items-center gap-3 py-3 px-4" 
+                       onclick="handleSidebarNavigation('event-story', this)"
+                       data-target="event-story"
+                       aria-label="Go to Event Story section">
+                        <i class="bi bi-calendar-event"></i> 
+                        <span>Cerita Event</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#lore-archive" 
+                       class="d-flex align-items-center gap-3 py-3 px-4" 
+                       onclick="handleSidebarNavigation('lore-archive', this)"
+                       data-target="lore-archive"
+                       aria-label="Go to Lore Archive section">
+                        <i class="bi bi-archive"></i> 
+                        <span>Arsip Lore</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
 
-        <div class="sidebar-footer p-3 border-top border-secondary mt-auto">
-            <a href="games.html" class="text-decoration-none text-white-50 d-flex align-items-center gap-2">
-                <i class="bi bi-arrow-left"></i> Kembali ke Daftar
+        <div class="sidebar-footer p-3 border-top border-secondary">
+            <a href="games.html" 
+               class="text-decoration-none text-white-50 d-flex align-items-center gap-2"
+               onclick="if(window.innerWidth < 992) closeSidebar();">
+                <i class="bi bi-arrow-left"></i> 
+                <span>Kembali ke Daftar</span>
             </a>
         </div>
     </nav>
 
     <!-- Overlay untuk sidebar -->
-    <div class="overlay-sidebar"></div>
+    <div class="overlay-sidebar" role="button" aria-label="Close sidebar" tabindex="0"></div>
 
     <div class="dashboard-wrapper">
         <div id="content">
@@ -105,8 +198,10 @@
                          id="game-logo" 
                          style="height: 60px; width: auto; object-fit: contain;"
                          onerror="this.src='https://ui-avatars.com/api/?name=Wuthering+Waves&background=6f42c1&color=fff'">
-                    <button class="btn btn-favorite rounded-pill px-4" id="favorite-btn" onclick="toggleFavorite()">
-                        <i class="bi bi-star me-2" id="favorite-icon"></i> <span id="favorite-text">Favorit</span>
+                    <button class="btn btn-favorite rounded-pill px-4" id="favorite-btn" onclick="toggleFavorite()"
+                            aria-label="Add to favorites">
+                        <i class="bi bi-star me-2" id="favorite-icon"></i> 
+                        <span id="favorite-text">Favorit</span>
                     </button>
                 </div>
                 
@@ -227,7 +322,7 @@
     <script src="assets/js/app.js"></script>
     <script src="assets/js/game-ui.js"></script>
     
-    <!-- Static Game Data -->
+    <!-- Game Page Specific JavaScript -->
     <script>
         // Data statis untuk Wuthering Waves (fallback)
         const staticGamesData = {
@@ -291,6 +386,42 @@
             }
         };
 
+        // Fungsi untuk handle sidebar navigation
+        function handleSidebarNavigation(sectionId, linkElement) {
+            // Scroll ke section
+            scrollToSection(sectionId);
+            
+            // Update active state di sidebar
+            document.querySelectorAll('.sidebar-menu li a').forEach(link => {
+                link.classList.remove('active');
+                link.setAttribute('aria-current', null);
+            });
+            
+            linkElement.classList.add('active');
+            linkElement.setAttribute('aria-current', 'page');
+            
+            // Highlight section yang dituju
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.classList.add('section-highlight');
+                setTimeout(() => {
+                    section.classList.remove('section-highlight');
+                }, 2000);
+            }
+            
+            // Update URL hash tanpa reload page
+            history.pushState(null, null, `#${sectionId}`);
+            
+            // Tutup sidebar di mobile
+            if (window.innerWidth < 992) {
+                if (typeof closeSidebar === 'function') {
+                    closeSidebar();
+                }
+            }
+            
+            return false; // Prevent default anchor behavior
+        }
+
         // Fungsi untuk load game data
         async function loadGameData() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -342,6 +473,9 @@
             if (logoImg && game.logoURL) {
                 logoImg.src = game.logoURL;
                 logoImg.alt = `${game.title} Logo`;
+                logoImg.onerror = function() {
+                    this.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(game.title)}&background=6f42c1&color=fff`;
+                };
             }
             
             // Render badges
@@ -352,6 +486,7 @@
                     const badgeElement = document.createElement('span');
                     badgeElement.className = 'badge bg-primary game-badge';
                     badgeElement.textContent = badge;
+                    badgeElement.setAttribute('aria-label', badge);
                     badgesContainer.appendChild(badgeElement);
                 });
             }
@@ -363,7 +498,17 @@
                 game.mainStory.forEach(chapter => {
                     const chapterElement = document.createElement('div');
                     chapterElement.className = 'chapter-card';
+                    chapterElement.setAttribute('role', 'button');
+                    chapterElement.setAttribute('tabindex', '0');
+                    chapterElement.setAttribute('aria-label', `Read ${chapter.title}`);
                     chapterElement.onclick = () => showChapterModal(chapter);
+                    chapterElement.onkeypress = (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            showChapterModal(chapter);
+                        }
+                    };
+                    
                     chapterElement.innerHTML = `
                         <div class="chapter-title">${chapter.title}</div>
                         <div class="chapter-excerpt">${chapter.excerpt}</div>
@@ -373,12 +518,19 @@
                     `;
                     mainStoryContainer.appendChild(chapterElement);
                 });
+            } else if (mainStoryContainer) {
+                mainStoryContainer.innerHTML = `
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Belum ada konten cerita utama untuk game ini.
+                    </div>
+                `;
             }
             
             // Render character stories jika ada
-            if (game.characterStories) {
+            if (game.characterStories && game.characterStories.length > 0) {
                 const charContainer = document.getElementById('character-story-content');
-                charContainer.innerHTML = '<div class="row"></div>';
+                charContainer.innerHTML = '<div class="row" id="character-stories-row"></div>';
                 
                 game.characterStories.forEach(character => {
                     const col = document.createElement('div');
@@ -389,24 +541,45 @@
                                 <h5 class="card-title text-white">${character.name}</h5>
                                 <h6 class="card-subtitle mb-2 text-muted">${character.title}</h6>
                                 <p class="card-text text-white-50">${character.excerpt}</p>
-                                <button class="btn btn-sm btn-outline-info" onclick="showCharacterModal('${character.name}', '${character.title}', '${character.content.replace(/'/g, "\\'")}')">
+                                <button class="btn btn-sm btn-outline-info" 
+                                        onclick="showCharacterModal('${character.name}', '${character.title}', '${character.content.replace(/'/g, "\\'")}')"
+                                        aria-label="View ${character.name} details">
                                     Detail
                                 </button>
                             </div>
                         </div>
                     `;
-                    charContainer.querySelector('.row').appendChild(col);
+                    document.getElementById('character-stories-row').appendChild(col);
                 });
             }
+            
+            // Setup intersection observer untuk active menu tracking
+            setupSectionObserver();
         }
 
         // Fungsi untuk menampilkan modal chapter
         function showChapterModal(chapter) {
             document.getElementById('chapterModalTitle').textContent = chapter.title;
-            document.getElementById('chapterModalContent').innerHTML = chapter.content;
+            document.getElementById('chapterModalContent').innerHTML = `
+                <div class="chapter-content">
+                    ${chapter.content}
+                    <div class="mt-4 pt-3 border-top border-secondary">
+                        <small class="text-white-50">
+                            <i class="bi bi-clock-history me-1"></i> 
+                            Waktu baca: ${Math.ceil(chapter.content.split(' ').length / 200)} menit
+                        </small>
+                    </div>
+                </div>
+            `;
             
             const modal = new bootstrap.Modal(document.getElementById('chapterModal'));
             modal.show();
+            
+            // Focus trap untuk accessibility
+            const modalElement = document.getElementById('chapterModal');
+            modalElement.addEventListener('shown.bs.modal', function() {
+                this.querySelector('.btn-close').focus();
+            });
         }
 
         // Fungsi untuk menampilkan modal karakter
@@ -414,10 +587,22 @@
             document.getElementById('chapterModalTitle').textContent = `${name} - ${title}`;
             document.getElementById('chapterModalContent').innerHTML = `
                 <div class="character-modal">
-                    <h4 class="text-white mb-3">${name}</h4>
-                    <h6 class="text-info mb-4">${title}</h6>
+                    <div class="text-center mb-4">
+                        <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center" 
+                             style="width: 80px; height: 80px;">
+                            <i class="bi bi-person-fill fs-1 text-white"></i>
+                        </div>
+                    </div>
+                    <h4 class="text-white text-center mb-3">${name}</h4>
+                    <h6 class="text-info text-center mb-4">${title}</h6>
                     <div class="character-content text-white-50">
-                        ${content}
+                        <p>${content}</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-top border-secondary text-center">
+                        <small class="text-white-50">
+                            <i class="bi bi-tag me-1"></i> 
+                            Karakter utama dalam cerita
+                        </small>
                     </div>
                 </div>
             `;
@@ -426,24 +611,92 @@
             modal.show();
         }
 
-        // Fungsi untuk scroll ke section
-        function scrollToSection(sectionId) {
-            const element = document.getElementById(sectionId);
-            if (element) {
-                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                
-                // Update active menu
-                document.querySelectorAll('.sidebar-menu li a').forEach(link => {
-                    link.classList.remove('active');
-                });
-                event.target.closest('a').classList.add('active');
-                
-                // Tutup sidebar di mobile
-                if (window.innerWidth < 992) {
-                    if (typeof closeSidebar === 'function') {
-                        closeSidebar();
+        // Setup intersection observer untuk track section yang aktif
+        function setupSectionObserver() {
+            const sections = document.querySelectorAll('section[id]');
+            const menuLinks = document.querySelectorAll('.sidebar-menu li a');
+            
+            const observerOptions = {
+                root: null,
+                rootMargin: '-20% 0px -70% 0px',
+                threshold: 0
+            };
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const sectionId = entry.target.id;
+                        // Update active menu
+                        menuLinks.forEach(link => {
+                            link.classList.remove('active');
+                            link.setAttribute('aria-current', null);
+                            if (link.getAttribute('data-target') === sectionId) {
+                                link.classList.add('active');
+                                link.setAttribute('aria-current', 'page');
+                            }
+                        });
                     }
+                });
+            }, observerOptions);
+            
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+        }
+
+        // Setup favorite button
+        window.toggleFavorite = function() {
+            const btn = document.getElementById('favorite-btn');
+            const icon = document.getElementById('favorite-icon');
+            const text = document.getElementById('favorite-text');
+            
+            const isActive = btn.classList.contains('active');
+            
+            if (isActive) {
+                btn.classList.remove('active');
+                icon.classList.remove('bi-star-fill');
+                icon.classList.add('bi-star');
+                text.textContent = 'Favorit';
+                if (typeof showNotification === 'function') {
+                    showNotification('Removed from favorites', 'info');
                 }
+            } else {
+                btn.classList.add('active');
+                icon.classList.remove('bi-star');
+                icon.classList.add('bi-star-fill');
+                text.textContent = 'Favorited';
+                if (typeof showNotification === 'function') {
+                    showNotification('Added to favorites', 'success');
+                }
+            }
+            
+            // Simpan ke localStorage
+            const gameSlug = new URLSearchParams(window.location.search).get('slug') || 'wuthering-waves';
+            const favorites = JSON.parse(localStorage.getItem('gameFavorites') || '{}');
+            favorites[gameSlug] = !isActive;
+            localStorage.setItem('gameFavorites', JSON.stringify(favorites));
+            
+            // Dispatch event untuk update UI lain jika diperlukan
+            document.dispatchEvent(new CustomEvent('favorite:toggled', { 
+                detail: { slug: gameSlug, isFavorite: !isActive }
+            }));
+        };
+
+        // Load favorite state dari localStorage
+        function loadFavoriteState() {
+            const gameSlug = new URLSearchParams(window.location.search).get('slug') || 'wuthering-waves';
+            const favorites = JSON.parse(localStorage.getItem('gameFavorites') || '{}');
+            const isFavorited = favorites[gameSlug] || false;
+            
+            const btn = document.getElementById('favorite-btn');
+            const icon = document.getElementById('favorite-icon');
+            const text = document.getElementById('favorite-text');
+            
+            if (isFavorited && btn && icon && text) {
+                btn.classList.add('active');
+                icon.classList.remove('bi-star');
+                icon.classList.add('bi-star-fill');
+                text.textContent = 'Favorited';
             }
         }
 
@@ -451,60 +704,85 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Game page initialized');
             
-            // Tampilkan hamburger button
-            setTimeout(() => {
-                const toggleBtn = document.getElementById('sidebar-toggle-btn');
-                if (toggleBtn) {
-                    toggleBtn.classList.remove('d-none');
-                }
-            }, 100);
-            
             // Load game data (dengan fallback)
             loadGameData();
             
-            // Setup menu click handlers
+            // Load favorite state
+            loadFavoriteState();
+            
+            // Setup click handlers untuk sidebar links
             document.querySelectorAll('.sidebar-menu li a').forEach(link => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
-                    
-                    // Update active state
-                    document.querySelectorAll('.sidebar-menu li a').forEach(l => {
-                        l.classList.remove('active');
-                    });
-                    this.classList.add('active');
-                    
-                    // Get section from onclick attribute
-                    const onclickAttr = this.getAttribute('onclick');
-                    if (onclickAttr && onclickAttr.includes('scrollToSection')) {
-                        const sectionMatch = onclickAttr.match(/'([^']+)'/);
-                        if (sectionMatch && sectionMatch[1]) {
-                            scrollToSection(sectionMatch[1]);
-                        }
+                    const targetId = this.getAttribute('data-target');
+                    if (targetId) {
+                        handleSidebarNavigation(targetId, this);
                     }
                 });
             });
             
-            // Setup favorite button
-            window.toggleFavorite = function() {
-                const btn = document.getElementById('favorite-btn');
-                const icon = document.getElementById('favorite-icon');
-                const text = document.getElementById('favorite-text');
-                
-                if (btn.classList.contains('active')) {
-                    btn.classList.remove('active');
-                    icon.classList.remove('bi-star-fill');
-                    icon.classList.add('bi-star');
-                    text.textContent = 'Favorit';
-                    showNotification('Removed from favorites', 'info');
-                } else {
-                    btn.classList.add('active');
-                    icon.classList.remove('bi-star');
-                    icon.classList.add('bi-star-fill');
-                    text.textContent = 'Favorited';
-                    showNotification('Added to favorites', 'success');
-                }
-            };
+            // Setup keyboard navigation untuk sidebar
+            document.querySelectorAll('.sidebar-menu li a').forEach((link, index) => {
+                link.addEventListener('keydown', function(e) {
+                    const links = document.querySelectorAll('.sidebar-menu li a');
+                    const currentIndex = Array.from(links).indexOf(this);
+                    
+                    switch(e.key) {
+                        case 'ArrowDown':
+                            e.preventDefault();
+                            if (currentIndex < links.length - 1) {
+                                links[currentIndex + 1].focus();
+                            }
+                            break;
+                        case 'ArrowUp':
+                            e.preventDefault();
+                            if (currentIndex > 0) {
+                                links[currentIndex - 1].focus();
+                            }
+                            break;
+                        case 'Home':
+                            e.preventDefault();
+                            links[0].focus();
+                            break;
+                        case 'End':
+                            e.preventDefault();
+                            links[links.length - 1].focus();
+                            break;
+                        case 'Enter':
+                        case ' ':
+                            e.preventDefault();
+                            this.click();
+                            break;
+                    }
+                });
+            });
+            
+            // Check URL hash untuk auto-scroll
+            if (window.location.hash) {
+                const sectionId = window.location.hash.substring(1);
+                setTimeout(() => {
+                    scrollToSection(sectionId);
+                }, 500);
+            }
+            
+            // Initialize game UI
+            if (typeof initGamePage === 'function') {
+                initGamePage();
+            }
         });
+
+        // Handle browser back/forward buttons
+        window.addEventListener('popstate', function() {
+            if (window.location.hash) {
+                const sectionId = window.location.hash.substring(1);
+                scrollToSection(sectionId);
+            }
+        });
+
+        // Export functions untuk akses global
+        window.showChapterModal = showChapterModal;
+        window.showCharacterModal = showCharacterModal;
+        window.handleSidebarNavigation = handleSidebarNavigation;
     </script>
 
 </body>
