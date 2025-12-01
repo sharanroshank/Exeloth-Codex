@@ -225,6 +225,7 @@ body.admin-page #sidebar { top: 76px !important; height: calc(100vh - 76px) !imp
 .gh-user-info { flex-grow: 1; line-height: 1.2; overflow: hidden; }
 .gh-username { font-weight: 600; font-size: 1rem; color: #e6edf3; display: block; }
 .gh-fullname { font-size: 0.85rem; color: #7d8590; display: block; }
+
 /* Item menu dropdown */
 .dropdown-item {
     color: #e6edf3 !important;
@@ -239,48 +240,41 @@ body.admin-page #sidebar { top: 76px !important; height: calc(100vh - 76px) !imp
     color: white !important;
 }
 
+/* Garis pemisah (FIXED) */
 .dropdown-divider {
-    /* Ubah transparansi dari 0.1 menjadi 0.25 atau warna solid agar terlihat */
-    border-top: 1px solid rgba(255, 255, 255, 0.25) !important; 
+    border-top: 1px solid rgba(255, 255, 255, 0.25) !important; /* Dipertegas */
     margin: 8px 0;
-    opacity: 1; /* Pastikan element tidak transparan (Bootstrap reset) */
+    opacity: 1; 
 }
 
 /* ==================== 10. GAME OVERVIEW PAGE (FINAL FIX) ==================== */
 
-/* Sidebar Full Screen (Menutupi Navbar) */
+/* 1. Sidebar Utama (FIXED: Menggunakan Transform untuk Kecepatan) */
 body.game-page #sidebar { 
-    top: 0 !important;           
-    height: 100vh !important;    
-    z-index: 99999 !important; /* Pasti di atas navbar (1030) */  
+    top: 0 !important; 
+    height: 100vh !important; 
+    z-index: 99999 !important; 
     position: fixed;
     left: 0;
-    margin-left: -290px;         /* Default hidden */
     
-    /* Lebar & Warna */
+    /* GANTI margin-left dengan transform untuk animasi cepat (GPU) */
+    transform: translateX(-100%); 
+    margin-left: 0; 
+
     min-width: 280px;
     max-width: 280px;
     background-color: #1a1d20; 
-    
-    /* Style Baru: Stroke & Rounded */
     border-right: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 0 15px 15px 0;
+    border-radius: 0 20px 20px 0; /* Sudut Rounded */
     
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
 }
 
-/* Utility untuk menyembunyikan Hamburger & Teks Navbar */
-.nav-hidden {
-    opacity: 0 !important;
-    pointer-events: none; /* Agar tidak bisa diklik saat invisible */
-    transition: opacity 0.3s ease;
-}
-
 /* Saat Sidebar Muncul */
 body.game-page #sidebar.active {
-    margin-left: 0;
+    transform: translateX(0); /* Muncul penuh */
     box-shadow: 10px 0 30px rgba(0,0,0,0.6);
 }
 
@@ -288,7 +282,7 @@ body.game-page #sidebar.active {
 .sidebar-header {
     min-height: 70px;
     background-color: #212529;
-    border-top-right-radius: 15px;
+    border-top-right-radius: 20px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
     justify-content: space-between;
@@ -340,8 +334,8 @@ body.game-page .overlay-sidebar {
     /* Path naik satu folder ../img */
     background: url('../img/games/background-wuthering-waves.jpg') no-repeat center center; 
     background-size: cover; opacity: 0.15; 
-    -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%); 
-    mask-image: linear-gradient(to bottom, black 60%, transparent 100%); 
+    -webkit-mask-image: linear-gradient(to bottom, black 100%, transparent 100%); 
+    mask-image: linear-gradient(to bottom, black 100%, transparent 100%); 
     pointer-events: none; 
 }
 

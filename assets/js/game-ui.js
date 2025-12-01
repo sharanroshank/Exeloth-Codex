@@ -22,19 +22,16 @@ function toggleFavorite() {
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.querySelector('.overlay-sidebar');
-    // Ini adalah grup Hamburger + Teks "Exeloth Codex" di navbar.js
     const leftNavbarGroup = document.getElementById('navbar-left-group'); 
 
-    // 1. Buka/Tutup Sidebar & Overlay
+    // Toggle Class Active (Ini memicu transform: translateX(0) di CSS)
     if (sidebar) sidebar.classList.toggle('active');
     if (overlay) overlay.classList.toggle('active');
 
-    // 2. Sembunyikan/Munculkan Hamburger & Teks di Navbar
+    // Sembunyikan/Munculkan Navbar Kiri
     if (sidebar && sidebar.classList.contains('active')) {
-        // Jika Sidebar Terbuka -> Sembunyikan Navbar Kiri
         if (leftNavbarGroup) leftNavbarGroup.classList.add('nav-hidden');
     } else {
-        // Jika Sidebar Tertutup -> Munculkan Navbar Kiri
         if (leftNavbarGroup) leftNavbarGroup.classList.remove('nav-hidden');
     }
 }
