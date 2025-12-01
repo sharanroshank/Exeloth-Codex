@@ -12,32 +12,31 @@
     
     <!-- Stylesheets -->
     <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/game.css"> <!-- File CSS khusus game -->
+    <link rel="stylesheet" href="assets/css/game.css">
     
     <style>
-        /* Custom styles untuk game page dengan persistent sidebar */
+        /* Custom styles untuk game page dengan Firebase-style sidebar */
         body.game-page {
             display: flex;
             min-height: 100vh;
             background-color: #34353a;
         }
         
-        /* Pastikan konten memiliki padding yang cukup */
-        .container-fluid.content-padding {
-            padding-top: 20px;
-            padding-bottom: 40px;
+        /* Main content wrapper styling */
+        .main-content-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
         }
         
-        /* Game header dengan margin atas */
+        /* Game header section */
         .game-header-section {
-            margin-top: 20px;
             margin-bottom: 30px;
         }
         
         /* Story sections spacing */
         .story-section {
             margin-bottom: 3rem;
-            padding-top: 1rem;
         }
         
         /* Chapter card improvements */
@@ -98,11 +97,27 @@
             border-color: #ff6b6b;
         }
         
+        /* Story section title */
+        .story-section-title {
+            color: white;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary-color);
+        }
+        
         /* Modal customization */
         .modal-game .modal-content {
             background: rgba(33, 37, 41, 0.98);
             border: 1px solid rgba(111, 66, 193, 0.5);
             backdrop-filter: blur(10px);
+        }
+        
+        /* Character modal styling */
+        .character-modal .character-content {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.8);
         }
         
         /* Responsive adjustments */
@@ -118,12 +133,59 @@
             #game-logo {
                 height: 50px;
             }
+            
+            .story-section-title {
+                font-size: 1.5rem;
+            }
+        }
+        
+        /* Section highlight animation */
+        .section-highlight {
+            animation: highlightSection 2s ease;
+        }
+        
+        @keyframes highlightSection {
+            0% { background-color: transparent; }
+            10% { background-color: rgba(111, 66, 193, 0.1); }
+            100% { background-color: transparent; }
+        }
+        
+        /* Game badges container */
+        #game-badges {
+            min-height: 40px;
+        }
+        
+        /* Loading spinner */
+        .loading-spinner {
+            display: inline-block;
+            width: 2rem;
+            height: 2rem;
+            vertical-align: text-bottom;
+            border: 0.25em solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: spinner-border .75s linear infinite;
+        }
+        
+        @keyframes spinner-border {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Card hover effects */
+        .card.bg-dark {
+            transition: all 0.3s ease;
+        }
+        
+        .card.bg-dark:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            border-color: rgba(111, 66, 193, 0.3);
         }
     </style>
 </head>
 <body class="game-page sidebar-persistent">
 
-    <!-- Sidebar Persistent -->
+    <!-- Sidebar Persistent (Firebase-style) -->
     <nav id="sidebar" role="navigation" aria-label="Table of Contents">
         <div class="sidebar-header">
             <div class="sidebar-brand fw-bold text-uppercase ls-1 text-white">DAFTAR ISI</div>
@@ -195,7 +257,7 @@
         </div>
     </nav>
 
-    <!-- Main Content Area (sebelah kanan sidebar) -->
+    <!-- Main Content Area (sebelah kanan sidebar - Firebase style) -->
     <div id="content">
         <!-- Background tetap -->
         <div class="bg-custom-fixed"></div>
@@ -203,126 +265,125 @@
         <!-- Overlay untuk sidebar mobile -->
         <div class="overlay-sidebar" role="button" aria-label="Close sidebar" tabindex="0"></div>
 
-        <!-- Navbar (di dalam content area) -->
+        <!-- Navbar (di dalam content area, di sebelah kanan sidebar) -->
         <div id="navbar-placeholder"></div>
         <script src="assets/js/navbar.js"></script>
         <script>renderNavbar();</script>
 
-        <!-- Dashboard Content -->
-        <div class="dashboard-wrapper">
-            <div class="container-fluid content-padding">
-                <!-- Game Header -->
-                <div class="game-header-section d-flex justify-content-between align-items-center mb-4">
-                    <img src="assets/img/games/logo-wuthering-waves.jpg" alt="Wuthering Waves Logo" 
-                         id="game-logo" 
-                         style="height: 60px; width: auto; object-fit: contain;"
-                         onerror="this.src='https://ui-avatars.com/api/?name=Wuthering+Waves&background=6f42c1&color=fff'">
-                    <button class="btn btn-favorite rounded-pill px-4" id="favorite-btn" onclick="toggleFavorite()"
-                            aria-label="Add to favorites">
-                        <i class="bi bi-star me-2" id="favorite-icon"></i> 
-                        <span id="favorite-text">Favorit</span>
-                    </button>
-                </div>
-                
-                <!-- Game Content Container -->
-                <div id="game-content">
-                    <div class="text-center mb-5">
-                        <h1 class="fw-bold mb-2 text-white" id="game-title">Loading Game...</h1>
-                        <div id="game-badges" class="d-flex justify-content-center flex-wrap gap-2 mb-4"></div>
-                        <p class="lead text-white-50" id="game-description">Loading description...</p>
-                    </div>
-                    
-                    <!-- Overview Section -->
-                    <section id="overview" class="story-section">
-                        <h2 class="story-section-title"><i class="bi bi-info-circle me-2"></i>Overview</h2>
-                        <div class="row">
-                            <div class="col-md-4 mb-4">
-                                <div class="card bg-dark border-secondary h-100">
-                                    <div class="card-body">
-                                        <h5 class="card-title text-white"><i class="bi bi-calendar-event me-2"></i>Release Info</h5>
-                                        <p class="card-text text-white-50" id="release-info">Loading...</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4 mb-4">
-                                <div class="card bg-dark border-secondary h-100">
-                                    <div class="card-body">
-                                        <h5 class="card-title text-white"><i class="bi bi-controller me-2"></i>Genre</h5>
-                                        <p class="card-text text-white-50" id="game-genre">Loading...</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4 mb-4">
-                                <div class="card bg-dark border-secondary h-100">
-                                    <div class="card-body">
-                                        <h5 class="card-title text-white"><i class="bi bi-globe me-2"></i>Platform</h5>
-                                        <p class="card-text text-white-50" id="game-platform">Loading...</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-                    
-                    <!-- Main Story Section -->
-                    <section id="main-story" class="story-section">
-                        <h2 class="story-section-title"><i class="bi bi-book me-2"></i>Cerita Utama</h2>
-                        <div id="main-story-content">
-                            <div class="text-center text-white-50 py-4">
-                                <div class="spinner-border text-primary" role="status"></div>
-                                <p class="mt-2">Memuat cerita...</p>
-                            </div>
-                        </div>
-                    </section>
-                    
-                    <!-- Character Story Section -->
-                    <section id="character-story" class="story-section">
-                        <h2 class="story-section-title"><i class="bi bi-people me-2"></i>Cerita Karakter</h2>
-                        <div id="character-story-content">
-                            <div class="text-center text-white-50 py-4">
-                                <p>Belum ada konten untuk bagian ini.</p>
-                            </div>
-                        </div>
-                    </section>
-                    
-                    <!-- Event Story Section -->
-                    <section id="event-story" class="story-section">
-                        <h2 class="story-section-title"><i class="bi bi-calendar-event me-2"></i>Cerita Event</h2>
-                        <div id="event-story-content">
-                            <div class="text-center text-white-50 py-4">
-                                <p>Belum ada konten untuk bagian ini.</p>
-                            </div>
-                        </div>
-                    </section>
-                    
-                    <!-- Lore Archive Section -->
-                    <section id="lore-archive" class="story-section">
-                        <h2 class="story-section-title"><i class="bi bi-archive me-2"></i>Arsip Lore</h2>
-                        <div id="lore-archive-content">
-                            <div class="text-center text-white-50 py-4">
-                                <p>Belum ada konten untuk bagian ini.</p>
-                            </div>
-                        </div>
-                    </section>
-                </div>
+        <!-- Main Content Wrapper (yang mendapat padding) -->
+        <div class="main-content-wrapper">
+            <!-- Game Header -->
+            <div class="game-header-section d-flex justify-content-between align-items-center mb-4">
+                <img src="assets/img/games/logo-wuthering-waves.jpg" alt="Wuthering Waves Logo" 
+                     id="game-logo" 
+                     style="height: 60px; width: auto; object-fit: contain;"
+                     onerror="this.src='https://ui-avatars.com/api/?name=Wuthering+Waves&background=6f42c1&color=fff'">
+                <button class="btn btn-favorite rounded-pill px-4" id="favorite-btn" onclick="toggleFavorite()"
+                        aria-label="Add to favorites">
+                    <i class="bi bi-star me-2" id="favorite-icon"></i> 
+                    <span id="favorite-text">Favorit</span>
+                </button>
             </div>
             
-            <!-- Footer (di dalam content area) -->
-            <footer class="bg-darker py-4 mt-5 border-top border-secondary">
-                <div class="container-fluid px-4">
+            <!-- Game Content Container -->
+            <div id="game-content">
+                <div class="text-center mb-5">
+                    <h1 class="fw-bold mb-2 text-white" id="game-title">Loading Game...</h1>
+                    <div id="game-badges" class="d-flex justify-content-center flex-wrap gap-2 mb-4"></div>
+                    <p class="lead text-white-50" id="game-description">Loading description...</p>
+                </div>
+                
+                <!-- Overview Section -->
+                <section id="overview" class="story-section">
+                    <h2 class="story-section-title"><i class="bi bi-info-circle me-2"></i>Overview</h2>
                     <div class="row">
-                        <div class="col-md-6">
-                            <h5>Exeloth Codex</h5>
-                            <p class="text-muted small">Community guides for gacha game fans</p>
+                        <div class="col-md-4 mb-4">
+                            <div class="card bg-dark border-secondary h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title text-white"><i class="bi bi-calendar-event me-2"></i>Release Info</h5>
+                                    <p class="card-text text-white-50" id="release-info">Loading...</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-6 text-md-end">
-                            <p class="mb-0 text-muted small">© 2024 Exeloth Codex — All rights reserved.</p>
+                        <div class="col-md-4 mb-4">
+                            <div class="card bg-dark border-secondary h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title text-white"><i class="bi bi-controller me-2"></i>Genre</h5>
+                                    <p class="card-text text-white-50" id="game-genre">Loading...</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-4">
+                            <div class="card bg-dark border-secondary h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title text-white"><i class="bi bi-globe me-2"></i>Platform</h5>
+                                    <p class="card-text text-white-50" id="game-platform">Loading...</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </footer>
+                </section>
+                
+                <!-- Main Story Section -->
+                <section id="main-story" class="story-section">
+                    <h2 class="story-section-title"><i class="bi bi-book me-2"></i>Cerita Utama</h2>
+                    <div id="main-story-content">
+                        <div class="text-center text-white-50 py-4">
+                            <div class="loading-spinner text-primary" role="status"></div>
+                            <p class="mt-2">Memuat cerita...</p>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Character Story Section -->
+                <section id="character-story" class="story-section">
+                    <h2 class="story-section-title"><i class="bi bi-people me-2"></i>Cerita Karakter</h2>
+                    <div id="character-story-content">
+                        <div class="text-center text-white-50 py-4">
+                            <p>Belum ada konten untuk bagian ini.</p>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Event Story Section -->
+                <section id="event-story" class="story-section">
+                    <h2 class="story-section-title"><i class="bi bi-calendar-event me-2"></i>Cerita Event</h2>
+                    <div id="event-story-content">
+                        <div class="text-center text-white-50 py-4">
+                            <p>Belum ada konten untuk bagian ini.</p>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Lore Archive Section -->
+                <section id="lore-archive" class="story-section">
+                    <h2 class="story-section-title"><i class="bi bi-archive me-2"></i>Arsip Lore</h2>
+                    <div id="lore-archive-content">
+                        <div class="text-center text-white-50 py-4">
+                            <p>Belum ada konten untuk bagian ini.</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
         </div>
+        
+        <!-- Footer (di dalam content area) -->
+        <footer class="bg-darker py-4 mt-5 border-top border-secondary">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Exeloth Codex</h5>
+                        <p class="text-muted small">Community guides for gacha game fans</p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <p class="mb-0 text-muted small">© 2024 Exeloth Codex — All rights reserved.</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
     </div>
     
+    <!-- Notification Container -->
     <div id="notification-container" class="position-fixed top-0 end-0 p-3" style="z-index: 10000;"></div>
 
     <!-- Chapter Detail Modal -->
@@ -335,7 +396,7 @@
                 </div>
                 <div class="modal-body" id="chapterModalContent">
                     <div class="text-center py-5">
-                        <div class="spinner-border text-primary" role="status"></div>
+                        <div class="loading-spinner text-primary" role="status"></div>
                         <p class="mt-3">Memuat konten...</p>
                     </div>
                 </div>
@@ -382,7 +443,10 @@
                                 <p>Matahari terbit di atas reruntuhan kota tua, memancarkan cahaya keemasan melalui celah-celah bangunan yang telah hancur. Kamu terbaring di atas puing-puing, tubuh terasa berat dan pikiran berkabut.</p>
                                 <p>Suara gemerisik membuatmu terbangun sepenuhnya. Seekor makhluk aneh dengan tubuh transparan dan mata merah mendekat. Insting bertahan hidup membuatmu berdiri, dan tanpa sadar tanganmu memancarkan energi resonansi.</p>
                                 <p>"Kamu akhirnya bangun," suara perempuan terdengar dari balik pilar. Seorang perempuan dengan pakaian putih muncul, matanya memancarkan kekhawatiran. "Aku Rover. Dan kamu... kamu Resonator baru."</p>
-                                <p>Dunia di sekitarmu perlahan mulai masuk ke dalam ingatanmu. Ini adalah era pasca-Lament, sebuah bencana yang mengubah segalanya. Kamu memiliki kekuatan resonansi, kemampuan langka yang bisa berinteraksi dengan gelombang suara dunia.</p>`
+                                <p>Dunia di sekitarmu perlahan mulai masuk ke dalam ingatanmu. Ini adalah era pasca-Lament, sebuah bencana yang mengubah segalanya. Kamu memiliki kekuatan resonansi, kemampuan langka yang bisa berinteraksi dengan gelombang suara dunia.</p>
+                                <div class="mt-4 p-3 bg-dark rounded">
+                                    <small class="text-white-50"><i class="bi bi-info-circle me-1"></i> <strong>Catatan Lore:</strong> Lament adalah peristiwa besar yang mengubah struktur dunia, menyebabkan munculnya Tacet Discord dan energi resonansi tidak stabil.</small>
+                                </div>`
                     },
                     {
                         id: 2,
@@ -392,7 +456,10 @@
                                 <p>Kota Huanglong berdiri megah di tengah dataran tinggi, arsitekturnya memadukan teknologi canggih dengan estetika tradisional. Rover membawamu melalui gerbang kota, menjelaskan bahwa Huanglong adalah salah satu dari sedikit tempat yang relatif aman setelah Lament.</p>
                                 <p>"Di sini kamu bisa belajar mengendalikan resonansimu," kata Rover sambil menunjuk menara tinggi di tengah kota. "Itu Menara Bel, tempat para Resonator berlatih."</p>
                                 <p>Pertemuan dengan Jiyan, komandan Pengawal Huanglong, membuka mata tentang situasi yang sebenarnya. Dunia masih penuh dengan Tacet Discord, makhluk yang lahir dari energi resonansi yang tidak stabil.</p>
-                                <p>"Lament bukan hanya bencana," ujar Jiyan dengan suara serius. "Itu adalah perubahan mendasar pada alam semesta kita. Gelombang suara yang biasa sekarang membawa kekuatan dan bahaya."</p>`
+                                <p>"Lament bukan hanya bencana," ujar Jiyan dengan suara serius. "Itu adalah perubahan mendasar pada alam semesta kita. Gelombang suara yang biasa sekarang membawa kekuatan dan bahaya."</p>
+                                <div class="mt-4 p-3 bg-dark rounded">
+                                    <small class="text-white-50"><i class="bi bi-geo-alt me-1"></i> <strong>Lokasi:</strong> Huanglong - Kota benteng utama yang selamat dari Lament, menjadi pusat perlindungan bagi para Resonator.</small>
+                                </div>`
                     },
                     {
                         id: 3,
@@ -402,7 +469,10 @@
                                 <p>Reruntuhan peradaban lama menyimpan banyak rahasia. Bersama Rover, kamu menjelajahi situs arkeologi di pinggiran Huanglong. Tablet-tablet kuno yang ditemukan menceritakan kisah tentang "Era Resonansi", zaman ketika manusia pertama kali menemukan kekuatan gelombang suara.</p>
                                 <p>"Mereka bukan hanya menggunakannya," teriak Rover dari balik tumpukan batu. "Mereka menyatu dengan resonansi!"</p>
                                 <p>Penemuan itu mengubah segalanya. Lament bukan bencana alami, melainkan akibat dari eksperimen yang melampaui batas. Peradaban lama mencoba menguasai resonansi sempurna, dan dunia membayar harganya.</p>
-                                <p>Di kedalaman reruntuhan, kamu menemukan ruang tersembunyi dengan perangkat yang masih aktif. Saat menyentuhnya, ingatan-ingatan asing membanjiri pikiranmu. Kamu melihat wajah-wajah dari masa lalu, mendengar suara yang sudah lama hilang.</p>`
+                                <p>Di kedalaman reruntuhan, kamu menemukan ruang tersembunyi dengan perangkat yang masih aktif. Saat menyentuhnya, ingatan-ingatan asing membanjiri pikiranmu. Kamu melihat wajah-wajah dari masa lalu, mendengar suara yang sudah lama hilang.</p>
+                                <div class="mt-4 p-3 bg-dark rounded">
+                                    <small class="text-white-50"><i class="bi bi-lightbulb me-1"></i> <strong>Penemuan Penting:</strong> Era Resonansi adalah zaman keemasan teknologi suara yang berakhir tragis dengan Lament.</small>
+                                </div>`
                     }
                 ],
                 characterStories: [
@@ -410,15 +480,43 @@
                         name: "Jiyan",
                         title: "Sang Pengawal",
                         excerpt: "Komandan Pengawal Huanglong yang setia namun menyimpan luka masa lalu.",
-                        content: "Jiyan kehilangan keluarganya selama Lament. Janjinya untuk melindungi Huanglong berasal dari rasa bersalah karena tidak bisa menyelamatkan mereka."
+                        content: `<p>Jiyan kehilangan keluarganya selama peristiwa Lament. Ayahnya adalah seorang peneliti resonansi terkemuka, dan ibunya seorang diplomat yang bekerja untuk perdamaian antar kota.</p>
+                                <p>"Aku berjanji pada mereka," kata Jiyan suatu malam di menara pengawas. "Aku akan melindungi siapapun yang masih tersisa."</p>
+                                <p>Janjinya untuk melindungi Huanglong bukan hanya tugas, melainkan penebusan dosa. Setiap nyawa yang dia selamatkan adalah pengampunan untuk yang tidak bisa dia lindungi.</p>
+                                <p>Hubungannya dengan Rover kompleks. Mereka pernah bertarung di sisi yang berseberangan sebelum Lament, tetapi kini dipersatukan oleh misi yang sama: melindungi sisa-sisa kemanusiaan.</p>
+                                <div class="mt-3">
+                                    <span class="badge bg-info me-2">Loyal</span>
+                                    <span class="badge bg-warning text-dark me-2">Protective</span>
+                                    <span class="badge bg-secondary">Haunted by Past</span>
+                                </div>`
                     },
                     {
                         name: "Rover",
                         title: "Penuntun Misterius",
                         excerpt: "Resonator berpengalaman yang menemukanmu dan menjadi penuntun perjalananmu.",
-                        content: "Identitas asli Rover masih menjadi misteri. Meski selalu membantu, dia jarang membicarakan masa lalunya sendiri."
+                        content: `<p>Rover muncul seperti hantu di tengah reruntuhan, tanpa masa lalu yang jelas. Dia mengenal dunia pasca-Lament lebih baik daripada siapa pun, tetapi jarang membicarakan dari mana pengetahuannya berasal.</p>
+                                <p>"Aku hanya penuntun," katanya selalu ketika ditanya tentang identitasnya. "Tujuanmu lebih penting daripada ceritaku."</p>
+                                <p>Meski selalu membantu, ada jarak yang dia jaga. Matanya kadang memandang jauh, seolah mengingat sesuatu—atau seseorang—yang telah lama hilang.</p>
+                                <p>Kemampuan resonansinya berbeda dengan Resonator lain. Dia bisa "mendengar" sejarah sebuah tempat, merasakan gema peristiwa masa lalu yang tertinggal di gelombang suara. Beberapa menduga dia adalah korban selamat dari Era Resonansi.</p>
+                                <div class="mt-3">
+                                    <span class="badge bg-primary me-2">Mysterious</span>
+                                    <span class="badge bg-success me-2">Guide</span>
+                                    <span class="badge bg-dark">Ancient Knowledge</span>
+                                </div>`
                     }
                 ]
+            },
+            'reverse-1999': {
+                title: "Reverse: 1999",
+                slug: "reverse-1999",
+                description: "Game time-travel strategic RPG dengan cerita misterius di tahun 1999. Jelajahi misteri di balik 'The Storm' yang mengancam keberadaan waktu itu sendiri.",
+                thumbnailURL: "assets/img/games/wuthering-waves.jpg",
+                logoURL: "assets/img/games/logo-wuthering-waves.jpg",
+                status: "Ongoing",
+                releaseDate: "26 Oktober 2023",
+                genre: "Time Travel, Strategy, RPG",
+                platform: "PC, iOS, Android",
+                badges: ["Time Travel", "Strategy", "Mystery", "Gacha"]
             }
         };
 
@@ -467,12 +565,12 @@
             const urlParams = new URLSearchParams(window.location.search);
             const gameSlug = urlParams.get('slug') || 'wuthering-waves';
             
-            console.log('Loading game:', gameSlug);
+            console.log('🎮 Loading game:', gameSlug);
             
             // Coba load dari Firestore terlebih dahulu
             try {
                 if (typeof db !== 'undefined') {
-                    console.log('Trying to load from Firestore...');
+                    console.log('📡 Trying to load from Firestore...');
                     const querySnapshot = await db.collection("games")
                         .where("slug", "==", gameSlug)
                         .get();
@@ -481,17 +579,17 @@
                         // Data ditemukan di Firestore
                         const gameDoc = querySnapshot.docs[0];
                         const game = gameDoc.data();
-                        console.log('Game loaded from Firestore:', game.title);
+                        console.log('✅ Game loaded from Firestore:', game.title);
                         renderGame(game);
                         return;
                     }
                 }
             } catch (error) {
-                console.warn('Firestore error, using static data:', error);
+                console.warn('⚠️ Firestore error, using static data:', error);
             }
             
             // Fallback ke data statis
-            console.log('Using static data for:', gameSlug);
+            console.log('🔄 Using static data for:', gameSlug);
             const staticGame = staticGamesData[gameSlug] || staticGamesData['wuthering-waves'];
             renderGame(staticGame);
         }
@@ -558,6 +656,16 @@
                     `;
                     mainStoryContainer.appendChild(chapterElement);
                 });
+                
+                // Jika tidak ada cerita
+                if (game.mainStory.length === 0) {
+                    mainStoryContainer.innerHTML = `
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Belum ada konten cerita utama untuk game ini.
+                        </div>
+                    `;
+                }
             } else if (mainStoryContainer) {
                 mainStoryContainer.innerHTML = `
                     <div class="alert alert-info">
@@ -568,8 +676,8 @@
             }
             
             // Render character stories jika ada
+            const charContainer = document.getElementById('character-story-content');
             if (game.characterStories && game.characterStories.length > 0) {
-                const charContainer = document.getElementById('character-story-content');
                 charContainer.innerHTML = '<div class="row" id="character-stories-row"></div>';
                 
                 game.characterStories.forEach(character => {
@@ -581,16 +689,23 @@
                                 <h5 class="card-title text-white">${character.name}</h5>
                                 <h6 class="card-subtitle mb-2 text-muted">${character.title}</h6>
                                 <p class="card-text text-white-50">${character.excerpt}</p>
-                                <button class="btn btn-sm btn-outline-info" 
-                                        onclick="showCharacterModal('${character.name}', '${character.title}', '${character.content.replace(/'/g, "\\'")}')"
+                                <button class="btn btn-sm btn-outline-info mt-2" 
+                                        onclick="showCharacterModal('${character.name.replace(/'/g, "\\'")}', '${character.title.replace(/'/g, "\\'")}', '${character.content.replace(/'/g, "\\'").replace(/\n/g, ' ')}')"
                                         aria-label="View ${character.name} details">
-                                    Detail
+                                    <i class="bi bi-person me-1"></i> Detail
                                 </button>
                             </div>
                         </div>
                     `;
                     document.getElementById('character-stories-row').appendChild(col);
                 });
+            } else if (charContainer) {
+                charContainer.innerHTML = `
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Belum ada konten cerita karakter untuk game ini.
+                    </div>
+                `;
             }
             
             // Setup intersection observer untuk active menu tracking
@@ -751,12 +866,20 @@
                         handleSidebarNavigation(targetId, this);
                     }
                 });
+                
+                // Keyboard navigation
+                link.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        this.click();
+                    }
+                });
             });
         }
 
-        // Inisialisasi ketika halaman dimuat
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('Game page initialized with persistent sidebar');
+        // Initialize game page
+        function initGamePage() {
+            console.log('🎮 Game page initialized with Firebase-style sidebar');
             
             // Setup sidebar navigation
             setupSidebarNavigation();
@@ -774,18 +897,33 @@
                     if (window.scrollToSection) {
                         window.scrollToSection(sectionId);
                     }
-                }, 500);
+                }, 800);
             }
-        });
+            
+            // Initialize game UI jika tersedia
+            if (typeof initGamePage === 'function' && window.initGamePage !== initGamePage) {
+                window.initGamePage();
+            }
+        }
 
         // Handle browser back/forward buttons
         window.addEventListener('popstate', function() {
             if (window.location.hash) {
                 const sectionId = window.location.hash.substring(1);
                 if (window.scrollToSection) {
-                    window.scrollToSection(sectionId);
+                    setTimeout(() => {
+                        window.scrollToSection(sectionId);
+                    }, 100);
                 }
             }
+        });
+
+        // Initialize ketika halaman dimuat
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📄 Game page DOM loaded');
+            
+            // Tunggu sebentar untuk memastikan semua script loaded
+            setTimeout(initGamePage, 300);
         });
 
         // Export functions untuk akses global
@@ -793,6 +931,7 @@
         window.showCharacterModal = showCharacterModal;
         window.handleSidebarNavigation = handleSidebarNavigation;
         window.loadGameData = loadGameData;
+        window.toggleFavorite = toggleFavorite;
     </script>
 
 </body>
