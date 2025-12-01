@@ -1,10 +1,10 @@
-// assets/js/game-ui.js
-// Game Page UI Functionality
+// assets/js/game-ui.js - VERSION WITH SIDEBAR FIX
 
 let isFavorite = false;
-let sidebarState = {
-    isOpen: false,
-    isAnimating: false
+let sidebarState = { 
+    isOpen: false, 
+    isAnimating: false,
+    isMobile: window.innerWidth < 992
 };
 
 // Toggle favorite function
@@ -47,12 +47,27 @@ function toggleSidebar() {
 
     if (sidebarState.isOpen) {
         // BUKA SIDEBAR
-        sidebar.classList.add('active');
-        content.classList.add('shifted');
-        overlay.classList.add('active');
-        body.style.overflow = 'hidden';
+        if (sidebar) {
+            sidebar.classList.add('active');
+        }
         
-        // Update navbar
+        if (content) {
+            if (sidebarState.isMobile) {
+                content.classList.add('sidebar-shifted');
+            } else {
+                content.classList.add('shifted');
+            }
+        }
+        
+        if (overlay) {
+            overlay.classList.add('active');
+        }
+        
+        if (body) {
+            body.style.overflow = 'hidden';
+        }
+        
+        // Update navbar left group
         if (leftNavbarGroup) {
             leftNavbarGroup.classList.add('nav-hidden');
         }
@@ -60,18 +75,37 @@ function toggleSidebar() {
         // Update icon hamburger
         if (toggleBtn) {
             toggleBtn.innerHTML = '<i class="bi bi-x-lg fs-3"></i>';
+            toggleBtn.setAttribute('title', 'Close Sidebar');
+            toggleBtn.setAttribute('aria-label', 'Close Sidebar');
         }
         
         // Dispatch custom event
         document.dispatchEvent(new CustomEvent('sidebar:opened'));
+        
+        console.log('✅ Sidebar opened');
     } else {
         // TUTUP SIDEBAR
-        sidebar.classList.remove('active');
-        content.classList.remove('shifted');
-        overlay.classList.remove('active');
-        body.style.overflow = '';
+        if (sidebar) {
+            sidebar.classList.remove('active');
+        }
         
-        // Update navbar
+        if (content) {
+            if (sidebarState.isMobile) {
+                content.classList.remove('sidebar-shifted');
+            } else {
+                content.classList.remove('shifted');
+            }
+        }
+        
+        if (overlay) {
+            overlay.classList.remove('active');
+        }
+        
+        if (body) {
+            body.style.overflow = '';
+        }
+        
+        // Update navbar left group
         if (leftNavbarGroup) {
             leftNavbarGroup.classList.remove('nav-hidden');
         }
@@ -79,10 +113,14 @@ function toggleSidebar() {
         // Update icon hamburger
         if (toggleBtn) {
             toggleBtn.innerHTML = '<i class="bi bi-list fs-3"></i>';
+            toggleBtn.setAttribute('title', 'Open Sidebar');
+            toggleBtn.setAttribute('aria-label', 'Open Sidebar');
         }
         
         // Dispatch custom event
         document.dispatchEvent(new CustomEvent('sidebar:closed'));
+        
+        console.log('✅ Sidebar closed');
     }
     
     // Reset animation lock setelah transisi selesai
@@ -99,7 +137,7 @@ function closeSidebar() {
 
 // Initialize game page
 function initGamePage() {
-    console.log('Initializing game page UI...');
+    console.log('🎮 Initializing game page UI...');
     
     // Setup overlay
     ensureOverlayExists();
@@ -116,7 +154,10 @@ function initGamePage() {
     // Setup keyboard shortcuts
     setupKeyboardShortcuts();
     
-    console.log('Game page UI initialized');
+    // Update hamburger button
+    updateHamburgerButton();
+    
+    console.log('✅ Game page UI initialized');
 }
 
 // Ensure overlay exists
@@ -125,7 +166,10 @@ function ensureOverlayExists() {
     if (!overlay) {
         overlay = document.createElement('div');
         overlay.className = 'overlay-sidebar';
+        overlay.setAttribute('id', 'sidebar-overlay');
         document.body.appendChild(overlay);
+        
+        console.log('✅ Overlay created');
     }
     
     // Setup overlay click
@@ -138,6 +182,7 @@ function setupSidebarEvents() {
     if (dismissBtn) {
         dismissBtn.addEventListener('click', function(e) {
             e.stopPropagation();
+            e.preventDefault();
             closeSidebar();
         });
     }
@@ -162,15 +207,15 @@ function setupMenuInteractions() {
             menuItems.forEach(i => i.classList.remove('active'));
             this.classList.add('active');
             
-            // Di mobile, tutup sidebar setelah pilih menu
-            if (window.innerWidth < 992) {
-                closeSidebar();
+            // Scroll to section jika ada data-target
+            const targetId = this.getAttribute('data-target');
+            if (targetId) {
+                scrollToSection(targetId);
             }
             
-            // Scroll to section jika ada
-            const sectionId = this.getAttribute('data-section');
-            if (sectionId) {
-                scrollToSection(sectionId);
+            // Di mobile, tutup sidebar setelah pilih menu
+            if (sidebarState.isMobile) {
+                closeSidebar();
             }
         });
     });
@@ -178,20 +223,36 @@ function setupMenuInteractions() {
 
 // Setup responsive behavior
 function setupResponsiveBehavior() {
+    // Update mobile state on resize
+    const updateMobileState = () => {
+        sidebarState.isMobile = window.innerWidth < 992;
+        console.log(`📱 Mobile state: ${sidebarState.isMobile}`);
+    };
+    
+    // Initial check
+    updateMobileState();
+    
     // Handle resize
     let resizeTimer;
     window.addEventListener('resize', function() {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(function() {
-            // Di mobile, auto-close sidebar saat resize
-            if (window.innerWidth < 992 && sidebarState.isOpen) {
+            updateMobileState();
+            
+            // Di mobile, auto-close sidebar saat resize ke desktop
+            if (!sidebarState.isMobile && sidebarState.isOpen) {
+                closeSidebar();
+            }
+            
+            // Di desktop, auto-close sidebar saat resize ke mobile
+            if (sidebarState.isMobile && sidebarState.isOpen) {
                 closeSidebar();
             }
         }, 250);
     });
     
     // Auto close on outside click untuk desktop
-    if (window.innerWidth >= 992) {
+    if (!sidebarState.isMobile) {
         document.addEventListener('click', function(e) {
             const sidebar = document.getElementById('sidebar');
             const toggleBtn = document.getElementById('sidebar-toggle-btn');
@@ -223,6 +284,25 @@ function setupKeyboardShortcuts() {
     });
 }
 
+// Update hamburger button in navbar
+function updateHamburgerButton() {
+    const toggleBtn = document.getElementById('sidebar-toggle-btn');
+    if (toggleBtn) {
+        toggleBtn.classList.remove('d-none');
+        toggleBtn.onclick = toggleSidebar;
+        toggleBtn.setAttribute('title', 'Toggle Sidebar');
+        toggleBtn.setAttribute('aria-label', 'Toggle Sidebar');
+        toggleBtn.setAttribute('aria-expanded', sidebarState.isOpen);
+        
+        // Update initial icon
+        if (sidebarState.isOpen) {
+            toggleBtn.innerHTML = '<i class="bi bi-x-lg fs-3"></i>';
+        } else {
+            toggleBtn.innerHTML = '<i class="bi bi-list fs-3"></i>';
+        }
+    }
+}
+
 // Helper function untuk scroll ke section
 function scrollToSection(sectionId) {
     const element = document.getElementById(sectionId);
@@ -241,30 +321,44 @@ function showNotification(message, type = 'info', duration = 3000) {
     } else {
         // Fallback simple notification
         console.log(`${type}: ${message}`);
-        alert(message);
+        // Buat notification element sederhana
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type} position-fixed top-0 end-0 m-3`;
+        notification.textContent = message;
+        notification.style.zIndex = '10000';
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.remove();
+        }, duration);
     }
 }
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-    // Wait a bit for navbar to render
+    console.log('📄 Game page DOM loaded');
+    
+    // Wait for navbar to render
     setTimeout(() => {
         initGamePage();
         
         // Setup hamburger button in navbar
-        const toggleBtn = document.getElementById('sidebar-toggle-btn');
-        if (toggleBtn) {
-            toggleBtn.classList.remove('d-none');
-            toggleBtn.onclick = toggleSidebar;
-            toggleBtn.title = 'Toggle Sidebar';
-            toggleBtn.setAttribute('aria-label', 'Toggle Sidebar');
+        updateHamburgerButton();
+        
+        // Check if we should open sidebar from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('sidebar') === 'open') {
+            setTimeout(() => {
+                toggleSidebar();
+            }, 500);
         }
     }, 100);
     
-    // Load game data
-    if (typeof loadGameProfile === 'function') {
-        setTimeout(loadGameProfile, 500);
-    }
+    // Listen for navbar rendering events
+    document.addEventListener('navbar:rendered', function() {
+        console.log('🔄 Navbar rendered, updating hamburger button');
+        updateHamburgerButton();
+    });
 });
 
 // Export untuk akses global
@@ -272,3 +366,4 @@ window.toggleSidebar = toggleSidebar;
 window.closeSidebar = closeSidebar;
 window.toggleFavorite = toggleFavorite;
 window.initGamePage = initGamePage;
+window.scrollToSection = scrollToSection;
