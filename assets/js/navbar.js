@@ -3,7 +3,9 @@
 function renderNavbar() {
     const navbarHTML = `
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" id="main-navbar">
-        <div class="container-fluid px-4"> <div class="d-flex align-items-center" id="navbar-left-group">
+        <div class="container-fluid px-4">
+            
+            <div class="d-flex align-items-center" id="navbar-left-group">
                 <button class="btn btn-link text-white p-0 me-3 d-none" id="sidebar-toggle-btn" onclick="toggleSidebar()">
                     <i class="bi bi-list fs-3"></i>
                 </button>
@@ -55,11 +57,18 @@ function renderNavbar() {
     const placeholder = document.getElementById('navbar-placeholder');
     if (placeholder) placeholder.innerHTML = navbarHTML;
 
-    // Logika menampilkan tombol hamburger HANYA jika sidebar ada di halaman tersebut
-    if (document.getElementById('sidebar')) {
+    // --- FIX PENTING DI SINI ---
+    // Gunakan 'DOMContentLoaded' untuk menunggu sampai seluruh HTML (termasuk Sidebar di bawah) selesai dimuat.
+    // Baru setelah itu kita cek apakah sidebar ada atau tidak.
+    document.addEventListener("DOMContentLoaded", function() {
+        const sidebar = document.getElementById('sidebar');
         const toggleBtn = document.getElementById('sidebar-toggle-btn');
-        if(toggleBtn) toggleBtn.classList.remove('d-none');
-    }
+        
+        // Jika halaman ini punya sidebar, munculkan tombol hamburger
+        if (sidebar && toggleBtn) {
+            toggleBtn.classList.remove('d-none');
+        }
+    });
 
     // Active State Logic
     const path = window.location.pathname;
@@ -69,13 +78,11 @@ function renderNavbar() {
 
 // Fungsi Helper untuk Navigasi Admin
 window.openAdminSection = function(sectionId) {
-    // Jika user SUDAH di halaman admin, langsung ganti tab
     if (window.location.pathname.includes('admin.html')) {
         if (typeof switchSection === 'function') {
-            switchSection(sectionId, null); // Pass null karena diklik dari navbar, bukan sidebar
+            switchSection(sectionId, null);
         }
     } else {
-        // Jika user DI LUAR admin (misal Home), redirect dengan parameter
         window.location.href = `admin.html?section=${sectionId}`;
     }
 }
@@ -84,49 +91,4 @@ window.toggleAddAccount = function(e) {
     e.stopPropagation(); 
     const popup = document.getElementById('add-account-popup');
     if (popup) popup.classList.toggle('d-none');
-}
-
-/**
- * Fungsi untuk update tampilan Navbar berdasarkan data Firestore
- * Dipanggil oleh auth-system.js saat login berhasil
- */
-window.updateNavbarProfile = async function(user) {
-    if (!user) return;
-
-    // Ambil elemen DOM di Navbar
-    const navImgBtn = document.getElementById('nav-profile-img-btn');      // Foto bulat kecil (tombol dropdown)
-    const navImgInside = document.getElementById('nav-profile-img-inside');// Foto besar di dalam dropdown
-    const navUsername = document.getElementById('nav-gh-username');        // Username (baris atas)
-    const navFullname = document.getElementById('nav-gh-fullname');        // Nama Lengkap (baris bawah)
-
-    // Data Default (Dari Google Auth)
-    let displayName = user.displayName || 'User';
-    let email = user.email;
-    let photoURL = user.photoURL || `https://ui-avatars.com/api/?name=${displayName}`;
-    let username = email.split('@')[0]; // Default username dari email
-
-    try {
-        // Cek apakah data custom tersimpan di Firestore?
-        if (typeof db !== 'undefined') {
-            const doc = await db.collection('users').doc(email).get();
-            
-            if (doc.exists) {
-                const data = doc.data();
-                // Jika ada data di database, TIMPA data default
-                if (data.displayName) displayName = data.displayName;
-                if (data.username) username = data.username;
-                if (data.photoURL) photoURL = data.photoURL;
-            }
-        }
-    } catch (error) {
-        console.error("Gagal sync navbar:", error);
-    }
-
-    // Update Tampilan Navbar
-    if (navImgBtn) navImgBtn.src = photoURL;
-    if (navImgInside) navImgInside.src = photoURL;
-    
-    // Format GitHub Style: Username di atas (Bold), Nama Asli di bawah (Kecil)
-    if (navUsername) navUsername.textContent = username; 
-    if (navFullname) navFullname.textContent = displayName;
 }
