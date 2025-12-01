@@ -305,6 +305,19 @@ function setupActiveNavLinks() {
 function setupDropdowns() {
     console.log('🔧 Setting up dropdowns (click-only)...');
     
+    // ============ TAMBAHAN: Reset semua dropdown saat init ============
+    document.querySelectorAll('.dropdown-menu').forEach(menu => {
+        menu.classList.remove('show');
+        menu.style.opacity = '0';
+        menu.style.visibility = 'hidden';
+        menu.style.display = 'none';
+    });
+    
+    document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+        toggle.setAttribute('aria-expanded', 'false');
+    });
+    // ============ AKHIR TAMBAHAN ============
+
     // Tunggu sebentar untuk memastikan DOM siap
     setTimeout(() => {
         // Inisialisasi dropdown Bootstrap jika Bootstrap tersedia
@@ -700,14 +713,13 @@ window.updateNavbarProfile = async function(user) {
 
     const navImgBtn = document.getElementById('nav-profile-img-btn');
     const navImgInside = document.getElementById('nav-profile-img-inside');
-    const navUsername = document.getElementById('nav-gh-username');
-    const navFullname = document.getElementById('nav-gh-fullname');
-    const navStatus = document.getElementById('nav-user-status'); // Ambil elemen yang sudah ada
+    const navUsername = document.getElementById('nav-gh-username');  // Ini untuk username
+    const navFullname = document.getElementById('nav-gh-fullname');  // Ini untuk nama lengkap
 
     let displayName = user.displayName || 'User';
     let email = user.email;
     let photoURL = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=6f42c1&color=fff`;
-    let username = email.split('@')[0];
+    let username = email.split('@')[0];  // Ambil username dari email
 
     // Update semua elemen navbar
     if (navImgBtn) {
@@ -725,33 +737,27 @@ window.updateNavbarProfile = async function(user) {
         };
     }
     
-    // PERBAIKAN: Tampilkan username di bagian atas, nama lengkap di bawah
-    if (navUsername) navUsername.textContent = username || 'User';
-    if (navFullname) navFullname.textContent = displayName;
+    // ✅ PERBAIKAN: Tampilkan NAMA LENGKAP di atas, USERNAME di bawah
+    if (navFullname) navFullname.textContent = displayName;  // Nama lengkap di atas
+    if (navUsername) navUsername.textContent = username || 'user';  // Username di bawah
     
-    // PERBAIKAN: Update status yang sudah ada, bukan buat baru
-    if (navStatus) {
-        navStatus.innerHTML = '<i class="bi bi-circle-fill me-1"></i> Online';
-        navStatus.className = 'gh-status text-success small mt-1';
-    } else {
-        // Fallback jika elemen status belum ada (jarang terjadi)
+    // Tambah status online
+    const statusElement = document.getElementById('nav-user-status') || (() => {
         const statusDiv = document.createElement('div');
         statusDiv.id = 'nav-user-status';
-        statusDiv.className = 'gh-status text-success small mt-1';
+        statusDiv.className = 'gh-status text-success small';
         statusDiv.innerHTML = '<i class="bi bi-circle-fill me-1"></i> Online';
         
+        // Tempatkan di dalam gh-user-info
         const userInfo = document.querySelector('.gh-user-info');
         if (userInfo) {
             const fullnameElement = userInfo.querySelector('.gh-fullname');
             if (fullnameElement) {
-                // Masukkan setelah fullname
-                fullnameElement.parentNode.insertBefore(statusDiv, fullnameElement.nextSibling);
-            } else {
-                // Masukkan di akhir userInfo
-                userInfo.appendChild(statusDiv);
+                userInfo.insertBefore(statusDiv, fullnameElement.nextSibling);
             }
         }
-    }
+        return statusDiv;
+    })();
     
     // Re-initialize dropdowns setelah update profile
     setTimeout(setupDropdowns, 100);
@@ -761,18 +767,20 @@ window.updateNavbarProfile = async function(user) {
 function resetNavbarProfile() {
     const navImgBtn = document.getElementById('nav-profile-img-btn');
     const navImgInside = document.getElementById('nav-profile-img-inside');
-    const navUsername = document.getElementById('nav-gh-username');
-    const navFullname = document.getElementById('nav-gh-fullname');
-    const navStatus = document.getElementById('nav-user-status'); // Ambil elemen status
+    const navUsername = document.getElementById('nav-gh-username');  // Username
+    const navFullname = document.getElementById('nav-gh-fullname');  // Nama lengkap
+    const navStatus = document.getElementById('nav-user-status');
 
     const defaultPhoto = 'https://ui-avatars.com/api/?name=User&background=6f42c1&color=fff';
     
     if (navImgBtn) navImgBtn.src = defaultPhoto;
     if (navImgInside) navImgInside.src = defaultPhoto;
-    if (navUsername) navUsername.textContent = 'User';
-    if (navFullname) navFullname.textContent = 'Guest';
+    
+    // ✅ PERBAIKAN: Reset dengan urutan yang benar
+    if (navFullname) navFullname.textContent = 'Guest';  // Nama lengkap di atas
+    if (navUsername) navUsername.textContent = 'User';   // Username di bawah
+    
     if (navStatus) {
-        // Reset status atau sembunyikan
         navStatus.innerHTML = '<i class="bi bi-circle-fill me-1"></i> Offline';
         navStatus.className = 'gh-status text-secondary small mt-1';
     }

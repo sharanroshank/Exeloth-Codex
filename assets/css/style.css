@@ -1633,37 +1633,23 @@ body:not(.bg-light):not(.bg-white) .text-muted:not(.text-white):not(.text-light)
     object-fit: cover !important;
 }
 
-/* ==================== DROPDOWN STATUS STYLES ==================== */
-.gh-status {
-    font-size: 0.7rem;
-    display: flex;
-    align-items: center;
-    margin-top: 2px;
-}
-
-.gh-status i {
-    font-size: 0.5rem;
-}
-
-.gh-status.text-success i {
-    animation: pulse 2s infinite;
-}
-
 @keyframes pulse {
     0% { opacity: 1; }
     50% { opacity: 0.5; }
     100% { opacity: 1; }
 }
 
-/* Perbaikan layout untuk user info di dropdown */
+/* ==================== DROPDOWN TEXT HIERARCHY FIX ==================== */
 .gh-user-info {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-width: 0;
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 !important;
+    min-width: 0 !important;
+    gap: 2px !important;
 }
 
-.gh-username {
+/* Nama lengkap - DI ATAS (lebih besar/menonjol) */
+.gh-fullname {
     color: white !important;
     font-weight: 600 !important;
     font-size: 0.95rem !important;
@@ -1671,16 +1657,38 @@ body:not(.bg-light):not(.bg-white) .text-muted:not(.text-white):not(.text-light)
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
+    order: 1; /* Posisi pertama */
 }
 
-.gh-fullname {
+/* Username - DI BAWAH (lebih kecil) */
+.gh-username {
     color: rgba(255, 255, 255, 0.7) !important;
     font-size: 0.85rem !important;
     line-height: 1.2 !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
-    margin-top: 2px;
+    order: 2; /* Posisi kedua */
+    font-weight: 400 !important;
+}
+
+/* Status - DI BAWAH USERNAME */
+.gh-status {
+    font-size: 0.7rem !important;
+    display: flex !important;
+    align-items: center !important;
+    margin-top: 2px !important;
+    order: 3; /* Posisi ketiga */
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.gh-status.text-success {
+    color: #28a745 !important;
+}
+
+.gh-status i {
+    font-size: 0.5rem !important;
+    margin-right: 4px !important;
 }
 
 /* Dropdown Items */
