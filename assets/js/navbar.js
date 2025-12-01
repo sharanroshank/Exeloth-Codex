@@ -1,4 +1,4 @@
-// assets/js/navbar.js
+// assets/js/navbar.js (FIXED)
 
 function renderNavbar() {
     const navbarHTML = `
@@ -57,18 +57,12 @@ function renderNavbar() {
     const placeholder = document.getElementById('navbar-placeholder');
     if (placeholder) placeholder.innerHTML = navbarHTML;
 
-    // --- FIX PENTING DI SINI ---
-    // Gunakan 'DOMContentLoaded' untuk menunggu sampai seluruh HTML (termasuk Sidebar di bawah) selesai dimuat.
-    // Baru setelah itu kita cek apakah sidebar ada atau tidak.
-    document.addEventListener("DOMContentLoaded", function() {
-        const sidebar = document.getElementById('sidebar');
-        const toggleBtn = document.getElementById('sidebar-toggle-btn');
-        
-        // Jika halaman ini punya sidebar, munculkan tombol hamburger
-        if (sidebar && toggleBtn) {
-            toggleBtn.classList.remove('d-none');
-        }
-    });
+    // --- LOGIKA HAMBURGER (LEBIH KUAT) ---
+    // Cek langsung sekarang
+    checkSidebarExist();
+    
+    // Cek lagi nanti setelah halaman selesai loading (backup)
+    window.addEventListener('load', checkSidebarExist);
 
     // Active State Logic
     const path = window.location.pathname;
@@ -76,12 +70,20 @@ function renderNavbar() {
     else if (path.includes('games.html')) document.getElementById('nav-games')?.classList.add('active');
 }
 
-// Fungsi Helper untuk Navigasi Admin
+// Fungsi Cek Sidebar
+function checkSidebarExist() {
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('sidebar-toggle-btn');
+    
+    if (sidebar && toggleBtn) {
+        toggleBtn.classList.remove('d-none');
+    }
+}
+
+// Helper Navigasi Admin
 window.openAdminSection = function(sectionId) {
     if (window.location.pathname.includes('admin.html')) {
-        if (typeof switchSection === 'function') {
-            switchSection(sectionId, null);
-        }
+        if (typeof switchSection === 'function') switchSection(sectionId, null);
     } else {
         window.location.href = `admin.html?section=${sectionId}`;
     }
@@ -91,4 +93,40 @@ window.toggleAddAccount = function(e) {
     e.stopPropagation(); 
     const popup = document.getElementById('add-account-popup');
     if (popup) popup.classList.toggle('d-none');
+}
+
+/**
+ * Update Navbar Profile (Dipanggil oleh auth-system.js)
+ */
+window.updateNavbarProfile = async function(user) {
+    if (!user) return;
+
+    const navImgBtn = document.getElementById('nav-profile-img-btn');
+    const navImgInside = document.getElementById('nav-profile-img-inside');
+    const navUsername = document.getElementById('nav-gh-username');
+    const navFullname = document.getElementById('nav-gh-fullname');
+
+    let displayName = user.displayName || 'User';
+    let email = user.email;
+    let photoURL = user.photoURL || `https://ui-avatars.com/api/?name=${displayName}`;
+    let username = email.split('@')[0]; 
+
+    try {
+        if (typeof db !== 'undefined') {
+            const doc = await db.collection('users').doc(email).get();
+            if (doc.exists) {
+                const data = doc.data();
+                if (data.displayName) displayName = data.displayName;
+                if (data.username) username = data.username;
+                if (data.photoURL) photoURL = data.photoURL;
+            }
+        }
+    } catch (error) {
+        console.error("Gagal sync navbar:", error);
+    }
+
+    if (navImgBtn) navImgBtn.src = photoURL;
+    if (navImgInside) navImgInside.src = photoURL;
+    if (navUsername) navUsername.textContent = username; 
+    if (navFullname) navFullname.textContent = displayName;
 }

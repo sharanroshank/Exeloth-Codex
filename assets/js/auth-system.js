@@ -51,7 +51,7 @@ async function cleanupUnauthorizedUser(user, reason) {
     resetNavbarLoginState();
 }
 
-// Handle user signed in (VERSI YANG SUDAH DIPERBAIKI)
+// Handle user signed in
 async function handleUserSignedIn(user) {
     if (isCheckingAdminAccess) {
         return;
@@ -65,30 +65,15 @@ async function handleUserSignedIn(user) {
         // Cek database admin
         const adminDoc = await db.collection('admins').doc(user.email).get();
         
-if (adminDoc.exists) {
+        if (adminDoc.exists) {
             // ✅ ADMIN RESMI - Izinkan masuk
             currentUser = user;
             console.log('Admin access granted:', user.email);
             
-            // --- TAMBAHKAN KODE INI ---
-            // Update foto dan nama di navbar dropdown
-            const navImg = document.getElementById('nav-profile-img');
-            const navName = document.getElementById('nav-user-name');
-            
-            if (navImg && user.photoURL) {
-                navImg.src = user.photoURL; // Pakai foto Google
-            }
-            if (navName) {
-                navName.textContent = "Signed in as " + (user.displayName || user.email);
-            }
-            // ---------------------------
-            
-            // --- UPDATE FOTO NAVBAR (KODE LAMA BOLEH DIHAPUS) ---
-            // const navImg = document.getElementById('nav-profile-img'); ... (HAPUS ATAU ABAIKAN)
-            
-            // --- TAMBAHKAN BARIS INI (PENTING!) ---
+            // --- BAGIAN BARU: SINKRONISASI NAVBAR ---
+            // Memanggil fungsi dari navbar.js untuk update foto & nama dari database
             if (window.updateNavbarProfile) {
-                window.updateNavbarProfile(user); // <--- INI KUNCINYA
+                window.updateNavbarProfile(user); 
             }
             // ---------------------------------------
             
@@ -97,39 +82,34 @@ if (adminDoc.exists) {
             const isFromLoginAction = sessionStorage.getItem('loginAction') === 'true';
             const isOnAdminPage = window.location.pathname.includes('admin');
             
-            // 1. LOGIKA NOTIFIKASI & REDIRECT (Hanya jika user BARU SAJA login via tombol)
+            // 1. LOGIKA NOTIFIKASI & REDIRECT
             if (isFromLoginAction) {
                 showNotification('Login successful!', 'success');
-                sessionStorage.removeItem('loginAction'); // Hapus flag agar notifikasi tidak muncul lagi saat refresh
+                sessionStorage.removeItem('loginAction'); 
                 
                 // Redirect ke admin jika belum di sana
                 if (!isOnAdminPage) {
                     setTimeout(() => { window.location.href = 'admin.html'; }, 1000);
                 }
             }
-            // Jika isFromLoginAction = false, kita diam saja (SILENT MODE) saat pindah halaman
             
-            // 2. LOGIKA MEMUAT PANEL ADMIN (Hanya jika sedang di halaman admin)
+            // 2. LOGIKA MEMUAT PANEL ADMIN
             if (isOnAdminPage) {
                 setTimeout(() => {
                     if (typeof showAdminPanel === 'function') {
                         showAdminPanel(user);
                     } else {
-                        // Tunggu sebentar jika script admin.js belum siap
                         setTimeout(() => showAdminPanel(user), 500);
                     }
                 }, 500);
             }
             
         } else {
-            // ❌ BUKAN ADMIN - Segera Hapus!
+            // ❌ BUKAN ADMIN
             await cleanupUnauthorizedUser(user, 'Not in admin list');
         }
     } catch (error) {
-        // ❌ ERROR (Misal Permission Denied) - Anggap tidak berhak & Hapus!
         console.error('Error checking admin access:', error);
-        
-        // PENTING: Jangan biarkan user masuk jika terjadi error saat pengecekan
         await cleanupUnauthorizedUser(user, 'Error during check: ' + error.message);
     } finally {
         isCheckingAdminAccess = false;
