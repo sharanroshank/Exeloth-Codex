@@ -1,4 +1,4 @@
-// assets/js/navbar.js - FIXED VERSION WITH PROPER SIDEBAR INTEGRATION
+// assets/js/navbar.js - FIXED VERSION WITH CONTENT SHIFT SIDEBAR
 
 let currentSidebarState = {
     isOpen: false,
@@ -131,9 +131,6 @@ function initializeNavbarComponents() {
     // Setup tooltips
     setupTooltips();
     
-    // Setup responsive behavior
-    setupResponsiveBehavior();
-    
     // Update sidebar state
     updateSidebarState();
     
@@ -184,32 +181,16 @@ function setupHamburgerButton() {
             this.style.backgroundColor = 'transparent';
         });
         
-        // Click event - delegasikan ke game-ui.js
+        // Click event
         toggleBtn.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
             
-            // Gunakan fungsi dari game-ui.js jika ada
+            // Gunakan fungsi dari game-ui.js
             if (typeof window.toggleSidebar === 'function') {
                 window.toggleSidebar();
-            } else {
-                // Fallback
-                console.warn('toggleSidebar function not found, using fallback');
-                if (typeof toggleSidebar === 'function') {
-                    toggleSidebar();
-                }
             }
         });
-        
-        // Touch event untuk mobile
-        toggleBtn.addEventListener('touchstart', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            if (typeof window.toggleSidebar === 'function') {
-                window.toggleSidebar();
-            }
-        }, { passive: false });
         
         // Update initial state
         updateHamburgerButtonState();
@@ -218,33 +199,26 @@ function setupHamburgerButton() {
     } else if (toggleBtn) {
         // Sembunyikan tombol di halaman non-game
         toggleBtn.classList.add('d-none');
-        toggleBtn.style.display = 'none';
-        toggleBtn.style.visibility = 'hidden';
-        toggleBtn.style.opacity = '0';
     }
 }
 
 // Update hamburger button state
 function updateHamburgerButtonState() {
     const toggleBtn = document.getElementById('sidebar-toggle-btn');
-    const sidebar = document.getElementById('sidebar');
     const body = document.body;
     
     if (!toggleBtn) return;
     
-    const isActive = body.classList.contains('sidebar-open') || 
-                    (sidebar && sidebar.classList.contains('active'));
+    currentSidebarState.isOpen = body.classList.contains('sidebar-open');
     
-    currentSidebarState.isOpen = isActive;
-    
-    if (isActive) {
+    if (currentSidebarState.isOpen) {
         toggleBtn.innerHTML = '<i class="bi bi-x-lg fs-3"></i>';
         toggleBtn.setAttribute('title', 'Close Sidebar');
         toggleBtn.setAttribute('aria-label', 'Close Sidebar');
         toggleBtn.setAttribute('aria-expanded', 'true');
         toggleBtn.classList.add('active');
         
-        // Hide navbar left group saat sidebar terbuka (mobile only)
+        // Di mobile, sembunyikan navbar left group
         if (currentSidebarState.isMobile) {
             const leftNavbarGroup = document.getElementById('navbar-left-group');
             if (leftNavbarGroup) {
@@ -262,7 +236,7 @@ function updateHamburgerButtonState() {
         toggleBtn.setAttribute('aria-expanded', 'false');
         toggleBtn.classList.remove('active');
         
-        // Show navbar left group saat sidebar tertutup
+        // Show navbar left group
         const leftNavbarGroup = document.getElementById('navbar-left-group');
         if (leftNavbarGroup) {
             leftNavbarGroup.style.opacity = '1';
@@ -271,25 +245,12 @@ function updateHamburgerButtonState() {
             leftNavbarGroup.style.overflow = 'visible';
         }
     }
-    
-    // Update tooltip
-    if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
-        const tooltipInstance = bootstrap.Tooltip.getInstance(toggleBtn);
-        if (tooltipInstance) {
-            tooltipInstance.hide();
-            setTimeout(() => {
-                tooltipInstance.dispose();
-                new bootstrap.Tooltip(toggleBtn);
-            }, 100);
-        }
-    }
 }
 
 // Setup active state untuk navigation links
 function setupActiveNavLinks() {
     const path = window.location.pathname;
     const currentPage = path.split('/').pop() || 'index.html';
-    const hash = window.location.hash;
     
     // Reset semua active state
     document.querySelectorAll('.nav-link').forEach(link => {
@@ -309,19 +270,6 @@ function setupActiveNavLinks() {
         if (gamesLink) {
             gamesLink.classList.add('active');
             gamesLink.setAttribute('aria-current', 'page');
-        }
-    } else if (currentPage === 'admin.html') {
-        // Tidak ada link admin di navbar
-    } else if (currentPage.includes('game.html')) {
-        // Untuk game page, tidak ada nav link khusus
-    }
-    
-    // Handle hash untuk deep linking
-    if (hash && hash !== '#') {
-        const targetLink = document.querySelector(`.nav-link[href="${hash}"]`);
-        if (targetLink) {
-            targetLink.classList.add('active');
-            targetLink.setAttribute('aria-current', 'page');
         }
     }
 }
@@ -347,23 +295,9 @@ function setupNavbarEventListeners() {
             const wasMobile = currentSidebarState.isMobile;
             currentSidebarState.isMobile = window.innerWidth < 992;
             
-            // Jika berubah dari mobile ke desktop
-            if (wasMobile && !currentSidebarState.isMobile) {
-                // Reset hamburger button
-                setupHamburgerButton();
-            }
-            
-            // Jika berubah dari desktop ke mobile
-            if (!wasMobile && currentSidebarState.isMobile) {
-                // Update hamburger button
-                setupHamburgerButton();
-            }
+            // Update hamburger button
+            updateHamburgerButtonState();
         }, 250);
-    });
-    
-    // Handle navigation events
-    window.addEventListener('popstate', function() {
-        setTimeout(setupActiveNavLinks, 100);
     });
     
     // Handle click on nav links untuk mobile menu
@@ -407,129 +341,16 @@ function setupDropdowns() {
         dropdownElementList.map(function (dropdownToggleEl) {
             return new bootstrap.Dropdown(dropdownToggleEl);
         });
-        
-        console.log('✅ Bootstrap dropdowns initialized');
     }
-    
-    // Enhanced dropdown behavior
-    document.querySelectorAll('.dropdown').forEach(dropdown => {
-        const toggle = dropdown.querySelector('.dropdown-toggle');
-        const menu = dropdown.querySelector('.dropdown-menu');
-        
-        if (toggle && menu) {
-            // Keyboard navigation
-            toggle.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' || e.key === ' ' || e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    this.click();
-                    
-                    // Focus first item setelah dropdown terbuka
-                    setTimeout(() => {
-                        const firstItem = menu.querySelector('.dropdown-item');
-                        if (firstItem) firstItem.focus();
-                    }, 100);
-                }
-            });
-            
-            // Menu keyboard navigation
-            menu.addEventListener('keydown', function(e) {
-                const items = this.querySelectorAll('.dropdown-item');
-                const currentItem = document.activeElement;
-                const currentIndex = Array.from(items).indexOf(currentItem);
-                
-                switch(e.key) {
-                    case 'ArrowDown':
-                        e.preventDefault();
-                        if (currentIndex < items.length - 1) {
-                            items[currentIndex + 1].focus();
-                        }
-                        break;
-                    case 'ArrowUp':
-                        e.preventDefault();
-                        if (currentIndex > 0) {
-                            items[currentIndex - 1].focus();
-                        } else {
-                            toggle.focus();
-                            const dropdownInstance = bootstrap.Dropdown.getInstance(toggle);
-                            if (dropdownInstance) dropdownInstance.hide();
-                        }
-                        break;
-                    case 'Escape':
-                        toggle.focus();
-                        const dropdownInstance = bootstrap.Dropdown.getInstance(toggle);
-                        if (dropdownInstance) dropdownInstance.hide();
-                        break;
-                    case 'Home':
-                        e.preventDefault();
-                        items[0].focus();
-                        break;
-                    case 'End':
-                        e.preventDefault();
-                        items[items.length - 1].focus();
-                        break;
-                }
-            });
-        }
-    });
-    
-    // Close dropdown ketika klik di luar
-    document.addEventListener('click', function(e) {
-        const dropdowns = document.querySelectorAll('.dropdown');
-        dropdowns.forEach(dropdown => {
-            if (!dropdown.contains(e.target)) {
-                const dropdownToggle = dropdown.querySelector('.dropdown-toggle');
-                if (dropdownToggle) {
-                    const dropdownInstance = bootstrap.Dropdown.getInstance(dropdownToggle);
-                    if (dropdownInstance) {
-                        dropdownInstance.hide();
-                    }
-                }
-            }
-        });
-    });
 }
 
 // Setup tooltips
 function setupTooltips() {
     if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
-        // Inisialisasi tooltips
         const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
         tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl);
         });
-        
-        console.log('✅ Tooltips initialized');
-    }
-}
-
-// Setup responsive behavior
-function setupResponsiveBehavior() {
-    // Update mobile state
-    currentSidebarState.isMobile = window.innerWidth < 992;
-    
-    // Handle touch events untuk mobile
-    if (currentSidebarState.isMobile) {
-        // Touch swipe untuk close sidebar
-        let touchStartX = 0;
-        let touchEndX = 0;
-        
-        document.addEventListener('touchstart', function(e) {
-            touchStartX = e.changedTouches[0].screenX;
-        }, { passive: true });
-        
-        document.addEventListener('touchend', function(e) {
-            if (!currentSidebarState.isOpen) return;
-            
-            touchEndX = e.changedTouches[0].screenX;
-            const swipeDistance = touchEndX - touchStartX;
-            
-            // Swipe kiri untuk close sidebar
-            if (swipeDistance < -50) {
-                if (typeof window.closeSidebar === 'function') {
-                    window.closeSidebar();
-                }
-            }
-        }, { passive: true });
     }
 }
 
@@ -558,12 +379,11 @@ window.openAdminSection = function(sectionId) {
     }
 }
 
-// --- SINKRONISASI PROFIL NAVBAR ---
+// Update Navbar Profile
 window.updateNavbarProfile = async function(user) {
     console.log('🔄 Updating navbar profile for:', user ? user.email : 'no user');
     
     if (!user) {
-        // Reset ke default jika user null
         resetNavbarProfile();
         return;
     }
@@ -577,22 +397,6 @@ window.updateNavbarProfile = async function(user) {
     let email = user.email;
     let photoURL = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=6f42c1&color=fff`;
     let username = email.split('@')[0];
-
-    try {
-        if (typeof db !== 'undefined') {
-            const doc = await db.collection('users').doc(email).get();
-            if (doc.exists) {
-                const data = doc.data();
-                if (data.displayName) displayName = data.displayName;
-                if (data.username) username = data.username;
-                if (data.photoURL && data.photoURL.trim() !== '') {
-                    photoURL = data.photoURL;
-                }
-            }
-        }
-    } catch (error) {
-        console.error("❌ Gagal sync navbar:", error);
-    }
 
     // Update semua elemen navbar
     if (navImgBtn) {
@@ -611,8 +415,6 @@ window.updateNavbarProfile = async function(user) {
     }
     if (navUsername) navUsername.textContent = username;
     if (navFullname) navFullname.textContent = displayName;
-    
-    console.log('✅ Navbar profile updated');
 }
 
 // Reset navbar profile ke default
@@ -624,21 +426,13 @@ function resetNavbarProfile() {
 
     const defaultPhoto = 'https://ui-avatars.com/api/?name=User&background=6f42c1&color=fff';
     
-    if (navImgBtn) {
-        navImgBtn.src = defaultPhoto;
-        navImgBtn.alt = 'Default profile picture';
-    }
-    if (navImgInside) {
-        navImgInside.src = defaultPhoto;
-        navImgInside.alt = 'Default profile picture';
-    }
+    if (navImgBtn) navImgBtn.src = defaultPhoto;
+    if (navImgInside) navImgInside.src = defaultPhoto;
     if (navUsername) navUsername.textContent = 'User';
     if (navFullname) navFullname.textContent = 'Guest';
-    
-    console.log('🔄 Navbar profile reset to default');
 }
 
-// Helper untuk update navbar login state (dipanggil dari auth-system.js)
+// Helper untuk update navbar login state
 window.updateNavbar = function(isLoggedIn) {
     console.log('🔄 Updating navbar login state:', isLoggedIn);
     
@@ -657,65 +451,6 @@ window.updateNavbar = function(isLoggedIn) {
     }
 }
 
-// Handle mobile navbar toggler
-function setupMobileNavbarToggler() {
-    const navbarToggler = document.querySelector('.navbar-toggler');
-    if (navbarToggler) {
-        navbarToggler.addEventListener('click', function() {
-            const navbarNav = document.getElementById('navbarNav');
-            if (navbarNav) {
-                const isExpanded = this.getAttribute('aria-expanded') === 'true';
-                this.setAttribute('aria-expanded', !isExpanded);
-                
-                // Update aria-label
-                if (!isExpanded) {
-                    this.setAttribute('aria-label', 'Close navigation menu');
-                } else {
-                    this.setAttribute('aria-label', 'Open navigation menu');
-                }
-            }
-        });
-        
-        // Keyboard support
-        navbarToggler.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                this.click();
-            }
-        });
-    }
-    
-    // Close mobile navbar when clicking outside
-    document.addEventListener('click', function(e) {
-        const navbarNav = document.getElementById('navbarNav');
-        const navbarToggler = document.querySelector('.navbar-toggler');
-        
-        if (navbarNav && navbarNav.classList.contains('show') && 
-            !navbarNav.contains(e.target) && 
-            navbarToggler && !navbarToggler.contains(e.target)) {
-            
-            const bsCollapse = bootstrap.Collapse.getInstance(navbarNav);
-            if (bsCollapse) {
-                bsCollapse.hide();
-                navbarToggler.setAttribute('aria-expanded', 'false');
-                navbarToggler.setAttribute('aria-label', 'Open navigation menu');
-            }
-        }
-    });
-}
-
-// Close sidebar when clicking on overlay
-function setupOverlayClick() {
-    document.addEventListener('click', function(e) {
-        const overlay = document.querySelector('.overlay-sidebar');
-        if (overlay && overlay.contains(e.target) && currentSidebarState.isOpen) {
-            if (typeof window.closeSidebar === 'function') {
-                window.closeSidebar();
-            }
-        }
-    });
-}
-
 // Initialize navbar when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
     console.log('📄 Navbar system initializing...');
@@ -726,12 +461,6 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         console.warn('⚠️ Navbar placeholder not found');
     }
-    
-    // Setup mobile navbar toggler
-    setupMobileNavbarToggler();
-    
-    // Setup overlay click
-    setupOverlayClick();
     
     // Setup event untuk re-render jika diperlukan
     document.addEventListener('navbar:refresh', function() {
@@ -746,23 +475,11 @@ document.addEventListener('DOMContentLoaded', function() {
             updateHamburgerButtonState();
         }
     });
-    
-    // Listen untuk window load
-    window.addEventListener('load', function() {
-        // Update sidebar state setelah semua konten dimuat
-        setTimeout(updateSidebarState, 500);
-    });
 });
 
 // Export fungsi untuk digunakan di file lain
 window.renderNavbar = renderNavbar;
-window.setupHamburgerButton = setupHamburgerButton;
 window.updateNavbarProfile = updateNavbarProfile;
 window.updateNavbar = updateNavbar;
-window.resetNavbarProfile = resetNavbarProfile;
-window.updateHamburgerButtonState = updateHamburgerButtonState;
-
-// Export sidebar state untuk akses global
-window.sidebarState = currentSidebarState;
 
 console.log('✅ navbar.js loaded successfully');

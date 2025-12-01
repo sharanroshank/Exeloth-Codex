@@ -15,115 +15,34 @@
     <link rel="stylesheet" href="assets/css/game.css"> <!-- File CSS khusus game -->
     
     <style>
-        .game-badge {
-            font-size: 0.85rem;
-            padding: 5px 15px;
-            border-radius: 20px;
-            margin-right: 8px;
-            margin-bottom: 8px;
-        }
-        
-        .chapter-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 15px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        
-        .chapter-card:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateY(-3px);
-            border-color: #6f42c1;
-        }
-        
-        .chapter-title {
-            color: #fff;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-        
-        .chapter-excerpt {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9rem;
-            line-height: 1.5;
-        }
-        
-        .story-section-title {
-            color: #fff;
-            border-bottom: 2px solid #6f42c1;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
-        
-        /* Sidebar styling khusus untuk game page */
-        .sidebar-scrollable {
-            flex: 1;
-            overflow-y: auto;
-            padding: 15px 0;
-            margin-top: 70px;
-            -webkit-overflow-scrolling: touch; /* Smooth scrolling di iOS */
-        }
-        
-        /* Active state untuk menu sidebar */
-        .sidebar-menu li a.active {
-            background: rgba(111, 66, 193, 0.1);
-            border-left: 3px solid var(--primary-color);
-        }
-        
-        /* Highlight untuk section yang aktif */
-        .section-highlight {
-            animation: highlightPulse 2s ease;
-        }
-        
-        @keyframes highlightPulse {
-            0% { box-shadow: 0 0 0 0 rgba(111, 66, 193, 0.4); }
-            50% { box-shadow: 0 0 0 10px rgba(111, 66, 193, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(111, 66, 193, 0); }
-        }
-        
-        /* Tambahan CSS untuk fix sidebar */
+        /* Fix untuk content shift */
         #content {
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
-        body.sidebar-open #content {
-            transform: translateX(280px);
-            overflow-x: hidden;
-        }
-        
-        /* Untuk mobile, konten tetap di tempat */
-        @media (max-width: 991.98px) {
+        /* Desktop styles - KONTEN BERGESER */
+        @media (min-width: 992px) {
             body.sidebar-open #content {
-                transform: none;
-                position: relative;
-            }
-            
-            body.sidebar-open {
-                overflow: hidden;
+                margin-left: 280px !important;
             }
             
             .overlay-sidebar {
+                display: none !important;
+            }
+        }
+        
+        /* Mobile styles - SIDEBAR MENUTUPI */
+        @media (max-width: 991.98px) {
+            body.sidebar-open #content {
+                margin-left: 0 !important;
+            }
+            
+            .overlay-sidebar.active {
                 display: block !important;
                 opacity: 1 !important;
                 background: rgba(0, 0, 0, 0.5);
                 backdrop-filter: blur(2px);
                 z-index: 1039;
-            }
-        }
-        
-        /* Desktop styles */
-        @media (min-width: 992px) {
-            body.sidebar-open #content {
-                width: calc(100% - 280px);
-                margin-left: 280px;
-            }
-            
-            .overlay-sidebar {
-                display: none !important;
             }
         }
     </style>

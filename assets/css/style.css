@@ -1,4 +1,4 @@
-/* assets/css/style.css - FIXED VERSION WITH SIDEBAR BESIDE CONTENT */
+/* assets/css/style.css - FIXED VERSION WITH CONTENT SHIFT SIDEBAR */
 /* ==================== 1. VARIABEL & RESET DASAR ==================== */
 :root {
     --primary-color: #6f42c1;
@@ -30,6 +30,7 @@ body {
     overflow-x: hidden;
     min-height: 100vh;
     position: relative;
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Khusus Halaman Game */
@@ -39,9 +40,9 @@ body.game-page {
     min-height: 100vh;
 }
 
-/* Class untuk saat sidebar terbuka */
+/* Class untuk saat sidebar terbuka - DIPERBAIKI */
 body.sidebar-open {
-    overflow: hidden;
+    overflow-x: hidden;
 }
 
 /* ==================== 2. NAVBAR & HEADER ==================== */
@@ -50,7 +51,7 @@ body.sidebar-open {
     background-color: rgba(33, 37, 41, 0.95) !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: fixed;
     top: 0;
     left: 0;
@@ -128,17 +129,7 @@ body.sidebar-open {
     transform: rotate(180deg);
 }
 
-/* Navbar left group saat sidebar terbuka */
-#navbar-left-group.nav-hidden {
-    opacity: 0;
-    visibility: hidden;
-    width: 0;
-    overflow: hidden;
-    transition: all 0.3s ease;
-    margin-right: 0 !important;
-}
-
-/* Navbar shadow and glass effect */
+/* Navbar glass effect */
 .navbar {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     backdrop-filter: blur(10px);
@@ -171,13 +162,6 @@ body.sidebar-open {
     pointer-events: none;
 }
 
-.jumbotron-section {
-    background: linear-gradient(135deg, var(--dark-color) 0%, var(--darker-color) 100%);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-}
-
 /* ==================== 3. KARTU & KOMPONEN UMUM ==================== */
 .card {
     border: none;
@@ -193,15 +177,7 @@ body.sidebar-open {
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
 }
 
-.card h1, .card h2, .card h3, .card h4, .card h5, .card h6, .card-header {
-    color: #ffffff !important;
-}
-
-.card p, .card li {
-    color: rgba(255, 255, 255, 0.8) !important;
-}
-
-/* Game Card Style (Grid di Daftar Games & Home) */
+/* Game Card Style */
 .game-card {
     position: relative;
     border-radius: 15px;
@@ -215,19 +191,6 @@ body.sidebar-open {
 .game-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-}
-
-.game-card img {
-    height: 200px;
-    object-fit: cover;
-    opacity: 0.7;
-    transition: opacity 0.3s, transform 0.3s;
-    width: 100%;
-}
-
-.game-card:hover img { 
-    opacity: 1;
-    transform: scale(1.05);
 }
 
 /* Card Overlay Style (Home) */
@@ -275,42 +238,6 @@ body.sidebar-open {
     transform: scale(1.05); 
 }
 
-.btn.hover-scale:hover { 
-    box-shadow: 0 10px 20px -10px rgba(13, 202, 240, 0.5); 
-}
-
-/* Badge & Section Labels */
-.badge-section {
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
-    padding: 5px 15px;
-    margin-right: 10px;
-    margin-bottom: 10px;
-    display: inline-block;
-    font-weight: 500;
-}
-
-/* Story Chapters */
-.story-section { 
-    margin-bottom: 3rem; 
-}
-
-.chapter-item {
-    background-color: rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 10px;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
-    border-left: 3px solid transparent;
-}
-
-.chapter-item:hover { 
-    background-color: rgba(255, 255, 255, 0.1);
-    transform: translateX(5px);
-    border-left-color: var(--primary-color);
-}
-
 /* ==================== 4. FORM & INPUTS ==================== */
 .form-control, .form-select {
     background-color: rgba(255, 255, 255, 0.08) !important;
@@ -327,40 +254,6 @@ body.sidebar-open {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 0.25rem rgba(111, 66, 193, 0.25);
     transform: translateY(-2px);
-}
-
-.form-control::placeholder { 
-    color: rgba(255, 255, 255, 0.5); 
-}
-
-.form-label { 
-    color: var(--light-color); 
-    font-weight: 500;
-    margin-bottom: 8px;
-}
-
-.form-text { 
-    color: rgba(255, 255, 255, 0.5) !important; 
-}
-
-.form-check-input {
-    background-color: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.3);
-    cursor: pointer;
-}
-
-.form-check-input:checked {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-}
-
-.form-check-input:focus {
-    box-shadow: 0 0 0 0.25rem rgba(111, 66, 193, 0.25);
-}
-
-select option { 
-    background-color: #1a1d20 !important; 
-    color: #ffffff !important; 
 }
 
 /* ==================== 5. BUTTONS & ALERTS ==================== */
@@ -385,35 +278,6 @@ select option {
     box-shadow: 0 5px 15px rgba(111, 66, 193, 0.4);
 }
 
-.btn-primary::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 5px;
-    height: 5px;
-    background: rgba(255, 255, 255, 0.5);
-    opacity: 0;
-    border-radius: 100%;
-    transform: scale(1, 1) translate(-50%);
-    transform-origin: 50% 50%;
-}
-
-.btn-primary:focus:not(:active)::after {
-    animation: ripple 1s ease-out;
-}
-
-@keyframes ripple {
-    0% {
-        transform: scale(0, 0);
-        opacity: 0.5;
-    }
-    100% {
-        transform: scale(20, 20);
-        opacity: 0;
-    }
-}
-
 /* Alert Variants */
 .alert { 
     border: none; 
@@ -428,68 +292,7 @@ select option {
     border-left: 4px solid var(--info-color); 
 }
 
-.alert-warning { 
-    background-color: rgba(255, 193, 7, 0.15); 
-    color: var(--warning-color); 
-    border-left: 4px solid var(--warning-color); 
-}
-
-.alert-danger { 
-    background-color: rgba(220, 53, 69, 0.15); 
-    color: var(--danger-color); 
-    border-left: 4px solid var(--danger-color); 
-}
-
-.alert-success { 
-    background-color: rgba(25, 135, 84, 0.15); 
-    color: var(--success-color); 
-    border-left: 4px solid var(--success-color); 
-}
-
 /* ==================== 6. ADMIN PANEL SPECIFIC ==================== */
-.spinner-border-sm { 
-    width: 1rem; 
-    height: 1rem; 
-}
-
-.guide-section { 
-    border-left: 4px solid var(--info-color); 
-    background: rgba(13, 202, 240, 0.1); 
-    border-radius: 0 8px 8px 0;
-}
-
-.admin-list {
-    max-height: 400px; 
-    overflow-y: auto;
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 8px; 
-    padding: 0;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.admin-item {
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center;
-    padding: 1rem 1.25rem; 
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    transition: background-color 0.2s;
-}
-
-.admin-item:hover {
-    background-color: rgba(255, 255, 255, 0.05);
-}
-
-.admin-list::-webkit-scrollbar { 
-    width: 6px; 
-}
-
-.admin-list::-webkit-scrollbar-thumb { 
-    background: var(--primary-color); 
-    border-radius: 3px; 
-}
-
-/* Sidebar Admin (Bukan Game Page) */
 body.admin-page #sidebar { 
     top: 76px !important; 
     height: calc(100vh - 76px) !important; 
@@ -513,90 +316,13 @@ body.admin-page #sidebar {
     padding-left: 25px;
 }
 
-.nav-link-custom.active { 
-    background: rgba(255,255,255,0.1); 
-    color: white; 
-    border-left-color: var(--primary-color);
-    font-weight: 600;
-}
-
-.fade-in { 
-    animation: fadeIn 0.3s ease-in-out; 
-}
-
-@keyframes fadeIn { 
-    from { 
-        opacity: 0; 
-        transform: translateY(10px); 
-    } 
-    to { 
-        opacity: 1; 
-        transform: translateY(0); 
-    } 
-}
-
-.admin-tab-content { 
-    display: none; 
-}
-
-.admin-tab-content.active { 
-    display: block; 
-}
-
-/* Google Connect Card (Admin Profile) */
-.google-card { 
-    background-color: #212529; 
-    border: 1px solid #343a40; 
-    transition: 0.2s; 
-    overflow: hidden;
-    border-radius: 8px;
-}
-
-.google-card:hover { 
-    background-color: #2c3035; 
-    border-color: #495057; 
-    transform: translateY(-2px); 
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-}
-
-.cursor-pointer { 
-    cursor: pointer; 
-}
-
-/* ==================== 7. DAFTAR GAMES (FILTER & PAGINATION) ==================== */
+/* ==================== 7. DAFTAR GAMES ==================== */
 .filter-box {
     background-color: #212529;
     border: 1px solid rgba(255,255,255,0.1);
     border-radius: 12px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.3);
     backdrop-filter: blur(10px);
-}
-
-.pagination .page-link { 
-    background-color: #212529; 
-    border-color: #495057; 
-    color: #fff; 
-    border-radius: 6px;
-    margin: 0 3px;
-    transition: all 0.3s;
-}
-
-.pagination .page-link:hover {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-    transform: translateY(-2px);
-}
-
-.pagination .page-item.active .page-link { 
-    background-color: var(--primary-color); 
-    border-color: var(--primary-color); 
-    box-shadow: 0 2px 5px rgba(111, 66, 193, 0.3);
-}
-
-.pagination .page-item.disabled .page-link { 
-    background-color: #1a1d20; 
-    color: #6c757d; 
-    cursor: not-allowed;
 }
 
 /* ==================== 8. NOTIFICATION SYSTEM ==================== */
@@ -623,21 +349,6 @@ body.admin-page #sidebar {
     }
 }
 
-@keyframes slideOutRight {
-    from {
-        transform: translateX(0);
-        opacity: 1;
-    }
-    to {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-}
-
-.notification.slide-out {
-    animation: slideOutRight 0.3s ease-in forwards;
-}
-
 #notification-container { 
     pointer-events: none; 
     z-index: 99999;
@@ -647,84 +358,7 @@ body.admin-page #sidebar {
     pointer-events: all; 
 }
 
-/* ==================== 9. GITHUB DROPDOWN ==================== */
-.github-dropdown { 
-    min-width: 300px !important;
-    padding: 8px 0; 
-    border: 1px solid rgba(255,255,255,0.15); 
-    background-color: #1a1d20 !important; 
-    backdrop-filter: blur(10px);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-    border-radius: 8px;
-}
-
-.github-header-row { 
-    padding: 12px 16px; 
-    display: flex; 
-    gap: 12px; 
-    align-items: center;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
-
-.gh-user-info { 
-    flex-grow: 1; 
-    line-height: 1.2; 
-    overflow: hidden; 
-}
-
-.gh-username { 
-    font-weight: 600; 
-    font-size: 0.95rem; 
-    color: #ffffff; 
-    display: block;
-    margin-bottom: 2px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.gh-fullname { 
-    font-size: 0.85rem; 
-    color: #adb5bd; 
-    display: block;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* Item menu dropdown */
-.dropdown-item {
-    color: #e9ecef !important;
-    padding: 8px 16px !important;
-    font-size: 0.9rem !important;
-    display: flex;
-    align-items: center;
-    transition: all 0.2s;
-    border-radius: 4px;
-    margin: 2px 8px;
-    width: auto;
-}
-
-.dropdown-item:hover {
-    background-color: var(--primary-color) !important;
-    color: white !important;
-    transform: translateX(5px);
-}
-
-.dropdown-item i {
-    width: 20px;
-    text-align: center;
-    margin-right: 8px;
-}
-
-/* Garis pemisah */
-.dropdown-divider {
-    border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
-    margin: 8px 0 !important;
-    opacity: 1;
-}
-
-/* ==================== 10. GAME PAGE SPECIFIC ==================== */
+/* ==================== 9. GAME PAGE SPECIFIC ==================== */
 
 /* Background Image untuk Game Page */
 .bg-custom-fixed { 
@@ -739,8 +373,7 @@ body.admin-page #sidebar {
     opacity: 0.15; 
     filter: brightness(0.8) contrast(1.2);
     pointer-events: none;
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Dashboard wrapper */
@@ -752,25 +385,19 @@ body.admin-page #sidebar {
     width: 100%;
 }
 
-/* Content utama */
+/* Content utama - DIPERBAIKI TOTAL */
 #content {
     min-height: calc(100vh - 76px);
     background-color: transparent;
     position: relative;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     padding: 0;
-    will-change: transform;
+    will-change: margin-left;
     width: 100%;
     margin-left: 0;
 }
 
-/* Content shift saat sidebar terbuka */
-body.sidebar-open #content {
-    transform: translateX(var(--sidebar-width));
-    width: calc(100% - var(--sidebar-width));
-}
-
-/* ==================== SIDEBAR UNTUK GAME PAGE - DIPERBARUI ==================== */
+/* ==================== SIDEBAR UNTUK GAME PAGE - DIPERBARUI TOTAL ==================== */
 
 /* Sidebar untuk Game Page - FIXED */
 #sidebar {
@@ -841,10 +468,6 @@ body.sidebar-open #content {
     transform: rotate(90deg); 
 }
 
-#dismiss i {
-    font-size: 1rem;
-}
-
 /* Container untuk konten sidebar yang bisa discroll */
 .sidebar-scrollable {
     flex: 1;
@@ -859,11 +482,6 @@ body.sidebar-open #content {
     list-style: none;
 }
 
-.sidebar-menu li {
-    margin: 0;
-    padding: 0;
-}
-
 .sidebar-menu li a {
     padding: 14px 25px;
     color: rgba(255,255,255,0.7);
@@ -875,18 +493,6 @@ body.sidebar-open #content {
     border-left: 3px solid transparent;
     font-size: 0.95rem;
     position: relative;
-    overflow: hidden;
-}
-
-.sidebar-menu li a::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-    transition: width 0.3s ease;
 }
 
 .sidebar-menu li a:hover,
@@ -896,22 +502,6 @@ body.sidebar-open #content {
     border-left-color: var(--primary-color);
 }
 
-.sidebar-menu li a:hover::after,
-.sidebar-menu li a.active::after {
-    width: 100%;
-}
-
-.sidebar-menu li a:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: -2px;
-}
-
-.sidebar-menu li a i {
-    font-size: 1.1rem;
-    width: 24px;
-    text-align: center;
-}
-
 /* Footer Sidebar */
 .sidebar-footer {
     flex-shrink: 0;
@@ -919,23 +509,6 @@ body.sidebar-open #content {
     border-top: 1px solid rgba(255,255,255,0.1);
     background-color: rgba(0,0,0,0.2);
     padding: 15px 20px;
-}
-
-.sidebar-footer a {
-    padding: 12px 20px;
-    border-radius: 8px;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: rgba(255,255,255,0.7);
-    text-decoration: none;
-}
-
-.sidebar-footer a:hover {
-    background-color: rgba(255,255,255,0.05);
-    color: #fff !important;
-    padding-left: 25px;
 }
 
 /* Overlay untuk sidebar - HANYA UNTUK MOBILE */
@@ -954,14 +527,6 @@ body.sidebar-open #content {
     cursor: pointer;
 }
 
-/* Overlay aktif hanya di mobile */
-@media (max-width: 991.98px) {
-    .overlay-sidebar.active {
-        display: block;
-        opacity: 1;
-    }
-}
-
 /* Tombol Favorite */
 .btn-favorite {
     transition: all 0.3s ease;
@@ -973,11 +538,6 @@ body.sidebar-open #content {
     border-radius: 50px;
 }
 
-.btn-favorite:hover {
-    background: rgba(255, 107, 107, 0.1);
-    transform: translateY(-2px);
-}
-
 .btn-favorite.active {
     background-color: #ff6b6b;
     color: white;
@@ -985,140 +545,56 @@ body.sidebar-open #content {
     border-color: #ff6b6b;
 }
 
-.btn-favorite.active:hover {
-    background-color: #ff5252;
-    border-color: #ff5252;
-}
+/* ==================== 10. RESPONSIVE DESIGN - DIPERBARUI TOTAL ==================== */
 
-/* Scrollbar styling untuk sidebar */
-#sidebar::-webkit-scrollbar {
-    width: 6px;
-}
-
-#sidebar::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
-}
-
-#sidebar::-webkit-scrollbar-thumb {
-    background: linear-gradient(var(--primary-color), var(--secondary-color));
-    border-radius: 10px;
-}
-
-#sidebar::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(var(--primary-color-dark), var(--secondary-color));
-}
-
-/* Accessibility for sidebar */
-#sidebar[aria-hidden="true"] {
-    display: none;
-}
-
-#sidebar[aria-hidden="false"] {
-    display: flex;
-}
-
-/* ==================== 11. ANIMATIONS & TRANSITIONS ==================== */
-@keyframes slideInLeft {
-    from {
-        transform: translateX(-100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-@keyframes slideOutLeft {
-    from {
-        transform: translateX(0);
-        opacity: 1;
-    }
-    to {
-        transform: translateX(-100%);
-        opacity: 0;
-    }
-}
-
-@keyframes slideInUp {
-    from {
-        transform: translateY(20px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-.animate-slide-in-left {
-    animation: slideInLeft 0.3s ease-out;
-}
-
-.animate-slide-in-up {
-    animation: slideInUp 0.3s ease-out;
-}
-
-.animate-fade-in {
-    animation: fadeIn 0.3s ease-out;
-}
-
-.sidebar-slide-in {
-    animation: slideInLeft 0.3s ease-out;
-}
-
-.sidebar-slide-out {
-    animation: slideOutLeft 0.3s ease-in;
-}
-
-/* ==================== 12. RESPONSIVE DESIGN - DIPERBARUI ==================== */
-
-/* Desktop (≥992px) */
+/* DESKTOP (≥992px) - KONTEN BERGESER */
 @media (min-width: 992px) {
-    #sidebar {
-        width: var(--sidebar-width);
+    /* Saat sidebar terbuka, semua konten bergeser ke kanan */
+    body.sidebar-open {
+        margin-left: var(--sidebar-width) !important;
     }
     
-    /* Navbar bergeser bersama konten di desktop */
+    /* Navbar bergeser bersama konten */
     body.sidebar-open .navbar {
-        transform: translateX(var(--sidebar-width));
-        width: calc(100% - var(--sidebar-width));
+        margin-left: var(--sidebar-width) !important;
+        width: calc(100% - var(--sidebar-width)) !important;
     }
     
-    /* Background image bergeser bersama konten */
+    /* Background image bergeser */
     body.sidebar-open .bg-custom-fixed {
-        transform: translateX(var(--sidebar-width));
-        width: calc(100% - var(--sidebar-width));
+        margin-left: var(--sidebar-width) !important;
+        width: calc(100% - var(--sidebar-width)) !important;
     }
     
     /* Notification container bergeser */
     body.sidebar-open #notification-container {
-        transform: translateX(var(--sidebar-width));
+        margin-left: var(--sidebar-width) !important;
+        transform: none !important;
     }
     
     /* Modal bergeser */
     body.sidebar-open .modal.show {
-        transform: translateX(var(--sidebar-width));
+        margin-left: var(--sidebar-width) !important;
     }
     
-    /* Hamburger button di navbar untuk desktop */
-    #sidebar-toggle-btn {
-        display: flex !important;
+    /* Sidebar tetap di tempat */
+    #sidebar {
+        transform: translateX(-100%);
+    }
+    
+    #sidebar.active {
+        transform: translateX(0);
+    }
+    
+    /* Overlay tidak perlu di desktop */
+    .overlay-sidebar {
+        display: none !important;
     }
 }
 
-/* Tablet & Mobile (<992px) */
+/* MOBILE & TABLET (<992px) - SIDEBAR MENUTUPI */
 @media (max-width: 991.98px) {
+    /* Di mobile, sidebar menutupi konten */
     #sidebar {
         width: 280px;
         max-width: 85vw;
@@ -1126,43 +602,36 @@ body.sidebar-open #content {
         box-shadow: 5px 0 15px rgba(0, 0, 0, 0.7);
     }
     
-    /* Di mobile, konten tetap di tempat, sidebar menutupi */
-    body.sidebar-open #content {
-        transform: translateX(0);
-        width: 100%;
-        filter: brightness(0.8);
-        pointer-events: none;
+    /* Di mobile, konten tidak bergeser */
+    body.sidebar-open {
+        margin-left: 0 !important;
+        overflow: hidden;
     }
     
     /* Di mobile, navbar tidak bergeser */
     body.sidebar-open .navbar {
-        transform: translateX(0);
-        width: 100%;
+        margin-left: 0 !important;
+        width: 100% !important;
     }
     
     /* Di mobile, background tetap */
     body.sidebar-open .bg-custom-fixed {
-        transform: translateX(0);
-        width: 100%;
+        margin-left: 0 !important;
+        width: 100% !important;
     }
     
-    /* Di mobile, body overflow hidden */
-    body.sidebar-open {
-        overflow: hidden;
-        position: fixed;
-        width: 100%;
-        height: 100%;
-    }
-    
-    /* Overlay lebih gelap di mobile */
+    /* Overlay aktif di mobile */
     .overlay-sidebar.active {
-        background: rgba(0,0,0,0.7);
+        display: block;
+        opacity: 1;
         z-index: 1039;
     }
     
-    /* Sidebar header adjustment for mobile */
-    .sidebar-header {
-        height: 76px;
+    /* Di mobile, body fixed saat sidebar terbuka */
+    body.sidebar-open {
+        position: fixed;
+        width: 100%;
+        height: 100%;
     }
 }
 
@@ -1176,19 +645,6 @@ body.sidebar-open #content {
         width: 280px;
         max-width: 85vw;
     }
-    
-    .sidebar-menu li a {
-        padding: 12px 20px;
-        font-size: 0.9rem;
-    }
-    
-    .card-game-overlay-container {
-        height: 220px;
-    }
-    
-    .card-overlay-text h3 {
-        font-size: 1.3rem;
-    }
 }
 
 /* Mobile Small (≤576px) */
@@ -1197,13 +653,11 @@ body.sidebar-open #content {
         padding-top: 70px;
     }
     
-    body.game-page,
-    body.admin-page {
+    body.game-page {
         padding-top: 70px !important;
     }
     
     .navbar {
-        padding: 10px 0;
         height: 70px;
     }
     
@@ -1214,50 +668,72 @@ body.sidebar-open #content {
     
     .sidebar-header {
         height: 70px;
-        padding: 10px 15px;
     }
-    
-    .sidebar-brand {
-        font-size: 1rem;
+}
+
+/* ==================== 11. ANIMATIONS & TRANSITIONS ==================== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
     }
-    
-    #dismiss {
-        width: 30px;
-        height: 30px;
-        font-size: 0.9rem;
+    to {
+        opacity: 1;
     }
-    
-    .sidebar-footer a {
-        padding: 10px 15px;
-    }
-    
-    .container-fluid {
-        padding-left: 15px !important;
-        padding-right: 15px !important;
-    }
-    
-    .btn {
-        padding: 8px 16px;
-        font-size: 0.9rem;
-    }
-    
-    .notification {
-        max-width: 90%;
-        margin: 10px;
-    }
-    
-    .game-page {
-        padding-top: 70px;
-    }
-    
-    .modal-dialog {
-        margin: 10px;
-    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Smooth transition untuk semua elemen yang bergeser */
+body,
+#content,
+.bg-custom-fixed,
+.modal.show,
+#notification-container,
+.navbar {
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Fix untuk konten game page */
+body.game-page:not(.sidebar-open) #content {
+    margin-left: 0;
+}
+
+body.game-page.sidebar-open #content {
+    margin-left: var(--sidebar-width);
+}
+
+/* Hamburger button animation */
+#sidebar-toggle-btn i {
+    transition: transform 0.3s ease;
+}
+
+body.sidebar-open #sidebar-toggle-btn i.bi-list {
+    transform: rotate(90deg);
+}
+
+/* Disable transitions saat resize */
+.resizing * {
+    transition: none !important;
+}
+
+/* ==================== 12. SCROLLBAR STYLING ==================== */
+#sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+#sidebar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+#sidebar::-webkit-scrollbar-thumb {
+    background: linear-gradient(var(--primary-color), var(--secondary-color));
+    border-radius: 10px;
 }
 
 /* ==================== 13. UTILITY CLASSES ==================== */
 .ls-1 { letter-spacing: 1px; }
-.ls-2 { letter-spacing: 2px; }
 
 .text-gradient {
     background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
@@ -1266,119 +742,17 @@ body.sidebar-open #content {
     background-clip: text;
 }
 
-.bg-gradient-primary {
-    background: linear-gradient(45deg, var(--primary-color), var(--primary-color-dark));
-}
-
-.bg-gradient-secondary {
-    background: linear-gradient(45deg, var(--secondary-color), #0aa5c2);
-}
-
-.shadow-soft {
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-.shadow-medium {
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-}
-
-.shadow-hard {
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-}
-
-.rounded-xl {
-    border-radius: 15px;
-}
-
-.rounded-xxl {
-    border-radius: 20px;
-}
-
-/* Glass effect */
-.glass-effect {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* Loading spinner */
-.spinner-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 99999;
-    backdrop-filter: blur(5px);
-}
-
-.spinner-border {
-    width: 3rem;
-    height: 3rem;
-}
-
-.loading-spinner {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 300px;
-}
-
 /* ==================== 14. ACCESSIBILITY ==================== */
-.visually-hidden {
-    position: absolute !important;
-    width: 1px !important;
-    height: 1px !important;
-    padding: 0 !important;
-    margin: -1px !important;
-    overflow: hidden !important;
-    clip: rect(0, 0, 0, 0) !important;
-    white-space: nowrap !important;
-    border: 0 !important;
-}
-
-.skip-to-content {
-    position: absolute;
-    top: -40px;
-    left: 10px;
-    background: var(--primary-color);
-    color: white;
-    padding: 10px;
-    text-decoration: none;
-    z-index: 9999;
-    border-radius: 0 0 8px 8px;
-    transition: top 0.3s;
+*:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
 }
 
 .skip-to-content:focus {
     top: 10px;
 }
 
-/* Focus styles for accessibility */
-*:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-}
-
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-        scroll-behavior: auto !important;
-    }
-}
-
 /* ==================== 15. GAME PAGE ADDITIONAL STYLES ==================== */
-
-/* Game header */
 .game-header {
     background: linear-gradient(to right, rgba(33, 37, 41, 0.9), rgba(33, 37, 41, 0.7));
     backdrop-filter: blur(10px);
@@ -1386,15 +760,6 @@ body.sidebar-open #content {
     padding: 2rem;
     margin-bottom: 2rem;
     border: 1px solid rgba(111, 66, 193, 0.3);
-}
-
-/* Story sections */
-.story-section {
-    background: rgba(33, 37, 41, 0.8);
-    border-radius: 15px;
-    padding: 2rem;
-    margin-bottom: 2rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* Chapter cards */
@@ -1406,19 +771,6 @@ body.sidebar-open #content {
 .chapter-item:hover {
     border-left-color: #6f42c1;
     transform: translateX(10px);
-}
-
-/* Badge styles */
-.badge-genre {
-    background: linear-gradient(45deg, #6f42c1, #0dcaf0);
-    color: white;
-    font-weight: 600;
-}
-
-.badge-status {
-    background: linear-gradient(45deg, #198754, #20c997);
-    color: white;
-    font-weight: 600;
 }
 
 /* Character card */
@@ -1434,52 +786,10 @@ body.sidebar-open #content {
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
 }
 
-.character-image {
-    height: 200px;
-    object-fit: cover;
-    width: 100%;
-}
-
-.character-info {
-    padding: 1rem;
-}
-
 /* Modal customizations */
-.modal-game {
-    backdrop-filter: blur(10px);
-}
-
 .modal-game .modal-content {
     background: rgba(33, 37, 41, 0.95);
     border: 1px solid rgba(111, 66, 193, 0.5);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Content styling in modals */
-.modal-body h3, .modal-body h4 {
-    color: #fff;
-    margin-bottom: 1rem;
-}
-
-.modal-body p {
-    color: rgba(255, 255, 255, 0.8);
-    line-height: 1.6;
-    margin-bottom: 1rem;
-}
-
-/* Scrollbar styling for modal */
-.modal-body::-webkit-scrollbar {
-    width: 8px;
-}
-
-.modal-body::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 4px;
-}
-
-.modal-body::-webkit-scrollbar-thumb {
-    background: #6f42c1;
-    border-radius: 4px;
 }
 
 /* ==================== 16. PERFORMANCE OPTIMIZATIONS ==================== */
@@ -1487,374 +797,24 @@ body.sidebar-open #content {
     transform: translateZ(0);
 }
 
-.overlay-sidebar,
-#content,
-#sidebar {
-    will-change: transform;
+/* ==================== 17. FIXES UNTUK KONSISTENSI ==================== */
+/* Pastikan semua konten bergeser dengan cara yang sama */
+.container,
+.container-fluid {
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ==================== 17. MOBILE NAVBAR IMPROVEMENTS ==================== */
-@media (max-width: 991.98px) {
-    .navbar-collapse {
-        background-color: rgba(33, 37, 41, 0.98);
-        backdrop-filter: blur(10px);
-        border-radius: 0 0 10px 10px;
-        padding: 1rem;
-        margin-top: 10px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-    
-    .navbar-nav {
-        gap: 0.5rem !important;
-    }
-    
-    .nav-link {
-        padding: 0.5rem 1rem !important;
-        border-radius: 6px;
-    }
-    
-    .nav-link:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-    }
+/* Fix untuk elemen dengan position fixed/absolute */
+.fixed-element,
+.absolute-element {
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Navbar profile image */
-#nav-profile-img-btn,
-#nav-profile-img-inside {
-    object-fit: cover;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+/* ==================== 18. DEBUG HELPER ==================== */
+.debug-border {
+    border: 1px solid red !important;
 }
 
-#nav-profile-img-btn:hover,
-#nav-profile-img-inside:hover {
-    transform: scale(1.1);
-    box-shadow: 0 0 0 2px var(--primary-color);
-}
-
-/* Animation for navbar elements */
-@keyframes fadeInNavbar {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.navbar-nav li {
-    animation: fadeInNavbar 0.3s ease forwards;
-    animation-delay: calc(var(--item-index, 0) * 0.05s);
-}
-
-/* Loading state for navbar */
-.navbar-loading #navbar-left-group,
-.navbar-loading .navbar-nav {
-    opacity: 0.7;
-}
-
-/* Navbar dropdown improvements */
-.nav-link:focus,
-.dropdown-toggle:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-}
-
-/* ==================== 18. UTILITY FOR SIDEBAR STATE ==================== */
-/* Hardware acceleration for sidebar */
-#sidebar,
-#content,
-body {
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    perspective: 1000;
-}
-
-/* ==================== 19. CUSTOM SCROLLBAR FOR ALL ELEMENTS ==================== */
-::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-}
-
-::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 5px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-    border-radius: 5px;
-    transition: background 0.3s ease;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(45deg, var(--primary-color-dark), var(--secondary-color));
-}
-
-/* ==================== 20. FIXES FOR MOBILE TOUCH INTERACTIONS ==================== */
-@media (hover: none) and (pointer: coarse) {
-    .hover-scale:hover,
-    .game-card:hover,
-    .card:hover,
-    .btn:hover,
-    .nav-link:hover {
-        transform: none !important;
-    }
-    
-    .sidebar-menu li a:hover {
-        background: rgba(255, 255, 255, 0.05);
-    }
-    
-    .card-game-link:hover .card-game-overlay-container img {
-        filter: brightness(0.8) !important;
-        transform: none;
-    }
-}
-
-/* ==================== 21. PRINT STYLES ==================== */
-@media print {
-    .navbar,
-    #sidebar,
-    .overlay-sidebar,
-    .notification,
-    #notification-container,
-    .modal,
-    .btn-favorite {
-        display: none !important;
-    }
-    
-    body {
-        padding-top: 0 !important;
-        background-color: white !important;
-        color: black !important;
-        transform: none !important;
-    }
-    
-    .card {
-        background-color: white !important;
-        color: black !important;
-        box-shadow: none !important;
-        border: 1px solid #ddd !important;
-    }
-    
-    a {
-        color: black !important;
-        text-decoration: underline !important;
-    }
-}
-
-/* ==================== 22. DARK/LIGHT MODE SUPPORT ==================== */
-@media (prefers-color-scheme: light) {
-    :root {
-        --light-color: #212529;
-        --dark-color: #f8f9fa;
-        --darker-color: #e9ecef;
-    }
-    
-    body {
-        background-color: var(--darker-color);
-        color: var(--light-color);
-    }
-    
-    .navbar {
-        background-color: rgba(248, 249, 250, 0.95) !important;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    }
-    
-    .card {
-        background-color: var(--dark-color);
-        color: var(--light-color);
-    }
-    
-    .form-control,
-    .form-select {
-        background-color: rgba(0, 0, 0, 0.05) !important;
-        color: var(--light-color) !important;
-        border: 1px solid rgba(0, 0, 0, 0.15);
-    }
-    
-    #sidebar {
-        background-color: #f8f9fa;
-        border-right: 1px solid rgba(0, 0, 0, 0.1);
-    }
-    
-    .sidebar-menu li a {
-        color: rgba(0, 0, 0, 0.7);
-    }
-    
-    .sidebar-menu li a:hover,
-    .sidebar-menu li a.active {
-        background: rgba(0, 0, 0, 0.05);
-        color: #000;
-    }
-}
-
-/* ==================== 23. HIGH CONTRAST MODE ==================== */
-@media (prefers-contrast: high) {
-    :root {
-        --primary-color: #4a1e8a;
-        --secondary-color: #0066cc;
-    }
-    
-    .navbar-brand {
-        background: linear-gradient(45deg, #4a1e8a, #0066cc);
-        -webkit-background-clip: text;
-    }
-    
-    .btn-primary {
-        background: linear-gradient(45deg, #4a1e8a, #39156d);
-    }
-    
-    .sidebar-menu li a.active {
-        border-left-color: #4a1e8a;
-        background: rgba(74, 30, 138, 0.2);
-    }
-}
-
-/* ==================== 24. ANIMATION PERFORMANCE ==================== */
-@media (prefers-reduced-motion: no-preference) {
-    .card,
-    .game-card,
-    .btn,
-    .nav-link,
-    .sidebar-menu li a {
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    #sidebar,
-    #content,
-    .navbar,
-    .bg-custom-fixed,
-    .modal-content,
-    #notification-container {
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    #content {
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-}
-
-/* ==================== 25. FINAL FIXES & POLISH ==================== */
-/* Ensure consistent z-index stacking */
-.navbar { z-index: 1030; }
-.overlay-sidebar { z-index: 1039; }
-#sidebar { z-index: 1040; }
-.modal { z-index: 1050; }
-.notification { z-index: 1060; }
-
-/* Prevent content shift when scrollbar appears */
-html {
-    overflow-y: scroll;
-    scrollbar-gutter: stable;
-}
-
-/* Smooth scrolling for the whole page */
-html {
-    scroll-behavior: smooth;
-}
-
-/* Better selection colors */
-::selection {
-    background-color: var(--primary-color);
-    color: white;
-}
-
-::-moz-selection {
-    background-color: var(--primary-color);
-    color: white;
-}
-
-/* Image optimization */
-img {
-    max-width: 100%;
-    height: auto;
-    display: block;
-}
-
-/* Prevent layout shift for images */
-img[width][height] {
-    aspect-ratio: attr(width) / attr(height);
-}
-
-/* Better focus for keyboard navigation */
-:focus-visible {
-    outline: 3px solid var(--primary-color);
-    outline-offset: 2px;
-}
-
-/* Hide focus for mouse users */
-:focus:not(:focus-visible) {
-    outline: none;
-}
-
-/* ==================== 26. DEBUG HELPER (REMOVE IN PRODUCTION) ==================== */
-.debug-outline * {
-    outline: 1px solid rgba(255, 0, 0, 0.1) !important;
-}
-
-.debug-grid {
-    background-image: linear-gradient(rgba(255, 0, 0, 0.1) 1px, transparent 1px),
-                      linear-gradient(90deg, rgba(255, 0, 0, 0.1) 1px, transparent 1px);
-    background-size: 20px 20px;
-}
-
-/* ==================== 27. SIDEBAR SPECIFIC FIXES ==================== */
-
-/* Fix untuk konten yang tidak bergeser */
-body.game-page:not(.sidebar-open) #content {
-    transform: translateX(0);
-    width: 100%;
-}
-
-body.game-page.sidebar-open #content {
-    transform: translateX(var(--sidebar-width));
-    width: calc(100% - var(--sidebar-width));
-}
-
-/* Pastikan semua konten bergeser, termasuk background */
-body.sidebar-open .bg-custom-fixed {
-    transform: translateX(var(--sidebar-width));
-    width: calc(100% - var(--sidebar-width));
-}
-
-/* Fix untuk modal agar tetap di tengah */
-body.sidebar-open .modal.show {
-    transform: translateX(var(--sidebar-width));
-}
-
-/* Fix untuk notification agar tetap di posisi yang benar */
-body.sidebar-open #notification-container {
-    transform: translateX(var(--sidebar-width));
-}
-
-/* Hamburger button animation */
-#sidebar-toggle-btn i {
-    transition: transform 0.3s ease;
-}
-
-body.sidebar-open #sidebar-toggle-btn i.bi-list {
-    transform: rotate(90deg);
-}
-
-/* Smooth transition for all moving elements */
-body,
-#content,
-.bg-custom-fixed,
-.modal.show,
-#notification-container,
-.navbar {
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-#content {
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Disable transitions saat resize untuk menghindari glitch */
-.resizing * {
-    transition: none !important;
+.debug-bg {
+    background-color: rgba(255, 0, 0, 0.1) !important;
 }
