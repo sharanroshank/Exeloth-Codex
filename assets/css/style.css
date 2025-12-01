@@ -225,8 +225,26 @@ body.admin-page #sidebar { top: 76px !important; height: calc(100vh - 76px) !imp
 .gh-user-info { flex-grow: 1; line-height: 1.2; overflow: hidden; }
 .gh-username { font-weight: 600; font-size: 1rem; color: #e6edf3; display: block; }
 .gh-fullname { font-size: 0.85rem; color: #7d8590; display: block; }
-.dropdown-item { color: #e6edf3 !important; padding: 6px 16px !important; }
-.dropdown-item:hover { background-color: #0d6efd !important; color: white !important; }
+/* Item menu dropdown */
+.dropdown-item {
+    color: #e6edf3 !important;
+    padding: 6px 16px !important;
+    font-size: 0.9rem !important;
+    display: flex;
+    align-items: center;
+}
+
+.dropdown-item:hover {
+    background-color: #0d6efd !important; /* Biru Bootstrap saat hover */
+    color: white !important;
+}
+
+.dropdown-divider {
+    /* Ubah transparansi dari 0.1 menjadi 0.25 atau warna solid agar terlihat */
+    border-top: 1px solid rgba(255, 255, 255, 0.25) !important; 
+    margin: 8px 0;
+    opacity: 1; /* Pastikan element tidak transparan (Bootstrap reset) */
+}
 
 /* ==================== 10. GAME OVERVIEW PAGE (FINAL FIX) ==================== */
 
