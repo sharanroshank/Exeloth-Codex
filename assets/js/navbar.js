@@ -125,7 +125,7 @@ function initializeNavbarComponents() {
     // Setup event listeners
     setupNavbarEventListeners();
     
-    // Setup dropdowns
+    // Setup dropdowns - DIPERBAIKI
     setupDropdowns();
     
     // Setup tooltips
@@ -289,6 +289,156 @@ function setupActiveNavLinks() {
     }
 }
 
+// ==================== DROPDOWN FUNCTIONS - DIPERBAIKI ====================
+
+// Setup dropdown functionality - VERSION FIXED
+function setupDropdowns() {
+    console.log('🔧 Setting up dropdowns...');
+    
+    // Tunggu sebentar untuk memastikan DOM siap
+    setTimeout(() => {
+        // Inisialisasi dropdown Bootstrap jika Bootstrap tersedia
+        if (typeof bootstrap !== 'undefined') {
+            const dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
+            dropdownElementList.map(function (dropdownToggleEl) {
+                const dropdown = new bootstrap.Dropdown(dropdownToggleEl);
+                
+                // Custom event handlers untuk styling
+                dropdownToggleEl.addEventListener('show.bs.dropdown', function () {
+                    console.log('📋 Dropdown showing...');
+                    const dropdownMenu = this.nextElementSibling;
+                    if (dropdownMenu) {
+                        dropdownMenu.classList.add('github-dropdown', 'show');
+                        dropdownMenu.style.display = 'block';
+                        dropdownMenu.style.visibility = 'visible';
+                        dropdownMenu.style.opacity = '1';
+                        
+                        // Force reflow untuk trigger animation
+                        dropdownMenu.offsetHeight;
+                        
+                        console.log('✅ Dropdown menu prepared');
+                    }
+                });
+                
+                dropdownToggleEl.addEventListener('shown.bs.dropdown', function () {
+                    console.log('📋 Dropdown shown');
+                    const dropdownMenu = this.nextElementSibling;
+                    if (dropdownMenu) {
+                        dropdownMenu.style.opacity = '1';
+                        dropdownMenu.style.transform = 'translateY(0)';
+                        dropdownMenu.style.visibility = 'visible';
+                        
+                        // Pastikan dropdown di atas semua elemen
+                        dropdownMenu.style.zIndex = '1090';
+                        
+                        // Apply custom styling
+                        ensureDropdownVisible(dropdownMenu);
+                    }
+                });
+                
+                dropdownToggleEl.addEventListener('hide.bs.dropdown', function () {
+                    const dropdownMenu = this.nextElementSibling;
+                    if (dropdownMenu) {
+                        dropdownMenu.style.opacity = '0';
+                        dropdownMenu.style.transform = 'translateY(-5px)';
+                        setTimeout(() => {
+                            if (!dropdownMenu.classList.contains('show')) {
+                                dropdownMenu.style.visibility = 'hidden';
+                            }
+                        }, 300);
+                    }
+                });
+                
+                // Tambahkan click handler untuk memastikan dropdown terbuka
+                dropdownToggleEl.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const dropdownMenu = this.nextElementSibling;
+                    if (dropdownMenu) {
+                        const isShowing = dropdownMenu.classList.contains('show');
+                        
+                        if (!isShowing) {
+                            dropdown.show();
+                        } else {
+                            dropdown.hide();
+                        }
+                    }
+                });
+                
+                return dropdown;
+            });
+        }
+        
+        // Pastikan semua dropdown menu memiliki class yang benar
+        document.querySelectorAll('.dropdown-menu').forEach(menu => {
+            if (!menu.classList.contains('github-dropdown')) {
+                menu.classList.add('github-dropdown');
+            }
+            
+            // Fix untuk visibility
+            menu.style.visibility = 'visible';
+            menu.style.opacity = '1';
+            menu.style.display = 'block';
+        });
+        
+        console.log('✅ Dropdowns initialized');
+    }, 100);
+    
+    // Click outside to close dropdown
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.dropdown')) {
+            const openDropdowns = document.querySelectorAll('.dropdown-menu.show');
+            openDropdowns.forEach(dropdown => {
+                dropdown.classList.remove('show');
+                dropdown.style.opacity = '0';
+                dropdown.style.visibility = 'hidden';
+            });
+        }
+    });
+    
+    // Fix untuk mobile touch
+    document.querySelectorAll('.dropdown-item').forEach(item => {
+        item.addEventListener('touchstart', function(e) {
+            e.stopPropagation();
+        }, { passive: true });
+    });
+}
+
+// Fungsi untuk memastikan dropdown terlihat
+function ensureDropdownVisible(dropdownMenu) {
+    if (!dropdownMenu) return;
+    
+    dropdownMenu.style.display = 'block';
+    dropdownMenu.style.visibility = 'visible';
+    dropdownMenu.style.opacity = '1';
+    dropdownMenu.style.zIndex = '1090';
+    
+    // Force reflow untuk trigger animations
+    dropdownMenu.offsetHeight;
+    
+    // Tambahkan class show
+    dropdownMenu.classList.add('show');
+    
+    // Fix position
+    const rect = dropdownMenu.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    
+    // Adjust position jika keluar dari viewport
+    if (rect.right > viewportWidth) {
+        dropdownMenu.style.left = 'auto';
+        dropdownMenu.style.right = '0';
+    }
+    
+    if (rect.bottom > viewportHeight) {
+        dropdownMenu.style.top = 'auto';
+        dropdownMenu.style.bottom = '100%';
+    }
+    
+    return true;
+}
+
 // Setup event listeners untuk navbar
 function setupNavbarEventListeners() {
     // Update hamburger button saat sidebar state berubah
@@ -315,6 +465,11 @@ function setupNavbarEventListeners() {
                 setupHamburgerButton();
                 updateHamburgerButtonState();
             }
+            
+            // Update dropdown positions on resize
+            document.querySelectorAll('.dropdown-menu.show').forEach(dropdown => {
+                ensureDropdownVisible(dropdown);
+            });
         }, 250);
     });
     
@@ -336,11 +491,28 @@ function setupNavbarEventListeners() {
                         navbarToggler.setAttribute('aria-expanded', 'false');
                     }
                 }
+                
+                // Juga tutup dropdown jika terbuka
+                const openDropdowns = document.querySelectorAll('.dropdown-menu.show');
+                openDropdowns.forEach(dropdown => {
+                    dropdown.classList.remove('show');
+                    dropdown.style.opacity = '0';
+                });
             }
+        }
+        
+        // Handle dropdown close ketika klik di luar
+        if (!e.target.closest('.dropdown') && !e.target.closest('.dropdown-menu')) {
+            const openDropdowns = document.querySelectorAll('.dropdown-menu.show');
+            openDropdowns.forEach(dropdown => {
+                dropdown.classList.remove('show');
+                dropdown.style.opacity = '0';
+                dropdown.style.visibility = 'hidden';
+            });
         }
     });
     
-    // Keyboard navigation untuk navbar
+    // Keyboard navigation untuk navbar - TAMBAHKAN untuk dropdown
     document.addEventListener('keydown', function(e) {
         // Escape untuk close sidebar (hanya di mobile)
         if (e.key === 'Escape' && currentSidebarState.isOpen && currentSidebarState.isMobile) {
@@ -348,18 +520,68 @@ function setupNavbarEventListeners() {
                 window.closeSidebar();
             }
         }
+        
+        // Escape juga untuk close dropdown
+        if (e.key === 'Escape') {
+            const openDropdowns = document.querySelectorAll('.dropdown-menu.show');
+            openDropdowns.forEach(dropdown => {
+                dropdown.classList.remove('show');
+                dropdown.style.opacity = '0';
+                dropdown.style.visibility = 'hidden';
+            });
+        }
     });
-}
-
-// Setup dropdown functionality
-function setupDropdowns() {
-    // Inisialisasi dropdown Bootstrap jika Bootstrap tersedia
-    if (typeof bootstrap !== 'undefined') {
-        const dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
-        dropdownElementList.map(function (dropdownToggleEl) {
-            return new bootstrap.Dropdown(dropdownToggleEl);
+    
+    // Fix untuk dropdown di mobile navbar collapse
+    const navbarNav = document.getElementById('navbarNav');
+    if (navbarNav) {
+        navbarNav.addEventListener('show.bs.collapse', function() {
+            console.log('Navbar collapse showing');
+        });
+        
+        navbarNav.addEventListener('shown.bs.collapse', function() {
+            console.log('Navbar collapse shown');
+            // Re-initialize dropdowns dalam navbar collapse
+            setTimeout(setupDropdowns, 100);
+        });
+        
+        navbarNav.addEventListener('hide.bs.collapse', function() {
+            // Close semua dropdown saat navbar collapse ditutup
+            const dropdowns = this.querySelectorAll('.dropdown-menu.show');
+            dropdowns.forEach(dropdown => {
+                dropdown.classList.remove('show');
+                dropdown.style.opacity = '0';
+            });
         });
     }
+    
+    // Event listener untuk scroll (close dropdown saat scroll)
+    let scrollTimer;
+    window.addEventListener('scroll', function() {
+        clearTimeout(scrollTimer);
+        scrollTimer = setTimeout(function() {
+            const openDropdowns = document.querySelectorAll('.dropdown-menu.show');
+            if (openDropdowns.length > 0 && window.innerWidth < 992) {
+                // Di mobile, close dropdown saat scroll
+                openDropdowns.forEach(dropdown => {
+                    dropdown.classList.remove('show');
+                    dropdown.style.opacity = '0';
+                });
+            }
+        }, 150);
+    });
+    
+    // Fix untuk touch devices
+    document.addEventListener('touchstart', function(e) {
+        // Close dropdown jika touch di luar
+        if (!e.target.closest('.dropdown') && !e.target.closest('.dropdown-menu')) {
+            const openDropdowns = document.querySelectorAll('.dropdown-menu.show');
+            openDropdowns.forEach(dropdown => {
+                dropdown.classList.remove('show');
+                dropdown.style.opacity = '0';
+            });
+        }
+    }, { passive: true });
 }
 
 // Setup tooltips
@@ -385,6 +607,8 @@ function updateSidebarState() {
     
     updateHamburgerButtonState();
 }
+
+// ==================== PROFILE & NAVBAR UPDATE FUNCTIONS ====================
 
 // Helper Navigasi Admin
 window.openAdminSection = function(sectionId) {
@@ -433,6 +657,9 @@ window.updateNavbarProfile = async function(user) {
     }
     if (navUsername) navUsername.textContent = username;
     if (navFullname) navFullname.textContent = displayName;
+    
+    // Re-initialize dropdowns setelah update profile
+    setTimeout(setupDropdowns, 100);
 }
 
 // Reset navbar profile ke default
@@ -461,6 +688,12 @@ window.updateNavbar = function(isLoggedIn) {
         if (isLoggedIn) {
             loginNavItem.classList.add('d-none');
             adminNavItem.classList.remove('d-none');
+            
+            // Re-initialize dropdowns setelah login
+            setTimeout(() => {
+                setupDropdowns();
+                console.log('✅ Dropdowns re-initialized after login');
+            }, 200);
         } else {
             loginNavItem.classList.remove('d-none');
             adminNavItem.classList.add('d-none');
@@ -468,6 +701,49 @@ window.updateNavbar = function(isLoggedIn) {
         }
     }
 }
+
+// ==================== DROPDOWN DEBUG & ENHANCEMENT FUNCTIONS ====================
+
+// Debug function untuk melihat status dropdown
+window.debugDropdowns = function() {
+    console.log('🔍 Debug Dropdowns:');
+    const dropdowns = document.querySelectorAll('.dropdown-menu');
+    dropdowns.forEach((dropdown, index) => {
+        console.log(`Dropdown ${index + 1}:`, {
+            visible: dropdown.style.display !== 'none',
+            hasShowClass: dropdown.classList.contains('show'),
+            opacity: dropdown.style.opacity,
+            visibility: dropdown.style.visibility,
+            zIndex: dropdown.style.zIndex,
+            parent: dropdown.parentElement ? dropdown.parentElement.className : 'no parent'
+        });
+    });
+    
+    // Juga check dropdown toggles
+    const toggles = document.querySelectorAll('.dropdown-toggle');
+    toggles.forEach((toggle, index) => {
+        console.log(`Toggle ${index + 1}:`, {
+            expanded: toggle.getAttribute('aria-expanded'),
+            hasBsDropdown: toggle.__bootstrapDropdown !== undefined
+        });
+    });
+};
+
+// Force show dropdown (emergency function)
+window.forceShowDropdown = function() {
+    const dropdownToggle = document.getElementById('navbarDropdown');
+    if (dropdownToggle && typeof bootstrap !== 'undefined') {
+        const dropdown = bootstrap.Dropdown.getInstance(dropdownToggle);
+        if (dropdown) {
+            dropdown.show();
+        } else {
+            const newDropdown = new bootstrap.Dropdown(dropdownToggle);
+            newDropdown.show();
+        }
+    }
+};
+
+// ==================== INITIALIZATION ====================
 
 // Initialize navbar when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
@@ -493,11 +769,30 @@ document.addEventListener('DOMContentLoaded', function() {
             updateHamburgerButtonState();
         }
     });
+    
+    // Re-initialize dropdowns jika ada perubahan DOM
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.addedNodes.length) {
+                // Check jika ada elemen dropdown yang ditambahkan
+                const hasDropdown = Array.from(mutation.addedNodes).some(node => 
+                    node.classList && (node.classList.contains('dropdown') || node.classList.contains('dropdown-menu'))
+                );
+                if (hasDropdown) {
+                    setTimeout(setupDropdowns, 100);
+                }
+            }
+        });
+    });
+    
+    observer.observe(document.body, { childList: true, subtree: true });
 });
 
 // Export fungsi untuk digunakan di file lain
 window.renderNavbar = renderNavbar;
 window.updateNavbarProfile = updateNavbarProfile;
 window.updateNavbar = updateNavbar;
+window.setupDropdowns = setupDropdowns;
+window.ensureDropdownVisible = ensureDropdownVisible;
 
 console.log('✅ navbar.js loaded successfully with persistent sidebar support');

@@ -199,7 +199,7 @@ body.game-page {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     width: 100%;
-    z-index: 1029;
+    z-index: 1030; /* Ditingkatkan dari 1029 ke 1030 */
     padding-left: 0;
     padding-right: 0;
     height: var(--navbar-height);
@@ -1569,4 +1569,343 @@ body[data-bs-theme="dark"] .text-muted,
 /* Direct override for all dark background contexts */
 body:not(.bg-light):not(.bg-white) .text-muted:not(.text-white):not(.text-light):not(.text-primary):not(.text-success):not(.text-warning):not(.text-danger):not(.text-info) {
     color: rgba(255, 255, 255, 0.75) !important;
+}
+
+/* ==================== 51. DROPDOWN NAVBAR FIX - KONSISTEN SEMUA HALAMAN ==================== */
+
+/* Dropdown Menu - Perbaikan untuk semua halaman */
+.dropdown-menu-dark.github-dropdown {
+    background-color: rgba(33, 37, 41, 0.98) !important;
+    backdrop-filter: blur(15px) !important;
+    -webkit-backdrop-filter: blur(15px) !important;
+    border: 1px solid rgba(111, 66, 193, 0.3) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+    padding: 0 !important;
+    overflow: hidden;
+    min-width: 280px !important;
+    margin-top: 10px !important;
+    opacity: 0;
+    transform: translateY(-5px);
+    transition: opacity 0.3s ease, transform 0.3s ease !important;
+}
+
+.dropdown-menu-dark.github-dropdown.show {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    display: block !important;
+    visibility: visible !important;
+}
+
+/* Animation untuk dropdown */
+@keyframes dropdownFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdown-menu-dark.github-dropdown.show {
+    animation: dropdownFadeIn 0.3s ease-out !important;
+}
+
+/* Dropdown Header (bagian profil) */
+.github-header-row {
+    background: linear-gradient(45deg, rgba(111, 66, 193, 0.1), rgba(13, 202, 240, 0.1)) !important;
+    padding: 1.25rem !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    margin: 0 !important;
+    width: 100% !important;
+}
+
+.github-header-row img {
+    border: 2px solid var(--primary-color) !important;
+    box-shadow: 0 0 10px rgba(111, 66, 193, 0.3) !important;
+    width: 40px !important;
+    height: 40px !important;
+    object-fit: cover !important;
+}
+
+.gh-user-info {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 !important;
+    min-width: 0 !important;
+}
+
+.gh-username {
+    color: white !important;
+    font-weight: 600 !important;
+    font-size: 0.95rem !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+.gh-fullname {
+    color: rgba(255, 255, 255, 0.7) !important;
+    font-size: 0.85rem !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+/* Dropdown Items */
+.github-dropdown .dropdown-item {
+    color: rgba(255, 255, 255, 0.9) !important;
+    padding: 0.75rem 1.25rem !important;
+    border-radius: 0 !important;
+    transition: all 0.2s ease !important;
+    border-left: 3px solid transparent !important;
+    font-weight: 500 !important;
+    font-size: 0.9rem !important;
+    display: flex !important;
+    align-items: center !important;
+    text-decoration: none !important;
+    background: none !important;
+    border: none !important;
+    width: 100% !important;
+    text-align: left !important;
+}
+
+.github-dropdown .dropdown-item:hover,
+.github-dropdown .dropdown-item:focus,
+.github-dropdown .dropdown-item:active {
+    background-color: rgba(111, 66, 193, 0.15) !important;
+    color: white !important;
+    border-left-color: var(--primary-color) !important;
+    padding-left: 1.5rem !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.github-dropdown .dropdown-item i {
+    width: 20px !important;
+    text-align: center !important;
+    margin-right: 10px !important;
+    color: var(--primary-color) !important;
+    font-size: 1rem !important;
+}
+
+.github-dropdown .dropdown-item:hover i,
+.github-dropdown .dropdown-item:focus i {
+    color: var(--secondary-color) !important;
+}
+
+/* Dropdown Divider */
+.github-dropdown .dropdown-divider {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    margin: 0.5rem 0 !important;
+    opacity: 1 !important;
+}
+
+/* Logout item khusus */
+.github-dropdown .dropdown-item.text-danger {
+    color: #ff6b6b !important;
+    border-left-color: transparent !important;
+}
+
+.github-dropdown .dropdown-item.text-danger:hover {
+    background-color: rgba(220, 53, 69, 0.15) !important;
+    color: #ff6b6b !important;
+    border-left-color: #dc3545 !important;
+}
+
+.github-dropdown .dropdown-item.text-danger i {
+    color: #ff6b6b !important;
+}
+
+/* Dropdown arrow */
+.github-dropdown::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    right: 20px;
+    width: 16px;
+    height: 16px;
+    background-color: rgba(33, 37, 41, 0.98);
+    border-top: 1px solid rgba(111, 66, 193, 0.3);
+    border-left: 1px solid rgba(111, 66, 193, 0.3);
+    transform: rotate(45deg);
+    z-index: 1001;
+}
+
+/* Ensure dropdown appears above all elements */
+.navbar .dropdown-menu {
+    z-index: 1090 !important;
+}
+
+/* Fix untuk Bootstrap default styles */
+.dropdown-menu-dark {
+    --bs-dropdown-color: rgba(255, 255, 255, 0.9) !important;
+    --bs-dropdown-bg: rgba(33, 37, 41, 0.98) !important;
+    --bs-dropdown-border-color: rgba(111, 66, 193, 0.3) !important;
+    --bs-dropdown-divider-bg: rgba(255, 255, 255, 0.1) !important;
+    --bs-dropdown-link-color: rgba(255, 255, 255, 0.9) !important;
+    --bs-dropdown-link-hover-color: white !important;
+    --bs-dropdown-link-hover-bg: rgba(111, 66, 193, 0.15) !important;
+    --bs-dropdown-link-active-color: white !important;
+    --bs-dropdown-link-active-bg: var(--primary-color) !important;
+}
+
+/* Fix untuk dropdown di halaman game dengan sidebar */
+body.game-page .navbar .dropdown-menu,
+body.sidebar-persistent .navbar .dropdown-menu {
+    margin-left: 0 !important;
+    position: absolute !important;
+    right: 0 !important;
+    left: auto !important;
+}
+
+/* Fix untuk dropdown di halaman admin */
+body.admin-page .navbar .dropdown-menu {
+    z-index: 1090 !important;
+    position: absolute !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .github-dropdown {
+        min-width: 250px !important;
+        margin-right: 10px !important;
+    }
+    
+    .github-dropdown::before {
+        right: 15px;
+    }
+    
+    /* Pastikan dropdown tidak tertutup sidebar di mobile */
+    body.game-page .navbar .dropdown-menu,
+    body.sidebar-persistent .navbar .dropdown-menu {
+        position: fixed !important;
+        right: 20px !important;
+        top: 70px !important;
+        left: auto !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .github-dropdown {
+        position: fixed !important;
+        top: 70px !important;
+        right: 10px !important;
+        left: auto !important;
+        transform: none !important;
+        width: calc(100vw - 20px) !important;
+        max-width: 300px !important;
+        margin: 0 !important;
+    }
+    
+    .github-dropdown::before {
+        display: none !important;
+    }
+    
+    .github-header-row {
+        padding: 1rem !important;
+    }
+    
+    .github-dropdown .dropdown-item {
+        padding: 0.65rem 1rem !important;
+    }
+}
+
+/* Fix untuk dropdown yang tersembunyi */
+.dropdown-menu[style*="display: none"] {
+    display: none !important;
+}
+
+.dropdown-menu[style*="display: block"] {
+    display: block !important;
+}
+
+/* Fix untuk dropdown toggle button */
+.navbar .dropdown-toggle::after {
+    display: none !important;
+}
+
+/* Fix untuk hover state */
+.navbar .nav-item.dropdown:hover .dropdown-menu {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Fix untuk dropdown yang tidak muncul di mobile */
+@media (max-width: 991.98px) {
+    .navbar-collapse .dropdown-menu {
+        position: static !important;
+        float: none !important;
+        margin-top: 0 !important;
+    }
+}
+
+/* Fix untuk dropdown di navbar collapse */
+#navbarNav .dropdown-menu {
+    background-color: rgba(33, 37, 41, 0.95) !important;
+    border: 1px solid rgba(111, 66, 193, 0.2) !important;
+    margin-top: 5px !important;
+}
+
+/* Fix z-index untuk semua scenario */
+#sidebar {
+    z-index: 1029 !important;
+}
+
+#notification-container {
+    z-index: 9999 !important;
+}
+
+/* Fix untuk dropdown di dalam navbar collapse */
+.navbar-collapse .nav-item.dropdown .dropdown-menu {
+    position: absolute !important;
+    right: 0 !important;
+    left: auto !important;
+}
+
+/* Fix untuk dropdown visibility */
+.dropdown-menu {
+    pointer-events: auto !important;
+    visibility: visible !important;
+}
+
+/* ==================== 52. DROPDOWN EMERGENCY FIX ==================== */
+/* Force show dropdowns */
+.dropdown.show .dropdown-menu,
+.nav-item.dropdown.show .dropdown-menu {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Remove any Bootstrap hiding */
+[aria-expanded="true"] + .dropdown-menu {
+    display: block !important;
+}
+
+/* Fix for mobile navbar dropdown */
+.navbar-collapse.show .dropdown-menu {
+    display: block !important;
+    position: static !important;
+    float: none !important;
+}
+
+/* ==================== 53. FINAL DROPDOWN GUARANTEE ==================== */
+/* This ensures dropdowns are always visible when they should be */
+.navbar-nav .dropdown-menu {
+    animation: none !important;
+}
+
+.dropdown-toggle[aria-expanded="true"] + .dropdown-menu {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    display: block !important;
 }
