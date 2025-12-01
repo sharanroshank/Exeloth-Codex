@@ -1,4 +1,4 @@
-// assets/js/navbar.js (FIXED)
+// assets/js/navbar.js
 
 function renderNavbar() {
     const navbarHTML = `
@@ -57,27 +57,20 @@ function renderNavbar() {
     const placeholder = document.getElementById('navbar-placeholder');
     if (placeholder) placeholder.innerHTML = navbarHTML;
 
-    // --- LOGIKA HAMBURGER (LEBIH KUAT) ---
-    // Cek langsung sekarang
-    checkSidebarExist();
-    
-    // Cek lagi nanti setelah halaman selesai loading (backup)
-    window.addEventListener('load', checkSidebarExist);
+    // --- LOGIKA HAMBURGER ---
+    // Tunggu halaman selesai load, baru cek sidebar
+    setTimeout(() => {
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.getElementById('sidebar-toggle-btn');
+        if (sidebar && toggleBtn) {
+            toggleBtn.classList.remove('d-none'); // Tampilkan tombol hamburger
+        }
+    }, 100);
 
     // Active State Logic
     const path = window.location.pathname;
     if (path.includes('index.html') || path === '/') document.getElementById('nav-home')?.classList.add('active');
     else if (path.includes('games.html')) document.getElementById('nav-games')?.classList.add('active');
-}
-
-// Fungsi Cek Sidebar
-function checkSidebarExist() {
-    const sidebar = document.getElementById('sidebar');
-    const toggleBtn = document.getElementById('sidebar-toggle-btn');
-    
-    if (sidebar && toggleBtn) {
-        toggleBtn.classList.remove('d-none');
-    }
 }
 
 // Helper Navigasi Admin
@@ -89,15 +82,7 @@ window.openAdminSection = function(sectionId) {
     }
 }
 
-window.toggleAddAccount = function(e) {
-    e.stopPropagation(); 
-    const popup = document.getElementById('add-account-popup');
-    if (popup) popup.classList.toggle('d-none');
-}
-
-/**
- * Update Navbar Profile (Dipanggil oleh auth-system.js)
- */
+// --- SINKRONISASI PROFIL NAVBAR ---
 window.updateNavbarProfile = async function(user) {
     if (!user) return;
 
