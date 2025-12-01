@@ -1,4 +1,4 @@
-/* assets/css/style.css - COMPLETE VERSION WITH PERSISTENT SIDEBAR */
+/* assets/css/style.css - MODIFIED WITH FIREBASE-STYLE SIDEBAR */
 
 /* ==================== 1. VARIABEL & RESET DASAR ==================== */
 :root {
@@ -14,6 +14,7 @@
     --info-color: #0dcaf0;
     --overlay-color: rgba(0, 0, 0, 0.7);
     --sidebar-width: 280px;
+    --content-padding: 30px; /* Padding untuk konten */
 }
 
 * {
@@ -47,7 +48,7 @@ body.game-page {
     display: flex;
 }
 
-/* ==================== 4. SIDEBAR PERSISTENT (SELALU ADA) ==================== */
+/* ==================== 4. SIDEBAR FIREBASE-STYLE (CLEAN BORDER) ==================== */
 #sidebar {
     position: fixed;
     top: 0;
@@ -57,11 +58,12 @@ body.game-page {
     background-color: #1a1d20;
     transform: translateX(0);
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    /* Border seperti Firebase - clean dan simple */
     border-right: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: none; /* Hilangkan shadow */
     z-index: 1030;
 }
 
@@ -71,7 +73,7 @@ body.game-page {
     top: 0;
     width: 100%;
     height: 76px;
-    background-color: #212529;
+    background-color: #1a1d20; /* Sama dengan sidebar */
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
     justify-content: space-between;
@@ -81,11 +83,11 @@ body.game-page {
 }
 
 .sidebar-brand { 
-    font-weight: 800; 
+    font-weight: 700; /* Lebih tipis dari sebelumnya */
     font-size: 1.1rem; 
-    letter-spacing: 1px; 
+    letter-spacing: 0.5px; 
     text-transform: uppercase; 
-    color: white;
+    color: rgba(255, 255, 255, 0.9);
 }
 
 /* Tombol Dismiss (X) - hanya untuk mobile */
@@ -94,7 +96,7 @@ body.game-page {
     height: 35px; 
     text-align: center;
     background: transparent; 
-    border: 1px solid rgba(255,255,255,0.3); 
+    border: 1px solid rgba(255,255,255,0.2); 
     border-radius: 50%;
     cursor: pointer; 
     transition: all 0.3s; 
@@ -102,24 +104,25 @@ body.game-page {
     align-items: center; 
     justify-content: center;
     padding: 0;
-    color: white;
+    color: rgba(255, 255, 255, 0.7);
     display: none; /* Default: sembunyi */
 }
 
 #dismiss:hover { 
-    background: #dc3545; 
+    background: rgba(220, 53, 69, 0.2); 
     border-color: #dc3545 !important; 
     transform: rotate(90deg); 
+    color: #dc3545;
 }
 
 /* Container untuk konten sidebar yang bisa discroll */
 .sidebar-scrollable {
     flex: 1;
     overflow-y: auto;
-    padding: 20px 0;
+    padding: 15px 0;
 }
 
-/* Menu Sidebar */
+/* Menu Sidebar - Firebase Style */
 .sidebar-menu {
     padding: 0;
     margin: 0;
@@ -127,23 +130,30 @@ body.game-page {
 }
 
 .sidebar-menu li a {
-    padding: 14px 25px;
+    padding: 12px 20px;
     color: rgba(255,255,255,0.7);
     text-decoration: none;
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 12px;
     transition: all 0.2s;
     border-left: 3px solid transparent;
     font-size: 0.95rem;
     position: relative;
+    margin: 2px 10px;
+    border-radius: 6px;
 }
 
-.sidebar-menu li a:hover,
-.sidebar-menu li a.active {
+.sidebar-menu li a:hover {
     background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.9);
+}
+
+.sidebar-menu li a.active {
+    background: rgba(111, 66, 193, 0.15);
     color: #fff;
     border-left-color: var(--primary-color);
+    font-weight: 500;
 }
 
 /* Footer Sidebar */
@@ -151,7 +161,7 @@ body.game-page {
     flex-shrink: 0;
     margin-top: auto;
     border-top: 1px solid rgba(255,255,255,0.1);
-    background-color: rgba(0,0,0,0.2);
+    background-color: rgba(0,0,0,0.1);
     padding: 15px 20px;
 }
 
@@ -164,6 +174,15 @@ body.game-page {
     flex-direction: column;
     transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     background-color: transparent;
+    /* Padding untuk konten agar tidak mepet */
+    padding: 0 var(--content-padding);
+}
+
+/* Container utama untuk konten */
+.content-container {
+    max-width: 100%;
+    width: 100%;
+    margin: 0 auto;
 }
 
 /* Background Image untuk Game Page */
@@ -192,6 +211,14 @@ body.game-page {
     position: relative; /* Tidak fixed, mengikuti flow */
     width: 100%;
     z-index: 1029;
+    /* Padding untuk navbar agar sejajar dengan konten */
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.navbar .container-fluid {
+    padding-left: 0;
+    padding-right: 0;
 }
 
 .navbar-brand {
@@ -489,6 +516,7 @@ body.admin-page #sidebar {
     z-index: 99999;
     margin-left: var(--sidebar-width);
     transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding-right: var(--content-padding); /* Sesuaikan dengan padding konten */
 }
 
 #notification-container .notification { 
@@ -501,6 +529,7 @@ body.admin-page #sidebar {
     flex: 1;
     display: flex;
     flex-direction: column;
+    width: 100%;
 }
 
 .container-fluid.content-padding {
@@ -508,54 +537,31 @@ body.admin-page #sidebar {
     padding-top: 20px;
     padding-bottom: 40px;
     transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
+    max-width: 100%;
 }
 
-/* ==================== 14. OVERLAY UNTUK MOBILE ==================== */
-.overlay-sidebar {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0,0,0,0.5);
-    backdrop-filter: blur(3px);
-    z-index: 1029;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    cursor: pointer;
+/* Game page content specific */
+#game-content {
+    width: 100%;
+    max-width: 100%;
 }
 
-/* ==================== 15. GAME PAGE SPECIFIC STYLES ==================== */
-
-/* Tombol Favorite */
-.btn-favorite {
-    transition: all 0.3s ease;
-    border: 1px solid #ff6b6b;
-    background: transparent;
-    color: #ff6b6b;
-    font-weight: 600;
-    padding: 8px 20px;
-    border-radius: 50px;
+/* Game header dengan padding yang baik */
+.game-header-section {
+    margin-top: 20px;
+    margin-bottom: 30px;
+    width: 100%;
 }
 
-.btn-favorite.active {
-    background-color: #ff6b6b;
-    color: white;
-    box-shadow: 0 0 15px rgba(255, 107, 107, 0.4);
-    border-color: #ff6b6b;
+/* Story sections dengan padding */
+.story-section {
+    margin-bottom: 3rem;
+    padding-top: 1rem;
+    width: 100%;
 }
 
-/* Story section title */
-.story-section-title {
-    color: white;
-    font-weight: 600;
-    margin-bottom: 1.5rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 2px solid var(--primary-color);
-}
-
-/* Chapter cards */
+/* Chapter cards dengan padding */
 .chapter-card {
     background: rgba(255, 255, 255, 0.05);
     border-radius: 10px;
@@ -595,23 +601,56 @@ body.admin-page #sidebar {
     margin-bottom: 0.5rem;
 }
 
+/* ==================== 14. OVERLAY UNTUK MOBILE ==================== */
+.overlay-sidebar {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(3px);
+    z-index: 1029;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    cursor: pointer;
+}
+
+/* ==================== 15. TOMBOL & COMPONENTS STYLING ==================== */
+
+/* Tombol Favorite */
+.btn-favorite {
+    transition: all 0.3s ease;
+    border: 1px solid #ff6b6b;
+    background: transparent;
+    color: #ff6b6b;
+    font-weight: 600;
+    padding: 8px 20px;
+    border-radius: 50px;
+}
+
+.btn-favorite.active {
+    background-color: #ff6b6b;
+    color: white;
+    box-shadow: 0 0 15px rgba(255, 107, 107, 0.4);
+    border-color: #ff6b6b;
+}
+
+/* Story section title */
+.story-section-title {
+    color: white;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-color);
+}
+
 /* Modal customization */
 .modal-game .modal-content {
     background: rgba(33, 37, 41, 0.98);
     border: 1px solid rgba(111, 66, 193, 0.5);
     backdrop-filter: blur(10px);
-}
-
-/* Game header dengan margin atas */
-.game-header-section {
-    margin-top: 20px;
-    margin-bottom: 30px;
-}
-
-/* Story sections spacing */
-.story-section {
-    margin-bottom: 3rem;
-    padding-top: 1rem;
 }
 
 /* ==================== 16. RESPONSIVE DESIGN ==================== */
@@ -625,11 +664,14 @@ body.admin-page #sidebar {
     #sidebar {
         width: var(--sidebar-width);
         transform: translateX(0) !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.1); /* Border tipis */
+        box-shadow: none; /* No shadow */
     }
     
     #content {
         margin-left: var(--sidebar-width);
         width: calc(100% - var(--sidebar-width));
+        padding: 0 var(--content-padding); /* Padding kiri-kanan */
     }
     
     .bg-custom-fixed {
@@ -639,6 +681,14 @@ body.admin-page #sidebar {
     
     #notification-container {
         margin-left: var(--sidebar-width);
+        padding-right: var(--content-padding); /* Padding notification */
+    }
+    
+    /* Container untuk konten agar tidak terlalu lebar */
+    .content-max-width {
+        max-width: 1200px;
+        margin: 0 auto;
+        width: 100%;
     }
     
     /* Tombol hamburger di navbar sembunyikan di desktop */
@@ -660,11 +710,14 @@ body.admin-page #sidebar {
 @media (max-width: 767.98px) and (min-width: 576px) {
     :root {
         --sidebar-width: 240px;
+        --content-padding: 20px; /* Kurangi padding di tablet */
     }
     
     #sidebar {
         width: var(--sidebar-width);
         transform: translateX(-100%);
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: none;
     }
     
     #sidebar.active {
@@ -674,6 +727,7 @@ body.admin-page #sidebar {
     #content {
         margin-left: 0 !important;
         width: 100% !important;
+        padding: 0 var(--content-padding); /* Tetap ada padding */
     }
     
     .bg-custom-fixed {
@@ -683,6 +737,7 @@ body.admin-page #sidebar {
     
     #notification-container {
         margin-left: 0 !important;
+        padding-right: var(--content-padding);
     }
     
     /* Tampilkan tombol hamburger */
@@ -706,12 +761,15 @@ body.admin-page #sidebar {
 @media (max-width: 575.98px) {
     :root {
         --sidebar-width: 280px;
+        --content-padding: 15px; /* Kurangi padding di mobile */
     }
     
     #sidebar {
         width: 85%;
         max-width: 85%;
         transform: translateX(-100%);
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: none;
     }
     
     #sidebar.active {
@@ -721,6 +779,7 @@ body.admin-page #sidebar {
     #content {
         margin-left: 0 !important;
         width: 100% !important;
+        padding: 0 var(--content-padding); /* Tetap ada padding */
     }
     
     .bg-custom-fixed {
@@ -730,6 +789,7 @@ body.admin-page #sidebar {
     
     #notification-container {
         margin-left: 0 !important;
+        padding-right: var(--content-padding);
     }
     
     /* Tampilkan tombol hamburger */
@@ -828,8 +888,12 @@ body.sidebar-open-mobile #sidebar-toggle-btn i.bi-list {
 }
 
 #sidebar::-webkit-scrollbar-thumb {
-    background: linear-gradient(var(--primary-color), var(--secondary-color));
+    background: rgba(255, 255, 255, 0.2);
     border-radius: 10px;
+}
+
+#sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
 }
 
 /* ==================== 19. UTILITY CLASSES ==================== */
@@ -840,6 +904,17 @@ body.sidebar-open-mobile #sidebar-toggle-btn i.bi-list {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+}
+
+/* Padding utility classes */
+.px-content {
+    padding-left: var(--content-padding);
+    padding-right: var(--content-padding);
+}
+
+.mx-content {
+    margin-left: var(--content-padding);
+    margin-right: var(--content-padding);
 }
 
 /* ==================== 20. ACCESSIBILITY ==================== */
@@ -917,4 +992,22 @@ body.sidebar-open-mobile #sidebar-toggle-btn i.bi-list {
 
 .debug-bg {
     background-color: rgba(255, 0, 0, 0.1) !important;
+}
+
+/* ==================== 25. CONTENT ALIGNMENT FIXES ==================== */
+/* Pastikan konten di dalam #content sejajar dengan padding */
+#content > * {
+    width: 100%;
+}
+
+/* Game page specific alignment */
+#game-content .container-fluid {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+/* Footer alignment */
+footer.bg-darker {
+    margin-top: auto;
+    width: 100%;
 }
