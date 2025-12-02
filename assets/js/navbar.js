@@ -147,12 +147,13 @@ function initializeNavbarComponents() {
     console.log('✅ Navbar components initialized (click-only dropdown)');
 }
 
-// Setup hamburger button khusus untuk halaman game
+// Setup hamburger button khusus untuk halaman game DAN admin
 function setupHamburgerButton() {
     const isGamePage = window.location.pathname.includes('game.html');
+    const isAdminPage = window.location.pathname.includes('admin.html');
     const toggleBtn = document.getElementById('sidebar-toggle-btn');
     
-    if (isGamePage && toggleBtn) {
+    if ((isGamePage || isAdminPage) && toggleBtn) {
         // Di mobile (<768px): tampilkan tombol hamburger
         if (window.innerWidth < 768) {
             toggleBtn.style.display = 'flex';
@@ -196,7 +197,7 @@ function setupHamburgerButton() {
             toggleBtn.classList.add('d-none');
         }
     } else if (toggleBtn) {
-        // Sembunyikan tombol di halaman non-game
+        // Sembunyikan tombol di halaman non-game dan non-admin
         toggleBtn.style.display = 'none';
         toggleBtn.classList.add('d-none');
     }

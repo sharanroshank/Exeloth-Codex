@@ -10,52 +10,60 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body class="admin-page">
+<body class="admin-page sidebar-persistent">
     
-    <div id="navbar-placeholder"></div>
-    <script src="assets/js/navbar.js"></script>
-    <script>renderNavbar();</script>
+    <!-- Notification Container -->
+    <div id="notification-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
 
-    <div class="dashboard-wrapper">
-        
-        <nav id="sidebar">
-            <div class="sidebar-header">
-                <div class="sidebar-brand text-uppercase ls-1">Exeloth Admin</div>
-                <div id="dismiss">
-                    <i class="bi bi-x-lg"></i>
-                </div>
-            </div>
+    <!-- SIDEBAR FIREBASE-STYLE -->
+    <nav id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-brand">Exeloth Admin</div>
+            <button id="dismiss" class="btn p-0" aria-label="Close sidebar">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
 
-            <ul class="list-unstyled sidebar-menu mt-3">
+        <div class="sidebar-scrollable">
+            <ul class="sidebar-menu">
                 <li>
-                    <a href="#" class="nav-link-custom active" onclick="switchSection('section-content', this)">
+                    <a href="#" class="active" onclick="switchSection('section-content', this)">
                         <i class="bi bi-pencil-square me-2"></i> Manajemen Konten
                     </a>
                 </li>
-                
                 <li>
-                    <a href="#" class="nav-link-custom" onclick="switchSection('section-admin', this)">
+                    <a href="#" onclick="switchSection('section-admin', this)">
                         <i class="bi bi-shield-lock me-2"></i> Pengaturan Admin
                     </a>
                 </li>
-
                 <li>
-                    <a href="#" class="nav-link-custom" onclick="switchSection('section-profile', this)">
+                    <a href="#" onclick="switchSection('section-profile', this)">
                         <i class="bi bi-person-circle me-2"></i> Profil Saya
                     </a>
                 </li>
             </ul>
+        </div>
 
-            <div class="sidebar-footer">
-                <a href="index.html" class="text-decoration-none text-light d-flex align-items-center gap-2 px-3 py-2">
-                    <i class="bi bi-box-arrow-left"></i> Kembali ke Home
-                </a>
-            </div>
-        </nav>
+        <div class="sidebar-footer">
+            <a href="index.html" class="text-decoration-none text-light d-flex align-items-center gap-2 px-3 py-2">
+                <i class="bi bi-box-arrow-left"></i> Kembali ke Home
+            </a>
+        </div>
+    </nav>
 
-        <div id="content" style="padding: 0;">
-            <div class="container-fluid px-4 pb-5 pt-3" id="admin-panel-section">
+    <!-- Overlay untuk mobile -->
+    <div class="overlay-sidebar"></div>
+
+    <!-- CONTENT AREA -->
+    <div id="content">
+        <!-- Navbar -->
+        <div id="navbar-placeholder"></div>
+
+        <!-- Main Content -->
+        <div class="main-content-wrapper">
+            <div class="container-fluid px-4 py-4" id="admin-panel-section">
                 
+                <!-- Section Content -->
                 <div id="section-content" class="admin-tab-content fade-in active">
                     
                     <div class="card bg-dark mb-4 guide-section border-start border-4 border-info">
@@ -82,6 +90,7 @@
                         </div>
                     </div>
 
+                    <!-- Daftar Game Table -->
                     <div class="card bg-dark mb-4 border-secondary">
                         <div class="card-header border-secondary d-flex justify-content-between align-items-center">
                             <h5 class="mb-0 text-white"><i class="bi bi-list-ul me-2"></i>Daftar Game</h5>
@@ -129,6 +138,7 @@
                         </div>
                     </div>
 
+                    <!-- Form Game -->
                     <div class="card bg-dark mb-4 border-secondary" id="game-form-card">
                         <div class="card-header border-secondary">
                             <h5 class="mb-0 text-white" id="form-title"><i class="bi bi-controller me-2"></i>Tambah / Edit Game</h5>
@@ -208,6 +218,7 @@
                         </div>
                     </div>
 
+                    <!-- Sections & Chapters -->
                     <div class="row g-4">
                         <div class="col-lg-6">
                             <div class="card bg-dark h-100 border-secondary">
@@ -245,6 +256,8 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Section Admin -->
                 <div id="section-admin" class="admin-tab-content fade-in" style="display: none;">
                     <div class="card bg-dark mb-4 border-warning border-start border-4">
                         <div class="card-header bg-transparent">
@@ -275,6 +288,8 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Section Profile -->
                 <div id="section-profile" class="admin-tab-content fade-in" style="display: none;">
                     <div class="card bg-dark mb-4 border-secondary">
                         <div class="card-header border-secondary py-3">
@@ -386,9 +401,16 @@
                 </div>
             </div>
         </div>
-    </div>
-    </div> </div> </div> </div> <div id="notification-container" class="position-fixed top-0 end-0 p-3" style="z-index: 9999;"></div>
 
+        <!-- Footer -->
+        <footer class="bg-darker py-4 border-top border-secondary">
+            <div class="container text-center">
+                <p class="mb-0 text-muted small">© 2024 Exeloth Admin — All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Security Modal -->
     <div class="modal fade" id="securityModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content bg-dark border-secondary text-white">
@@ -450,8 +472,8 @@
         </div>
     </div>
 
+    <!-- Scripts -->
     <script src="assets/js/env-config.js"></script> 
-    
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script>
     (function(){
@@ -471,9 +493,112 @@
     
     <script src="assets/js/firebase-config.js"></script>
     <script src="https://unpkg.com/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Load navbar script dan render -->
+    <script src="assets/js/navbar.js"></script>
+    <script>
+        // Render navbar setelah semua script dimuat
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                if (typeof renderNavbar === 'function') {
+                    renderNavbar();
+                    console.log('✅ Navbar rendered for admin page');
+                }
+            }, 100);
+        });
+    </script>
+    
     <script src="assets/js/auth-system.js"></script>
     <script src="assets/js/admin.js"></script>
     <script src="assets/js/admin-ui.js"></script>
+    
+    <!-- Load game-ui.js untuk sidebar functionality -->
+    <script src="assets/js/game-ui.js"></script>
+
+    <!-- Inisialisasi admin page -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('📄 Admin page initialized with sidebar layout');
+        
+        // Pastikan class sidebar-persistent ada
+        document.body.classList.add('sidebar-persistent');
+        
+        // Setup sidebar untuk admin page
+        setTimeout(() => {
+            // Setup overlay
+            let overlay = document.querySelector('.overlay-sidebar');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.className = 'overlay-sidebar';
+                document.body.appendChild(overlay);
+            }
+            
+            // Setup overlay click
+            overlay.addEventListener('click', function() {
+                if (window.innerWidth < 768 && typeof closeSidebar === 'function') {
+                    closeSidebar();
+                }
+            });
+            
+            // Setup dismiss button
+            const dismissBtn = document.getElementById('dismiss');
+            if (dismissBtn) {
+                dismissBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (window.innerWidth < 768 && typeof closeSidebar === 'function') {
+                        closeSidebar();
+                    }
+                });
+            }
+            
+            // Setup sidebar menu
+            const menuItems = document.querySelectorAll('.sidebar-menu li a');
+            menuItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Update active state
+                    menuItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Tutup sidebar di mobile setelah memilih menu
+                    if (window.innerWidth < 768 && typeof closeSidebar === 'function') {
+                        setTimeout(() => closeSidebar(), 300);
+                    }
+                });
+            });
+            
+            // Set initial sidebar state
+            const isMobile = window.innerWidth < 768;
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) {
+                if (isMobile) {
+                    sidebar.classList.remove('active');
+                } else {
+                    sidebar.classList.add('active');
+                }
+            }
+            
+            console.log('✅ Admin sidebar setup complete');
+            
+        }, 300);
+    });
+    
+    // Toggle sidebar untuk admin page
+    window.toggleAdminSidebar = function() {
+        if (window.innerWidth < 768 && typeof window.toggleSidebar === 'function') {
+            window.toggleSidebar();
+        }
+    };
+    
+    // Close sidebar untuk admin page
+    window.closeAdminSidebar = function() {
+        if (window.innerWidth < 768 && typeof window.closeSidebar === 'function') {
+            window.closeSidebar();
+        }
+    };
+    </script>
 
 </body>
 </html>
