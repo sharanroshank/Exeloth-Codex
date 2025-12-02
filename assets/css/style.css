@@ -1588,6 +1588,9 @@ body:not(.bg-light):not(.bg-white) .text-muted:not(.text-white):not(.text-light)
     opacity: 0;
     transform: translateY(-5px);
     transition: opacity 0.3s ease, transform 0.3s ease !important;
+    /* TAMBAHAN FIX: Default state - tertutup */
+    display: none !important;
+    visibility: hidden !important;
 }
 
 .dropdown-menu-dark.github-dropdown.show {
@@ -1935,19 +1938,33 @@ body.admin-page .navbar .dropdown-menu {
     display: block !important;
 }
 
-/* ==================== DROPDOWN CLICK-ONLY FIX ==================== */
-/* Nonaktifkan hover behavior */
-.nav-item.dropdown:hover .dropdown-menu {
+/* ==================== 54. DROPDOWN CLICK-ONLY FIX (FIXED) ==================== */
+/* Nonaktifkan hover behavior - DIPERBAIKI */
+.nav-item.dropdown:hover .dropdown-menu,
+.dropdown:hover > .dropdown-menu,
+.dropdown-toggle:hover + .dropdown-menu {
     display: none !important;
     visibility: hidden !important;
     opacity: 0 !important;
+    transform: translateY(-10px) !important;
 }
 
-/* Hanya tampilkan saat ada class show */
-.nav-item.dropdown .dropdown-menu.show {
+/* Hanya tampilkan saat ada class show - DIPERBAIKI */
+.nav-item.dropdown .dropdown-menu.show,
+.dropdown-menu.show {
     display: block !important;
     visibility: visible !important;
     opacity: 1 !important;
+    transform: translateY(0) !important;
+}
+
+/* Default state: dropdown TERTUTUP - DIPERBAIKI */
+.nav-item.dropdown .dropdown-menu,
+.dropdown-menu:not(.show) {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: translateY(-10px) !important;
 }
 
 .navbar .dropdown-toggle {
@@ -1975,7 +1992,7 @@ body.admin-page .navbar .dropdown-menu {
     display: none !important;
 }
 
-/* ==================== DROPDOWN SPACING IMPROVEMENT ==================== */
+/* ==================== 55. DROPDOWN SPACING IMPROVEMENT ==================== */
 .github-dropdown {
     margin-top: 8px !important;
 }
@@ -1994,4 +2011,90 @@ body.admin-page .navbar .dropdown-menu {
 .github-header-row {
     padding: 1rem 1.25rem !important;
     min-height: 80px !important;
+}
+
+/* ==================== 56. DROPDOWN RELOAD FIX (NEW) ==================== */
+/* Fix untuk dropdown yang terbuka saat reload */
+.dropdown-menu:not(.show) {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: translateY(-10px) !important;
+    pointer-events: none !important;
+}
+
+/* Force hide dropdown saat page load */
+body.loading .dropdown-menu,
+.dropdown-menu.initial-state {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* Fix untuk Bootstrap show class */
+.show {
+    display: block !important;
+}
+
+.hide {
+    display: none !important;
+}
+
+/* ==================== 57. DROPDOWN ANIMATION FIX ==================== */
+.github-dropdown {
+    transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease !important;
+}
+
+/* ==================== 58. IMPORTANT FIXES FOR RELOAD ISSUE ==================== */
+/* Pastikan dropdown tidak pernah muncul tanpa class show */
+[class*="dropdown-menu"]:not(.show) {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
+/* Force reset saat page load */
+body:not(.dropdown-initialized) .dropdown-menu {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
+/* Fix untuk navbar dropdown yang terbuka saat reload */
+.navbar .dropdown-menu:not(.show) {
+    display: none !important;
+}
+
+/* Hide dropdown by default */
+.dropdown-menu {
+    display: none !important;
+}
+
+/* Show only when has .show class */
+.dropdown-menu.show {
+    display: block !important;
+}
+
+/* ==================== 59. EXTRA SAFETY FIXES ==================== */
+/* Triple protection for dropdown visibility */
+.nav-item.dropdown .dropdown-menu,
+.dropdown .dropdown-menu {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    display: none !important;
+    transform: translateY(-10px) !important;
+}
+
+.nav-item.dropdown .dropdown-menu.show,
+.dropdown .dropdown-menu.show,
+[aria-expanded="true"] + .dropdown-menu {
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: block !important;
+    transform: translateY(0) !important;
+}
+
+/* Important: Hide all dropdowns on page load */
+html:not(.dropdown-ready) .dropdown-menu {
+    display: none !important;
+    visibility: hidden !important;
 }

@@ -25,6 +25,13 @@ function initAuthSystem() {
             if (window.location.pathname.includes('admin')) {
                 window.location.href = 'index.html';
             }
+            
+            // Reset semua dropdown saat logout
+            setTimeout(() => {
+                if (window.resetAllDropdowns) {
+                    window.resetAllDropdowns();
+                }
+            }, 100);
         }
     });
 }
@@ -49,6 +56,13 @@ async function cleanupUnauthorizedUser(user, reason) {
     // 2. Reset UI
     updateNavbar(false);
     resetNavbarLoginState();
+    
+    // Reset dropdowns
+    setTimeout(() => {
+        if (window.resetAllDropdowns) {
+            window.resetAllDropdowns();
+        }
+    }, 100);
 }
 
 // Handle user signed in
@@ -114,6 +128,14 @@ async function handleUserSignedIn(user) {
                 }, 500);
             }
             
+            // 3. Reset dropdowns setelah login berhasil
+            setTimeout(() => {
+                if (window.resetAllDropdowns) {
+                    window.resetAllDropdowns();
+                    console.log('✅ Dropdowns reset after login');
+                }
+            }, 300);
+            
         } else {
             // ❌ BUKAN ADMIN
             await cleanupUnauthorizedUser(user, 'Not in admin list');
@@ -166,6 +188,11 @@ function showGoogleSignIn() {
             // Reset navbar state
             resetNavbarLoginState();
             
+            // Reset dropdowns
+            if (window.resetAllDropdowns) {
+                window.resetAllDropdowns();
+            }
+            
             if (error.code === 'auth/popup-blocked') {
                 showNotification('Popup login diblokir. Silakan allow popup untuk website ini.', 'error');
             } else if (error.code === 'auth/popup-closed-by-user') {
@@ -188,6 +215,8 @@ function resetNavbarLoginState() {
 
 // Update navbar based on login status (untuk semua page)
 function updateNavbar(isLoggedIn) {
+    console.log('🔄 Updating navbar login state:', isLoggedIn);
+    
     const loginNavItem = document.getElementById('login-nav-item');
     const adminNavItem = document.getElementById('admin-nav-item');
     
@@ -195,15 +224,34 @@ function updateNavbar(isLoggedIn) {
         if (isLoggedIn) {
             loginNavItem.classList.add('d-none');
             adminNavItem.classList.remove('d-none');
+            
+            // Re-initialize dropdowns setelah login
+            setTimeout(() => {
+                if (window.setupDropdowns) {
+                    window.setupDropdowns();
+                }
+                if (window.resetAllDropdowns) {
+                    window.resetAllDropdowns();
+                }
+                console.log('✅ Dropdowns re-initialized after login');
+            }, 200);
         } else {
             loginNavItem.classList.remove('d-none');
             adminNavItem.classList.add('d-none');
+            resetNavbarProfile();
+            
+            // Reset dropdowns
+            if (window.resetAllDropdowns) {
+                window.resetAllDropdowns();
+            }
         }
     }
 }
 
 // Sign out function - COMPATIBLE VERSION (tetap sync, tapi handle async update)
 function signOut() {
+    console.log('🚪 Signing out...');
+    
     // Clear session storage
     sessionStorage.removeItem('welcomeShown');
     sessionStorage.removeItem('loginAction');
@@ -224,6 +272,12 @@ function signOut() {
     }
     // ---- AKHIR TAMBAHAN ----
     
+    // Reset dropdowns sebelum sign out
+    if (window.resetAllDropdowns) {
+        window.resetAllDropdowns();
+        console.log('✅ Dropdowns reset before sign out');
+    }
+    
     // LOGOUT PROSES UTAMA (tetap sama persis)
     auth.signOut().then(() => {
         console.log('Signed out successfully');
@@ -237,6 +291,17 @@ function signOut() {
                 window.location.href = 'index.html';
             }, 1000);
         }
+        
+        // Force reset navbar profile
+        setTimeout(() => {
+            if (window.resetNavbarProfile) {
+                const resetNavbarProfile = window.resetNavbarProfile;
+                if (typeof resetNavbarProfile === 'function') {
+                    resetNavbarProfile();
+                }
+            }
+        }, 200);
+        
     }).catch((error) => {
         console.error('Error signing out:', error);
         showNotification('Error signing out: ' + error.message, 'error');
@@ -342,10 +407,85 @@ function getNotificationIcon(type) {
     return icons[type] || 'bi-info-circle-fill';
 }
 
+// Reset navbar profile ke default
+function resetNavbarProfile() {
+    console.log('🔄 Resetting navbar profile...');
+    
+    const navImgBtn = document.getElementById('nav-profile-img-btn');
+    const navImgInside = document.getElementById('nav-profile-img-inside');
+    const navUsername = document.getElementById('nav-gh-username');
+    const navFullname = document.getElementById('nav-gh-fullname');
+    const navStatus = document.getElementById('nav-user-status');
+
+    const defaultPhoto = 'https://ui-avatars.com/api/?name=User&background=6f42c1&color=fff';
+    
+    if (navImgBtn) navImgBtn.src = defaultPhoto;
+    if (navImgInside) navImgInside.src = defaultPhoto;
+    
+    if (navFullname) navFullname.textContent = 'Guest';
+    if (navUsername) navUsername.textContent = 'User';
+    
+    if (navStatus) {
+        navStatus.innerHTML = '<i class="bi bi-circle-fill me-1"></i> Offline';
+        navStatus.className = 'gh-status text-secondary small mt-1';
+    }
+    
+    // Reset dropdowns
+    setTimeout(() => {
+        if (window.resetAllDropdowns) {
+            window.resetAllDropdowns();
+        }
+    }, 100);
+}
+
+// Helper function untuk reset semua dropdown (backward compatibility)
+function resetAuthDropdowns() {
+    console.log('🔄 Resetting auth dropdowns...');
+    
+    // Close semua dropdown menu
+    const dropdownMenus = document.querySelectorAll('.dropdown-menu');
+    dropdownMenus.forEach(menu => {
+        if (menu.classList.contains('show')) {
+            menu.classList.remove('show');
+            menu.style.display = 'none';
+            menu.style.opacity = '0';
+            menu.style.visibility = 'hidden';
+        }
+    });
+    
+    // Reset semua dropdown toggle
+    const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
+    dropdownToggles.forEach(toggle => {
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.classList.remove('active');
+    });
+    
+    // Dispatch event untuk navbar reset
+    document.dispatchEvent(new CustomEvent('auth:dropdowns:reset'));
+}
+
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     console.log('📄 Auth system initializing...');
+    
+    // Reset dropdowns saat load
+    setTimeout(() => {
+        resetAuthDropdowns();
+        
+        // Juga reset menggunakan fungsi dari navbar.js jika ada
+        if (window.resetAllDropdowns) {
+            window.resetAllDropdowns();
+        }
+    }, 100);
+    
     initAuthSystem();
+    
+    // Tambah event listener untuk reset dropdowns
+    document.addEventListener('auth:state:changed', function() {
+        setTimeout(() => {
+            resetAuthDropdowns();
+        }, 50);
+    });
 });
 
 // Export functions for global access
@@ -354,3 +494,10 @@ window.signOut = signOut;
 window.showNotification = showNotification;
 window.closeNotification = closeNotification;
 window.updateNavbar = updateNavbar;
+window.resetNavbarProfile = resetNavbarProfile;
+window.resetAuthDropdowns = resetAuthDropdowns;
+
+// Backward compatibility dengan fungsi yang mungkin dipanggil dari file lain
+if (!window.resetAllDropdowns) {
+    window.resetAllDropdowns = resetAuthDropdowns;
+}
